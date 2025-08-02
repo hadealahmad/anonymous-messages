@@ -1,0 +1,576 @@
+/* Anonymous Messages Block Styles */
+
+.anonymous-messages-block {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Category Filter */
+.anonymous-messages-filter {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.anonymous-messages-filter label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.category-filter {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #ffffff;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.category-filter:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Message Form */
+.anonymous-messages-form {
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.message-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s ease;
+}
+
+.message-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.category-select {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #ffffff;
+    font-size: 0.9rem;
+}
+
+.form-help {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.submit-button {
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+    min-width: 140px;
+}
+
+.submit-button:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.submit-button:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.submit-button .button-spinner {
+    display: none;
+}
+
+.submit-button.loading .button-text {
+    display: none;
+}
+
+.submit-button.loading .button-spinner {
+    display: inline;
+}
+
+/* Rate Limit Timer */
+.rate-limit-timer {
+    padding: 0.75rem;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 6px;
+    color: #92400e;
+    font-size: 0.9rem;
+}
+
+.timer-seconds {
+    font-weight: bold;
+    color: #b45309;
+}
+
+/* reCAPTCHA */
+.recaptcha-container {
+    margin: 0.5rem 0;
+    text-align: center;
+    min-height: 20px; /* Reserve space for badge */
+}
+
+/* Style the reCAPTCHA badge when positioned in bottom left */
+.grecaptcha-badge {
+    /* Let reCAPTCHA handle positioning with data-badge parameter */
+    /* Badge will appear in bottom left instead of bottom right */
+}
+
+/* Form Messages */
+.form-messages {
+    margin-top: 1rem;
+}
+
+.success-message {
+    padding: 0.75rem;
+    background: #d1fae5;
+    border: 1px solid #10b981;
+    border-radius: 6px;
+    color: #065f46;
+    font-weight: 500;
+}
+
+.error-message {
+    padding: 0.75rem;
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+    border-radius: 6px;
+    color: #991b1b;
+    font-weight: 500;
+}
+
+/* Questions Section */
+.anonymous-messages-questions {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e5e7eb;
+}
+
+.questions-title {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Search and Filter Section */
+.questions-search-filter {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.search-group,
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.search-group label,
+.filter-group label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.questions-search {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.questions-search:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Questions Container */
+.questions-container {
+    margin-top: 2rem;
+}
+
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.question-item {
+    padding: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.question-item:hover {
+    border-color: #3b82f6;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.12);
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.25rem 1.5rem 1rem;
+    background: #f9fafb;
+    gap: 1rem;
+}
+
+.question-header-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.question-header .question-received-date {
+    font-weight: 600;
+    color: #374151;
+    font-size: 1.05rem;
+    letter-spacing: 0.025em;
+}
+
+.question-category {
+    padding: 0.25rem 0.75rem;
+    background: #3b82f6;
+    color: #ffffff;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.question-section {
+    padding: 1.5rem;
+}
+
+.question-text-wrapper {
+    margin-bottom: 0;
+}
+
+.question-text {
+    margin: 0 0 1rem 0;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #374151;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+
+
+.question-response {
+    padding: 1.5rem;
+    background: #f9fafb;
+    position: relative;
+}
+
+.question-response::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+}
+
+.response-label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #3b82f6;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+}
+
+.response-content-wrapper {
+    margin-bottom: 0;
+}
+
+.response-content {
+    margin: 0 0 1rem 0;
+    color: #374151;
+    line-height: 1.7;
+    font-size: 1.05rem;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+.response-date {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.question-answered-date {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+}
+
+.response-post-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.response-post-link:hover {
+    text-decoration: underline;
+}
+
+/* Questions Loading */
+.questions-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Load More Button */
+.questions-pagination {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.load-more-button {
+    padding: 0.75rem 1.5rem;
+    background: #ffffff;
+    color: #3b82f6;
+    border: 2px solid #3b82f6;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.load-more-button:hover:not(:disabled) {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+.load-more-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* No Questions Message */
+.no-questions-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+}
+
+.no-questions-message p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+/* Featured Questions */
+.question-item.featured {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.question-item.featured::before {
+    content: "⭐";
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: #f59e0b;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+}
+
+/* Screen Reader Only */
+.screen-reader-text {
+    position: absolute !important;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .anonymous-messages-block {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    .question-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .category-filter,
+    .category-select {
+        max-width: 100%;
+    }
+    
+    .form-actions {
+        align-items: stretch;
+    }
+    
+    .submit-button {
+        width: 100%;
+    }
+    
+    /* Mobile adjustments for search and filter */
+    .questions-search-filter {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .questions-list {
+        gap: 1.5rem;
+    }
+    
+    .question-item {
+        padding: 1rem;
+    }
+}
+
+/* Twitter Share Button */
+.twitter-share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    color: #1d9bf0;
+    background: #ffffff;
+    border: 1px solid #1d9bf0;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.twitter-share-btn:hover {
+    background: #1d9bf0;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.twitter-share-btn:focus {
+    outline: 2px solid #1d9bf0;
+    outline-offset: 2px;
+}
+
+.twitter-share-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.twitter-share-text {
+    font-weight: 500;
+}
+
+/* Question header layout with share button */
+.question-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.question-header .question-sender {
+    font-weight: 600;
+    color: #374151;
+}
+
+.question-header .question-category {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+/* Mobile responsive for Twitter share */
+@media (max-width: 640px) {
+    .question-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .twitter-share-btn {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+}

@@ -1,0 +1,597 @@
+/* Admin Styles for Anonymous Messages */
+
+/* General Admin Styles */
+.anonymous-messages-admin {
+    max-width: 1200px;
+}
+
+/* Message Management */
+.message-row.featured-message {
+    background-color: #fffbeb;
+    border-left: 4px solid #f59e0b;
+}
+
+.featured-badge {
+    display: inline-block;
+    background: #f59e0b;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.message-content {
+    max-width: 400px;
+}
+
+.toggle-full-message {
+    color: #0073aa;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: inline-block;
+}
+
+.toggle-full-message:hover {
+    text-decoration: underline;
+}
+
+.full-message {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #0073aa;
+}
+
+.status-select {
+    min-width: 100px;
+}
+
+/* Response Form Styles */
+.response-row {
+    background: #f8f9fa;
+}
+
+.response-form {
+    padding: 20px;
+    border: 1px solid #e1e5e9;
+    border-radius: 6px;
+    background: #ffffff;
+    margin: 10px 0;
+}
+
+/* Answer Preview Styles */
+.answer-preview {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-left: 3px solid #28a745;
+    border-radius: 0 4px 4px 0;
+}
+
+.answer-preview strong {
+    color: #28a745;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.short-answer {
+    margin-top: 5px;
+    color: #495057;
+    line-height: 1.4;
+}
+
+.post-answer {
+    margin-top: 5px;
+}
+
+.post-answer a {
+    color: #0073aa;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.post-answer a:hover {
+    text-decoration: underline;
+}
+
+.toggle-full-answer {
+    color: #0073aa;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: inline-block;
+}
+
+.toggle-full-answer:hover {
+    text-decoration: underline;
+}
+
+.full-answer {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #ffffff;
+    border-radius: 4px;
+    border-left: 3px solid #0073aa;
+}
+
+/* Edit Answer Form Styles */
+.edit-answer-row {
+    background: #fff3cd;
+}
+
+.edit-answer-form {
+    padding: 20px;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    background: #ffffff;
+    margin: 10px 0;
+}
+
+.edit-answer-form h4 {
+    margin: 0 0 15px 0;
+    color: #856404;
+    border-bottom: 1px solid #ffeaa7;
+    padding-bottom: 10px;
+}
+
+.edit-short-response-section,
+.edit-post-response-section {
+    margin-bottom: 15px;
+}
+
+.edit-response-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.edit-response-messages {
+    margin-top: 10px;
+}
+
+.response-form h4 {
+    margin: 0 0 15px 0;
+    color: #1d2327;
+    border-bottom: 1px solid #e1e5e9;
+    padding-bottom: 10px;
+}
+
+.response-type-selection {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 20px;
+}
+
+.response-type-selection label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+}
+
+.short-response-section,
+.post-response-section {
+    margin-bottom: 15px;
+}
+
+.short-response-section label,
+.post-response-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.short-response-section textarea {
+    width: 100%;
+    max-width: 600px;
+}
+
+.post-response-section select {
+    width: 100%;
+    max-width: 400px;
+}
+
+.response-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.response-messages {
+    margin-top: 15px;
+}
+
+.response-messages .notice {
+    margin: 5px 0;
+    padding: 8px 12px;
+}
+
+/* Status Filter Tabs */
+.nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+/* Search and Filter Styles */
+.tablenav.top {
+    margin-bottom: 20px;
+}
+
+.tablenav.top form {
+    margin-bottom: 10px;
+}
+
+.tablenav.top .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+#search-input {
+    min-width: 200px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#search-input:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 2px rgba(0, 115, 170, 0.3);
+    outline: none;
+}
+
+.search-results-info {
+    background: #f0f6fc;
+    border: 1px solid #c3dbf0;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-top: 10px;
+}
+
+.search-results-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #1565c0;
+}
+
+/* Export Actions */
+.export-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-actions span {
+    font-weight: 500;
+    color: #555;
+    font-size: 14px;
+}
+
+.tablenav.top form {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.nav-tab {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 5px 0 0;
+    background: #f1f1f1;
+    border: 1px solid #ccd0d4;
+    border-bottom: none;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    border-radius: 4px 4px 0 0;
+}
+
+.nav-tab:hover {
+    background: #e8e8e8;
+    color: #444;
+}
+
+.nav-tab-active {
+    background: #ffffff;
+    color: #000;
+    border-bottom: 1px solid #ffffff;
+    margin-bottom: -1px;
+}
+
+/* Category Management */
+.category-management {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.add-category-section {
+    background: #ffffff;
+    border: 1px solid #ccd0d4;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.add-category-section h2 {
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.category-form {
+    max-width: 600px;
+}
+
+.category-form .form-group {
+    margin-bottom: 15px;
+}
+
+.category-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.category-form input[type="text"],
+.category-form textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.category-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.category-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Settings Page */
+.settings-section {
+    background: #ffffff;
+    border: 1px solid #ccd0d4;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.settings-section h2 {
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e5e9;
+    color: #1d2327;
+}
+
+.form-table th {
+    width: 200px;
+    vertical-align: top;
+    padding-top: 15px;
+}
+
+.form-table td {
+    padding-top: 10px;
+}
+
+.form-table input[type="text"],
+.form-table input[type="number"],
+.form-table textarea,
+.form-table select {
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-table .regular-text {
+    width: 25em;
+}
+
+.form-table .description {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Plugin Info Table */
+.plugin-info-table {
+    margin-top: 20px;
+}
+
+.plugin-info-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.plugin-info-table td:first-child {
+    font-weight: 600;
+    width: 200px;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+}
+
+.status-indicator.status-good {
+    color: #10b981;
+}
+
+.status-indicator.status-bad {
+    color: #ef4444;
+}
+
+/* Pagination */
+.tablenav-pages {
+    float: right;
+    margin: 0;
+}
+
+.tablenav-pages .page-numbers {
+    display: inline-block;
+    padding: 5px 8px;
+    margin: 0 2px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    background: #f7f7f7;
+    color: #555;
+}
+
+.tablenav-pages .page-numbers:hover {
+    background: #e6e6e6;
+}
+
+.tablenav-pages .page-numbers.current {
+    background: #0073aa;
+    color: #ffffff;
+    border-color: #0073aa;
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 8px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Notifications */
+.admin-notification {
+    position: fixed;
+    top: 32px;
+    right: 20px;
+    max-width: 400px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.admin-notification.notice-success {
+    border-left: 4px solid #10b981;
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.admin-notification.notice-error {
+    border-left: 4px solid #ef4444;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .category-management {
+        flex-direction: column;
+    }
+    
+    .response-type-selection {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .response-actions {
+        flex-direction: column;
+    }
+    
+    .form-table th,
+    .form-table td {
+        display: block;
+        width: 100%;
+        padding: 10px 0;
+    }
+    
+    .form-table th {
+        border-bottom: none;
+        padding-bottom: 5px;
+    }
+    
+    .nav-tab-wrapper {
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .category-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+
+/* Dark Mode Support - Removed problematic background styles */
+
+/* Twitter Share Button for Admin */
+.twitter-share-admin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #1d9bf0;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.twitter-share-admin-btn:hover {
+    background: #f0f9ff;
+    color: #1d9bf0;
+    text-decoration: none;
+}
+
+.twitter-share-admin-btn:focus {
+    outline: 2px solid #1d9bf0;
+    outline-offset: 2px;
+}
+
+.twitter-share-admin-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 0.25rem;
+}
+
+/* Row actions styling adjustment */
+.row-actions .share-twitter {
+    display: inline;
+}
+
+.row-actions .share-twitter .twitter-share-admin-btn {
+    padding: 0.125rem 0.25rem;
+    margin: 0;
+}
+
+/* Dark mode for Twitter buttons removed */

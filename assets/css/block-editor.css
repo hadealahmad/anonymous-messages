@@ -1,0 +1,219 @@
+/* Block Editor Styles */
+
+.anonymous-messages-editor {
+    padding: 1rem;
+}
+
+.anonymous-messages-block-preview {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    margin: 1rem 0;
+}
+
+.anonymous-messages-preview-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.anonymous-messages-preview-header h3 {
+    margin: 0 0 0.5rem 0;
+    color: #495057;
+    font-size: 1.2rem;
+}
+
+.anonymous-messages-preview-header p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* Category Filter Preview */
+.category-filter-preview {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.category-filter-preview label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.category-filter-preview select {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+/* Message Form Preview */
+.message-form-preview {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.message-form-preview textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #f8f9fa;
+    color: #6c757d;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: none;
+    margin-bottom: 1rem;
+}
+
+.form-actions-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.recaptcha-info {
+    flex: 1;
+}
+
+.recaptcha-info small {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.submit-button-preview {
+    padding: 0.5rem 1rem;
+    background: #007cba;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Answered Questions Preview */
+.answered-questions-preview {
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.answered-questions-preview h4 {
+    margin: 0 0 1rem 0;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.question-item-preview {
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.question-header strong {
+    color: #495057;
+}
+
+.question-category {
+    padding: 0.2rem 0.5rem;
+    background: #e2e3e5;
+    color: #495057;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.question-text {
+    margin: 0 0 1rem 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.question-response {
+    padding: 0.75rem;
+    background: #ffffff;
+    border-left: 3px solid #007cba;
+    border-radius: 0 4px 4px 0;
+}
+
+.question-response strong {
+    color: #007cba;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.question-response p {
+    margin: 0.5rem 0 0 0;
+    color: #495057;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.questions-info {
+    margin: 1rem 0 0 0;
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Inspector Controls Styling */
+.components-panel__body .components-toggle-control .components-base-control__field {
+    margin-bottom: 1rem;
+}
+
+.components-panel__body .components-range-control {
+    margin-bottom: 1.5rem;
+}
+
+.components-panel__body .components-text-control {
+    margin-bottom: 1rem;
+}
+
+/* Responsive preview */
+@media (max-width: 600px) {
+    .form-actions-preview {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .submit-button-preview {
+        width: 100%;
+    }
+    
+    .question-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,733 @@
+# Arabic Translation for Anonymous Messages WordPress Plugin
+# Copyright (C) 2024 Anonymous Messages
+# This file is distributed under the same license as the Anonymous Messages plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Anonymous Messages 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Anonymous Messages Team\n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"X-Generator: Poedit 3.0\n"
+
+#: anonymous-messages.php
+msgid "A WordPress plugin that allows site visitors to send anonymous messages through a Gutenberg block with spam protection and admin management."
+msgstr "إضافة ووردبريس تسمح لزوار الموقع بإرسال رسائل مجهولة من خلال كتلة جوتنبرغ مع حماية من البريد المزعج وإدارة شاملة."
+
+#: includes/class-admin.php
+msgid "Anonymous Messages"
+msgstr "الرسائل المجهولة"
+
+#: includes/class-admin.php
+msgid "Messages"
+msgstr "الرسائل"
+
+#: includes/class-admin.php
+msgid "Categories"
+msgstr "التصنيفات"
+
+#: includes/class-admin.php
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: includes/class-admin.php
+msgid "Anonymous Messages Settings"
+msgstr "إعدادات الرسائل المجهولة"
+
+#: includes/class-admin.php
+msgid "Google reCAPTCHA Settings"
+msgstr "إعدادات جوجل reCAPTCHA"
+
+#: includes/class-admin.php
+msgid "Site Key"
+msgstr "مفتاح الموقع"
+
+#: templates/admin-messages.php
+msgid "Share on Twitter"
+msgstr "مشاركة على تويتر"
+
+#: templates/admin-messages.php
+msgid "Share"
+msgstr "مشاركة"
+
+#: assets/js/block-frontend.js
+msgid "q:"
+msgstr "س:"
+
+#: assets/js/block-frontend.js
+msgctxt "Question prefix for Twitter sharing"
+msgid "q:"
+msgstr "س:"
+
+#: assets/js/block-frontend.js
+msgctxt "Answer prefix for Twitter sharing"
+msgid "a:"
+msgstr "ج:"
+
+#: templates/admin-settings.php
+msgid "Twitter Share Settings"
+msgstr "إعدادات مشاركة تويتر"
+
+#: templates/admin-settings.php
+msgid "Customize the Twitter sharing functionality for your questions and answers."
+msgstr "تخصيص وظائف مشاركة تويتر للأسئلة والأجوبة."
+
+#: templates/admin-settings.php
+msgid "Default Hashtag"
+msgstr "الوسم الافتراضي"
+
+#: templates/admin-settings.php
+msgid "The hashtag to include with shared tweets (without the # symbol)"
+msgstr "الوسم المراد تضمينه مع التغريدات المشتركة (بدون رمز #)"
+
+#: includes/class-admin.php
+msgid "Secret Key"
+msgstr "المفتاح السري"
+
+#: includes/class-admin.php
+msgid "Rate Limiting"
+msgstr "تحديد المعدل"
+
+#: includes/class-admin.php
+msgid "Seconds between messages"
+msgstr "ثواني بين الرسائل"
+
+#: includes/class-admin.php
+msgid "Messages per page"
+msgstr "رسائل في الصفحة"
+
+#: includes/class-admin.php
+msgid "Save Settings"
+msgstr "حفظ الإعدادات"
+
+#: includes/class-admin.php
+msgid "Settings saved successfully!"
+msgstr "تم حفظ الإعدادات بنجاح!"
+
+#: includes/class-admin.php
+msgid "Message responded successfully!"
+msgstr "تم الرد على الرسالة بنجاح!"
+
+#: includes/class-admin.php
+msgid "Message status updated successfully!"
+msgstr "تم تحديث حالة الرسالة بنجاح!"
+
+#: includes/class-admin.php
+msgid "Message deleted successfully!"
+msgstr "تم حذف الرسالة بنجاح!"
+
+#: includes/class-admin.php
+msgid "Category created successfully!"
+msgstr "تم إنشاء التصنيف بنجاح!"
+
+#: includes/class-admin.php
+msgid "Category deleted successfully!"
+msgstr "تم حذف التصنيف بنجاح!"
+
+#: includes/class-admin.php
+msgid "Response updated successfully!"
+msgstr "تم تحديث الرد بنجاح!"
+
+#: includes/class-admin.php
+msgid "Message not found."
+msgstr "لم يتم العثور على الرسالة."
+
+#: includes/class-admin.php
+msgid "Invalid response data."
+msgstr "بيانات الرد غير صالحة."
+
+#: includes/class-admin.php
+msgid "Failed to update response."
+msgstr "فشل في تحديث الرد."
+
+#: includes/class-ajax-handler.php
+msgid "Security check failed."
+msgstr "فشل فحص الأمان."
+
+#: includes/class-ajax-handler.php
+msgid "Message is required."
+msgstr "الرسالة مطلوبة."
+
+#: includes/class-ajax-handler.php
+msgid "Message is too long. Maximum 1000 characters allowed."
+msgstr "الرسالة طويلة جداً. الحد الأقصى 1000 حرف."
+
+#: includes/class-ajax-handler.php
+msgid "reCAPTCHA verification failed."
+msgstr "فشل التحقق من reCAPTCHA."
+
+#: includes/class-ajax-handler.php
+msgid "Rate limit exceeded. Please wait before sending another message."
+msgstr "تم تجاوز حد المعدل. يرجى الانتظار قبل إرسال رسالة أخرى."
+
+#: includes/class-ajax-handler.php
+msgid "Failed to save message. Please try again."
+msgstr "فشل في حفظ الرسالة. يرجى المحاولة مرة أخرى."
+
+#: includes/class-ajax-handler.php
+msgid "Message submitted successfully!"
+msgstr "تم إرسال الرسالة بنجاح!"
+
+#: includes/class-ajax-handler.php
+msgid "Invalid category."
+msgstr "تصنيف غير صالح."
+
+#: assets/js/block-frontend.js
+msgid "Submitting..."
+msgstr "جاري الإرسال..."
+
+#: assets/js/block-frontend.js
+msgid "Your message has been submitted successfully!"
+msgstr "تم إرسال رسالتك بنجاح!"
+
+#: assets/js/block-frontend.js
+msgid "There was an error submitting your message. Please try again."
+msgstr "حدث خطأ في إرسال رسالتك. يرجى المحاولة مرة أخرى."
+
+#: assets/js/block-frontend.js
+msgid "Please wait %d seconds before sending another message."
+msgstr "يرجى الانتظار %d ثانية قبل إرسال رسالة أخرى."
+
+#: assets/js/block-frontend.js
+msgid "Failed to load questions. Please try again."
+msgstr "فشل في تحميل الأسئلة. يرجى المحاولة مرة أخرى."
+
+#: assets/js/block-frontend.js
+msgid "Loading more..."
+msgstr "تحميل المزيد..."
+
+#: assets/js/block-frontend.js
+msgid "Load More Questions"
+msgstr "تحميل المزيد من الأسئلة"
+
+#: assets/js/block-frontend.js
+msgid "No more questions available."
+msgstr "لا توجد أسئلة أخرى متاحة."
+
+#: templates/block-template.php
+msgid "Ask your anonymous question here..."
+msgstr "اسأل سؤالك المجهول هنا..."
+
+#: templates/block-template.php
+msgid "Your Message"
+msgstr "رسالتك"
+
+#: templates/block-template.php
+msgid "Category (Optional)"
+msgstr "التصنيف (اختياري)"
+
+#: templates/block-template.php
+msgid "All Categories"
+msgstr "جميع التصنيفات"
+
+#: templates/block-template.php
+msgid "Send Message"
+msgstr "إرسال الرسالة"
+
+#: templates/block-template.php
+msgid "Filter Questions"
+msgstr "تصفية الأسئلة"
+
+#: templates/block-template.php
+msgid "All Questions"
+msgstr "جميع الأسئلة"
+
+#: templates/block-template.php
+msgid "Previously Answered Questions"
+msgstr "الأسئلة المجابة"
+
+#: templates/block-template.php
+msgid "No questions have been answered yet."
+msgstr "لم يتم الإجابة على أي أسئلة بعد."
+
+#: templates/block-template.php
+msgid "Loading questions..."
+msgstr "تحميل الأسئلة..."
+
+#: templates/admin-messages.php
+msgid "Anonymous Messages - Manage Messages"
+msgstr "الرسائل المجهولة - إدارة الرسائل"
+
+#: templates/admin-messages.php
+msgid "Search Messages"
+msgstr "البحث في الرسائل"
+
+#: templates/admin-messages.php
+msgid "Search messages, sender names, or responses..."
+msgstr "البحث في الرسائل أو أسماء المرسلين أو الردود..."
+
+#: templates/admin-messages.php
+msgid "Clear Filters"
+msgstr "مسح المرشحات"
+
+#: templates/admin-messages.php
+msgid "Export CSV"
+msgstr "تصدير CSV"
+
+#: templates/admin-messages.php
+msgid "Export JSON"
+msgstr "تصدير JSON"
+
+#: templates/admin-messages.php
+msgid "Showing %d-%d of %d messages"
+msgstr "عرض %d-%d من %d رسالة"
+
+#: templates/admin-messages.php
+msgid "Filtered results: %d messages found"
+msgstr "النتائج المصفاة: تم العثور على %d رسالة"
+
+#: templates/admin-messages.php
+msgid "Pending Messages"
+msgstr "الرسائل المعلقة"
+
+#: templates/admin-messages.php
+msgid "Answered Messages"
+msgstr "الرسائل المجاب عليها"
+
+#: templates/admin-messages.php
+msgid "ID"
+msgstr "المعرف"
+
+#: templates/admin-messages.php
+msgid "Sender"
+msgstr "المرسل"
+
+#: templates/admin-messages.php
+msgid "Category"
+msgstr "التصنيف"
+
+#: templates/admin-messages.php
+msgid "Message"
+msgstr "الرسالة"
+
+#: templates/admin-messages.php
+msgid "Date"
+msgstr "التاريخ"
+
+#: templates/admin-messages.php
+msgid "Actions"
+msgstr "الإجراءات"
+
+#: templates/admin-messages.php
+msgid "Answer"
+msgstr "الإجابة"
+
+#: templates/admin-messages.php
+msgid "No pending messages found."
+msgstr "لم يتم العثور على رسائل معلقة."
+
+#: templates/admin-messages.php
+msgid "Short Answer"
+msgstr "إجابة قصيرة"
+
+#: templates/admin-messages.php
+msgid "Post Answer"
+msgstr "إجابة في منشور"
+
+#: templates/admin-messages.php
+#: includes/class-gutenberg-block.php:207
+msgid "Answer:"
+msgstr "الإجابة:"
+
+#: includes/class-admin.php:134 includes/class-gutenberg-block.php:224
+#: includes/class-gutenberg-block.php:507
+msgid "Asked"
+msgstr "سؤل في"
+
+#: includes/class-admin.php:135 includes/class-gutenberg-block.php:225
+#: includes/class-gutenberg-block.php:508
+msgid "Answered"
+msgstr "أجيب في"
+
+#: templates/admin-messages.php
+msgid "Edit Answer"
+msgstr "تعديل الإجابة"
+
+#: templates/admin-messages.php
+msgid "View Full Answer"
+msgstr "عرض الإجابة كاملة"
+
+#: templates/admin-messages.php
+msgid "Hide Full Answer"
+msgstr "إخفاء الإجابة كاملة"
+
+#: templates/admin-messages.php
+msgid "Mark as Featured"
+msgstr "تعيين كمميزة"
+
+#: templates/admin-messages.php
+msgid "Remove Featured"
+msgstr "إزالة المميزة"
+
+#: templates/admin-messages.php
+msgid "Delete"
+msgstr "حذف"
+
+#: templates/admin-messages.php
+msgid "No answered messages found."
+msgstr "لم يتم العثور على رسائل مجاب عليها."
+
+#: templates/admin-messages.php
+msgid "Response Type:"
+msgstr "نوع الرد:"
+
+#: templates/admin-messages.php
+msgid "Short answer (displayed directly)"
+msgstr "إجابة قصيرة (تظهر مباشرة)"
+
+#: templates/admin-messages.php
+msgid "Post answer (link to full post)"
+msgstr "إجابة في منشور (رابط للمنشور كاملاً)"
+
+#: templates/admin-messages.php
+msgid "Your short answer:"
+msgstr "إجابتك القصيرة:"
+
+#: templates/admin-messages.php
+msgid "Select or create a post:"
+msgstr "اختر أو أنشئ منشوراً:"
+
+#: templates/admin-messages.php
+msgid "Select a post..."
+msgstr "اختر منشوراً..."
+
+#: templates/admin-messages.php
+msgid "Submit Answer"
+msgstr "إرسال الإجابة"
+
+#: templates/admin-messages.php
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: templates/admin-messages.php
+msgid "Update Answer"
+msgstr "تحديث الإجابة"
+
+#: templates/admin-categories.php
+msgid "Anonymous Messages - Manage Categories"
+msgstr "الرسائل المجهولة - إدارة التصنيفات"
+
+#: templates/admin-categories.php
+msgid "Add New Category"
+msgstr "إضافة تصنيف جديد"
+
+#: templates/admin-categories.php
+msgid "Category Name"
+msgstr "اسم التصنيف"
+
+#: templates/admin-categories.php
+msgid "Category Description"
+msgstr "وصف التصنيف"
+
+#: templates/admin-categories.php
+msgid "Add Category"
+msgstr "إضافة التصنيف"
+
+#: templates/admin-categories.php
+msgid "Existing Categories"
+msgstr "التصنيفات الموجودة"
+
+#: templates/admin-categories.php
+msgid "Name"
+msgstr "الاسم"
+
+#: templates/admin-categories.php
+msgid "Description"
+msgstr "الوصف"
+
+#: templates/admin-categories.php
+msgid "Messages Count"
+msgstr "عدد الرسائل"
+
+#: templates/admin-categories.php
+msgid "No categories found."
+msgstr "لم يتم العثور على تصنيفات."
+
+#: templates/admin-settings.php
+msgid "Anonymous Messages - Settings"
+msgstr "الرسائل المجهولة - الإعدادات"
+
+#: templates/admin-settings.php
+msgid "Google reCAPTCHA v3 Settings"
+msgstr "إعدادات جوجل reCAPTCHA v3"
+
+#: templates/admin-settings.php
+msgid "Get your reCAPTCHA keys from"
+msgstr "احصل على مفاتيح reCAPTCHA من"
+
+#: templates/admin-settings.php
+msgid "Google reCAPTCHA"
+msgstr "جوجل reCAPTCHA"
+
+#: templates/admin-settings.php
+msgid "Enter your reCAPTCHA v3 site key"
+msgstr "أدخل مفتاح الموقع لـ reCAPTCHA v3"
+
+#: templates/admin-settings.php
+msgid "Enter your reCAPTCHA v3 secret key"
+msgstr "أدخل المفتاح السري لـ reCAPTCHA v3"
+
+#: templates/admin-settings.php
+msgid "Rate Limiting Settings"
+msgstr "إعدادات تحديد المعدل"
+
+#: templates/admin-settings.php
+msgid "Number of seconds users must wait between sending messages"
+msgstr "عدد الثواني التي يجب على المستخدمين انتظارها بين إرسال الرسائل"
+
+#: templates/admin-settings.php
+msgid "Display Settings"
+msgstr "إعدادات العرض"
+
+#: templates/admin-settings.php
+msgid "Number of messages to display per page in the frontend"
+msgstr "عدد الرسائل التي تظهر في الصفحة في الواجهة الأمامية"
+
+#: assets/js/admin.js
+msgid "Are you sure you want to delete this message?"
+msgstr "هل أنت متأكد من حذف هذه الرسالة؟"
+
+#: assets/js/admin.js
+msgid "Are you sure you want to delete this category?"
+msgstr "هل أنت متأكد من حذف هذا التصنيف؟"
+
+#: assets/js/admin.js
+msgid "Please enter a category name."
+msgstr "يرجى إدخال اسم التصنيف."
+
+#: assets/js/admin.js
+msgid "Please select a response type."
+msgstr "يرجى اختيار نوع الرد."
+
+#: assets/js/admin.js
+msgid "Please enter a short answer."
+msgstr "يرجى إدخال إجابة قصيرة."
+
+#: assets/js/admin.js
+msgid "Please select a post for the answer."
+msgstr "يرجى اختيار منشور للإجابة."
+
+#: includes/class-admin.php
+msgid "Anonymous Answers"
+msgstr "الإجابات المجهولة"
+
+#: includes/class-admin.php
+msgid "Anonymous Answer"
+msgstr "إجابة مجهولة"
+
+#: includes/class-admin.php
+msgid "All %s"
+msgstr "جميع %s"
+
+#: includes/class-admin.php
+msgid "%s Archives"
+msgstr "أرشيف %s"
+
+#: includes/class-admin.php
+msgid "%s Attributes"
+msgstr "خصائص %s"
+
+#: includes/class-admin.php
+msgid "Insert into %s"
+msgstr "إدراج في %s"
+
+#: includes/class-admin.php
+msgid "Uploaded to this %s"
+msgstr "رُفع إلى هذا %s"
+
+#: templates/admin-settings.php
+msgid "Custom Post Type Details"
+msgstr "تفاصيل نوع المنشور المخصص"
+
+#: templates/admin-settings.php
+msgid "Post Type:"
+msgstr "نوع المنشور:"
+
+#: templates/admin-settings.php
+msgid "Display Name:"
+msgstr "اسم العرض:"
+
+#: templates/admin-settings.php
+msgid "A custom post type will be automatically created for anonymous message responses."
+msgstr "سيتم إنشاء نوع منشور مخصص تلقائياً لردود الرسائل المجهولة."
+
+#: includes/class-admin.php:691
+msgid "Post type settings updated! The changes are now active."
+msgstr "تم تحديث إعدادات نوع المنشور! التغييرات نشطة الآن."
+
+#: templates/block-template.php:55
+msgid "Your message will be sent anonymously. No personal information is collected."
+msgstr "سيتم إرسال رسالتك بشكل مجهول. لن يتم جمع أي معلومات شخصية."
+
+#: templates/block-template.php:63
+msgid "Category (optional):"
+msgstr "الفئة (اختيارية):"
+
+#: templates/block-template.php:66
+msgid "Select a category..."
+msgstr "اختر فئة..."
+
+#: templates/block-template.php:127
+msgid "Search questions and answers:"
+msgstr "البحث في الأسئلة والأجوبة:"
+
+#: templates/block-template.php:132
+msgid "Type to search..."
+msgstr "اكتب للبحث..."
+
+#: templates/block-template.php:140
+msgid "Filter by Category:"
+msgstr "تصفية حسب الفئة:"
+
+#: templates/block-template.php:174
+msgid "No answered questions yet. Be the first to ask!"
+msgstr "لا توجد أسئلة مجابة بعد. كن أول من يسأل!"
+
+#: assets/js/block-frontend.js
+msgid "Please wait %s seconds before sending another message."
+msgstr "يرجى الانتظار %s ثانية قبل إرسال رسالة أخرى."
+
+#: assets/js/block-frontend.js
+msgid "Thank you! Your message has been submitted successfully."
+msgstr "شكراً لك! تم إرسال رسالتك بنجاح."
+
+msgid "No messages found to export. Please adjust your filters or check if there are any messages available."
+msgstr "لم يتم العثور على رسائل للتصدير. يرجى تعديل المرشحات أو التحقق من وجود رسائل متاحة."
+
+msgid "Export failed. Please try again or contact support if the problem persists."
+msgstr "فشل التصدير. يرجى المحاولة مرة أخرى أو الاتصال بالدعم إذا استمرت المشكلة."
+
+msgid "You do not have permission to export messages."
+msgstr "ليس لديك إذن لتصدير الرسائل."
+
+msgid "Security check failed. Please try again."
+msgstr "فشل فحص الأمان. يرجى المحاولة مرة أخرى."
+
+msgid "Allow users to categorize their messages"
+msgstr "السماح للمستخدمين بتصنيف رسائلهم"
+
+msgid "Allow marking questions as featured"
+msgstr "السماح بوضع علامة على الأسئلة كمميزة"
+
+msgid "The site key for reCAPTCHA v3"
+msgstr "مفتاح الموقع لـ reCAPTCHA v3"
+
+msgid "The secret key for reCAPTCHA v3 (keep this private)"
+msgstr "المفتاح السري لـ reCAPTCHA v3 (احتفظ بهذا سريًا)"
+
+msgid "How long users must wait between message submissions (minimum 30 seconds)"
+msgstr "كم من الوقت يجب على المستخدمين الانتظار بين إرسال الرسائل (30 ثانية كحد أدنى)"
+
+msgid "Number of answered questions to show per page on frontend"
+msgstr "عدد الأسئلة المجابة التي تظهر في كل صفحة في الواجهة الأمامية"
+
+msgid "Use Existing Post Type"
+msgstr "استخدام نوع المنشور الحالي"
+
+msgid "Create Custom Post Type"
+msgstr "إنشاء نوع منشور مخصص"
+
+msgid "Disable Post Answers"
+msgstr "تعطيل إجابات المنشورات"
+
+msgid "Choose how post answers should be handled"
+msgstr "اختر كيفية التعامل مع إجابات المنشورات"
+
+msgid "Select which post type to use for post answers"
+msgstr "اختر نوع المنشور المراد استخدامه لإجابات المنشورات"
+
+msgid "Automatically approve messages (not recommended)"
+msgstr "الموافقة التلقائية على الرسائل (غير مُستحسن)"
+
+msgid "When enabled, messages will be automatically marked as answered without admin review"
+msgstr "عند التمكين، سيتم وضع علامة على الرسائل كمجابة تلقائيًا دون مراجعة المشرف"
+
+msgid "Active"
+msgstr "نشط"
+
+msgid "Not Available"
+msgstr "غير متوفر"
+
+msgid "All tables exist"
+msgstr "جميع الجداول موجودة"
+
+msgid "Some tables missing"
+msgstr "بعض الجداول مفقودة"
+
+msgid "Plugin Version:"
+msgstr "إصدار الإضافة:"
+
+msgid "WordPress Version:"
+msgstr "إصدار ووردبريس:"
+
+msgid "PHP Version:"
+msgstr "إصدار PHP:"
+
+msgid "Session Support:"
+msgstr "دعم الجلسات:"
+
+msgid "Database Tables:"
+msgstr "جداول قاعدة البيانات:"
+
+#: includes/class-ajax-handler.php
+msgid "Please enter a message."
+msgstr "يرجى إدخال رسالة."
+
+#: includes/class-ajax-handler.php
+msgid "Message must be at least 10 characters long."
+msgstr "يجب أن تكون الرسالة 10 أحرف على الأقل."
+
+#: includes/class-ajax-handler.php
+msgid "Message is too long. Please keep it under 2000 characters."
+msgstr "الرسالة طويلة جداً. يرجى إبقاؤها أقل من 2000 حرف."
+
+#: includes/class-ajax-handler.php
+msgid "reCAPTCHA verification failed. Please try again."
+msgstr "فشل التحقق من reCAPTCHA. يرجى المحاولة مرة أخرى."
+
+#: includes/class-ajax-handler.php
+msgid "Your message contains inappropriate content. Please modify your message and try again."
+msgstr "تحتوي رسالتك على محتوى غير مناسب. يرجى تعديل رسالتك والمحاولة مرة أخرى."
+
+#: includes/class-ajax-handler.php
+msgid "Failed to save your message. Please try again."
+msgstr "فشل في حفظ رسالتك. يرجى المحاولة مرة أخرى."
+
+#: includes/class-ajax-handler.php
+msgid "An unexpected error occurred. Please try again."
+msgstr "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+
+#: includes/class-ajax-handler.php
+msgid "Please wait before sending another message."
+msgstr "يرجى الانتظار قبل إرسال رسالة أخرى."
+
+#: includes/class-ajax-handler.php
+msgid "Security verification failed. Please refresh the page and try again."
+msgstr "فشل التحقق الأمني. يرجى تحديث الصفحة والمحاولة مرة أخرى."
+
+#: includes/class-ajax-handler.php
+msgid "Security verification failed."
+msgstr "فشل التحقق الأمني."
+
+#: assets/js/block-editor.js
+msgid "anonymous"
+msgstr "مجهول"
+
+#: assets/js/block-editor.js
+msgid "messages"
+msgstr "رسائل"
+
+#: assets/js/block-editor.js
+msgid "questions"
+msgstr "أسئلة"
+
+#: assets/js/block-editor.js
+msgid "contact"
+msgstr "اتصال"
+
