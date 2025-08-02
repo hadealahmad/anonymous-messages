@@ -91,3 +91,9 @@ tests/coverage/
 # *.key
 # *.pem
 # *.cert
+
+# Cursor IDE files
+.cursor/
+
+# Project documentation and task tracking
+ANONYMOUS_MESSAGES.md
