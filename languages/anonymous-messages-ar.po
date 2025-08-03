@@ -37,6 +37,20 @@ msgid "Settings"
 msgstr "الإعدادات"
 
 #: includes/class-admin.php
+msgid "anon. msg."
+msgstr "من مجهول"
+
+#: includes/class-admin.php
+msgid "%d pending anonymous message"
+msgid_plural "%d pending anonymous messages"
+msgstr[0] "%d رسالة مجهولة معلقة"
+msgstr[1] "رسالة مجهولة واحدة معلقة"
+msgstr[2] "رسالتان مجهولتان معلقتان"
+msgstr[3] "%d رسائل مجهولة معلقة"
+msgstr[4] "%d رسالة مجهولة معلقة"
+msgstr[5] "%d رسالة مجهولة معلقة"
+
+#: includes/class-admin.php
 msgid "Anonymous Messages Settings"
 msgstr "إعدادات الرسائل المجهولة"
 
@@ -730,4 +744,12 @@ msgstr "أسئلة"
 #: assets/js/block-editor.js
 msgid "contact"
 msgstr "اتصال"
+
+#: assets/js/block-editor.js
+msgid "If enabled, the site administrator will receive an email for each new submission."
+msgstr "إذا تم التمكين، سيتلقى مدير الموقع رسالة بريد إلكتروني لكل إرسال جديد."
+
+#: includes/class-ajax-handler.php
+msgid "A new anonymous message has been submitted to your website."
+msgstr "تم إرسال رسالة مجهولة جديدة إلى موقعك."
 

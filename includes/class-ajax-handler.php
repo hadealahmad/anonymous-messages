@@ -72,6 +72,7 @@ class Anonymous_Messages_Ajax_Handler {
             // Category is no longer set by visitors - admin assigns categories after submission
             $category_id = null;
             $assigned_user_id = isset($_POST['assigned_user_id']) ? intval($_POST['assigned_user_id']) : null;
+            $send_notification = isset($_POST['send_notification']) && $_POST['send_notification'] === 'true';
             
             if (empty($message)) {
                 wp_send_json_error(array(
@@ -120,6 +121,17 @@ class Anonymous_Messages_Ajax_Handler {
             if ($message_id) {
                 // Set rate limit session
                 $this->set_rate_limit();
+                
+                // Send email notification if enabled
+                if ($send_notification) {
+                    if ($assigned_user_id) {
+                        // Send to assigned user
+                        $this->send_new_message_notification($assigned_user_id, $message_id, $message);
+                    } else {
+                        // Send to site admin
+                        $this->send_admin_notification($message_id, $message);
+                    }
+                }
                 
                 // Send success response
                 wp_send_json_success(array(
@@ -399,5 +411,74 @@ class Anonymous_Messages_Ajax_Handler {
         return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
     }
     
+    /**
+     * Send new message notification email
+     */
+    private function send_new_message_notification($user_id, $message_id, $message_content) {
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return;
+        }
 
+        $user_email = $user->user_email;
+        $subject = sprintf(
+            __('New Anonymous Message Received - [%s]', 'anonymous-messages'),
+            get_bloginfo('name')
+        );
+
+        $message_body = sprintf(
+            '<p>%s</p>',
+            __('You have received a new anonymous message.', 'anonymous-messages')
+        );
+        $message_body .= '<blockquote>' . wp_kses_post(wp_strip_all_tags($message_content)) . '</blockquote>';
+        $message_body .= sprintf(
+            '<p><a href="%s">%s</a></p>',
+            esc_url(admin_url('admin.php?page=anonymous-messages&status=pending')),
+            __('View and respond to pending messages', 'anonymous-messages')
+        );
+        $message_body .= sprintf(
+            '<p>--<br>%s</p>',
+            get_bloginfo('name')
+        );
+
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+
+        // Use wp_mail to send the email
+        wp_mail($user_email, $subject, $message_body, $headers);
+    }
+    
+    /**
+     * Send new message notification email to site admin
+     */
+    private function send_admin_notification($message_id, $message_content) {
+        $admin_email = get_option('admin_email');
+        if (!$admin_email) {
+            return;
+        }
+
+        $subject = sprintf(
+            __('New Anonymous Message Received - [%s]', 'anonymous-messages'),
+            get_bloginfo('name')
+        );
+
+        $message_body = sprintf(
+            '<p>%s</p>',
+            __('A new anonymous message has been submitted to your website.', 'anonymous-messages')
+        );
+        $message_body .= '<blockquote>' . wp_kses_post(wp_strip_all_tags($message_content)) . '</blockquote>';
+        $message_body .= sprintf(
+            '<p><a href="%s">%s</a></p>',
+            esc_url(admin_url('admin.php?page=anonymous-messages&status=pending')),
+            __('View and respond to pending messages', 'anonymous-messages')
+        );
+        $message_body .= sprintf(
+            '<p>--<br>%s</p>',
+            get_bloginfo('name')
+        );
+
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+
+        // Use wp_mail to send the email
+        wp_mail($admin_email, $subject, $message_body, $headers);
+    }
 }

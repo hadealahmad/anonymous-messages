@@ -31,6 +31,7 @@ $block_id = 'anonymous-messages-' . wp_generate_password(8, false);
      data-questions-per-page="<?php echo intval($attributes['questionsPerPage']); ?>"
      data-enable-recaptcha="<?php echo $attributes['enableRecaptcha'] ? 'true' : 'false'; ?>"
      data-assigned-user-id="<?php echo intval($attributes['assignedUserId'] ?? 0); ?>"
+data-enable-email-notifications="<?php echo isset($attributes['enableEmailNotifications']) && $attributes['enableEmailNotifications'] ? 'true' : 'false'; ?>"
      style="display: block !important; visibility: visible !important;">
     
     <!-- Message Submission Form -->

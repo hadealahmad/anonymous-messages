@@ -21,7 +21,9 @@ A WordPress plugin that enables site visitors to send anonymous messages through
 - **Message Management**: View, respond to, and manage all messages
 - **Multiple Response Types**: Short text answers – Full WordPress posts
 - **Status Management**: Message states: pending, answered, and featured
-- **Export**: Export messages with filtering options
+    - **Export**: Export messages with filtering options
+    - **Email Notifications**: Get email alerts for new messages (sent to assigned user or site admin)
+    - **Admin Bar Counter**: See pending messages at a glance (frontend & backend, with red badge)
 
 ### 👥 User Management
 - **User-specific Inbox**: Messages from specific forms can be assigned to specific WordPress users
@@ -99,6 +101,7 @@ Choose how you want to handle detailed responses:
    - Set questions per page
    - Enable/disable reCAPTCHA
    - Assign to specific user (if configured)
+   - Enable/disable email notifications for the assigned user
 
 ### Block Attributes
 - `showCategories`: Display category filter for answered questions
@@ -106,6 +109,7 @@ Choose how you want to handle detailed responses:
 - `questionsPerPage`: Number of questions per page
 - `enableRecaptcha`: Enable reCAPTCHA protection
 - `assignedUserId`: Assign messages to specific users
+- `enableEmailNotifications`: Send an email notification to the assigned user
 - `placeholder`: Custom placeholder text
 
 ### Managing Messages

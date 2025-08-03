@@ -51,6 +51,10 @@
             assignedUserId: {
                 type: 'number',
                 default: 0
+            },
+            enableEmailNotifications: {
+                type: 'boolean',
+                default: true
             }
         },
         
@@ -62,7 +66,8 @@
                 questionsPerPage,
                 enableRecaptcha,
                 placeholder,
-                assignedUserId
+                assignedUserId,
+                enableEmailNotifications
             } = attributes;
             
             return el('div', { className: 'anonymous-messages-editor' }, [
@@ -149,7 +154,17 @@
                                     marginBottom: '0'
                                 }
                             }, __('If no user is selected, only administrators can view the messages.', 'anonymous-messages'))
-                        ])
+                        ]),
+                        // Email Notification Toggle
+                        el(ToggleControl, {
+                            label: __('Send Email Notification', 'anonymous-messages'),
+                            checked: enableEmailNotifications,
+                            onChange: (value) => setAttributes({ enableEmailNotifications: value }),
+                            help: assignedUserId > 0 ? 
+                                __('If enabled, the assigned user will receive an email for each new submission.', 'anonymous-messages') :
+                                __('If enabled, the site administrator will receive an email for each new submission.', 'anonymous-messages'),
+                            key: 'enable-email-notifications'
+                        })
                     ])
                 ]),
                 

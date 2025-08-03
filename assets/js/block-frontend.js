@@ -180,6 +180,9 @@
                 formData.append('assigned_user_id', this.attributes.assignedUserId);
             }
             
+            // Always send notification flag
+            formData.append('send_notification', this.attributes.enableEmailNotifications);
+            
             if (this.recaptchaToken) {
                 formData.append('recaptcha_token', this.recaptchaToken);
             }
@@ -261,6 +264,8 @@
             
             if (this.attributes.assignedUserId) {
                 formData.append('assigned_user_id', this.attributes.assignedUserId);
+                // Only send notification flag if a user is assigned
+                formData.append('send_notification', this.attributes.enableEmailNotifications);
             }
             
             const response = await fetch(anonymousMessages.ajaxUrl, {
@@ -766,7 +771,8 @@
                 showAnsweredQuestions: block.dataset.showAnsweredQuestions === 'true',
                 questionsPerPage: parseInt(block.dataset.questionsPerPage) || 10,
                 enableRecaptcha: block.dataset.enableRecaptcha === 'true',
-                assignedUserId: parseInt(block.dataset.assignedUserId) || 0
+                assignedUserId: parseInt(block.dataset.assignedUserId) || 0,
+                enableEmailNotifications: block.dataset.enableEmailNotifications !== 'false' // Default to true if not set
             };
             
             // Initialize the block

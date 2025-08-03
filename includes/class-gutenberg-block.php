@@ -107,6 +107,10 @@ class Anonymous_Messages_Gutenberg_Block {
                 'assignedUserId' => array(
                     'type' => 'number',
                     'default' => 0
+                ),
+                'enableEmailNotifications' => array(
+                    'type' => 'boolean',
+                    'default' => true
                 )
             )
         ));

@@ -595,3 +595,31 @@
 }
 
 /* Dark mode for Twitter buttons removed */
+
+/* Admin Bar Notification Styling */
+#wp-admin-bar-anonymous-messages-pending .ab-icon:before {
+    content: "\f466";
+    top: 2px;
+}
+
+#wp-admin-bar-anonymous-messages-pending .ab-label {
+    margin-right: 6px;
+}
+
+#wp-admin-bar-anonymous-messages-pending .awaiting-mod {
+    background: #d63638;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 600;
+    height: 18px;
+    line-height: 1.6;
+    margin: 1px 0 0 2px;
+    min-width: 18px;
+    padding: 0 5px;
+    text-align: center;
+}
+
+#wp-admin-bar-anonymous-messages-pending .pending-count {
+    font-weight: 600;
+}

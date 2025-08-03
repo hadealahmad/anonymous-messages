@@ -14,6 +14,7 @@ class Anonymous_Messages_Admin {
      * Instance of this class
      */
     private static $instance = null;
+    private $pending_count = null;
     
     /**
      * Get instance
@@ -30,6 +31,7 @@ class Anonymous_Messages_Admin {
      */
     private function __construct() {
         $this->init_hooks();
+        $this->update_pending_count();
     }
     
     /**
@@ -53,15 +55,20 @@ class Anonymous_Messages_Admin {
         add_action('wp_ajax_am_get_message_response', array($this, 'handle_get_message_response'));
         add_action('wp_ajax_am_update_message_category', array($this, 'handle_update_message_category'));
         add_action('admin_init', array($this, 'handle_export'));
+        add_action('admin_bar_menu', array($this, 'add_admin_bar_menu'), 100);
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_admin_assets'));
     }
     
     /**
      * Add admin menu
      */
     public function add_admin_menu() {
+        $menu_title = __('Anonymous Messages', 'anonymous-messages');
+        $bubble = ' <span class="awaiting-mod">' . number_format_i18n($this->pending_count) . '</span>';
+        
         add_menu_page(
             __('Anonymous Messages', 'anonymous-messages'),
-            __('Anonymous Messages', 'anonymous-messages'),
+            $menu_title . ($this->pending_count > 0 ? $bubble : ''),
             'manage_options',
             'anonymous-messages',
             array($this, 'render_messages_page'),
@@ -72,7 +79,7 @@ class Anonymous_Messages_Admin {
         add_submenu_page(
             'anonymous-messages',
             __('Messages', 'anonymous-messages'),
-            __('Messages', 'anonymous-messages'),
+            __('Messages', 'anonymous-messages') . ($this->pending_count > 0 ? $bubble : ''),
             'manage_options',
             'anonymous-messages',
             array($this, 'render_messages_page')
@@ -893,6 +900,65 @@ class Anonymous_Messages_Admin {
         if (get_transient('anonymous_messages_flush_rewrite_rules')) {
             flush_rewrite_rules();
             delete_transient('anonymous_messages_flush_rewrite_rules');
+        }
+    }
+    
+    /**
+     * Add admin bar menu for pending messages
+     */
+    public function add_admin_bar_menu($wp_admin_bar) {
+        if (!current_user_can('edit_posts') || $this->pending_count <= 0) {
+            return;
+        }
+
+        // Determine text based on locale
+        $current_locale = get_locale();
+        $is_arabic = strpos($current_locale, 'ar') === 0;
+        $text = $is_arabic ? 'من مجهول' : __('anon. msg.', 'anonymous-messages');
+        
+        $args = array(
+            'id'    => 'anonymous-messages-pending',
+            'title' => '<span class="ab-icon dashicons-before dashicons-email-alt2"></span><span class="ab-label">' . esc_html($text) . '</span> <span class="awaiting-mod count-' . $this->pending_count . '"><span class="pending-count">' . number_format_i18n($this->pending_count) . '</span></span>',
+            'href'  => admin_url('admin.php?page=anonymous-messages&status=pending'),
+            'meta'  => array(
+                'title' => sprintf(
+                    _n(
+                        '%d pending anonymous message',
+                        '%d pending anonymous messages',
+                        $this->pending_count,
+                        'anonymous-messages'
+                    ),
+                    $this->pending_count
+                ),
+            ),
+        );
+        $wp_admin_bar->add_node($args);
+    }
+
+    /**
+     * Update pending count
+     */
+    private function update_pending_count() {
+        $db = Anonymous_Messages_Database::get_instance();
+        if (current_user_can('administrator')) {
+            $this->pending_count = $db->get_message_count('pending', '', null, null);
+        } else {
+            $this->pending_count = $db->get_message_count('pending', '', null, get_current_user_id());
+        }
+    }
+    
+    /**
+     * Enqueue frontend admin assets for admin bar
+     */
+    public function enqueue_frontend_admin_assets() {
+        // Only enqueue if user is logged in and admin bar is showing
+        if (is_user_logged_in() && is_admin_bar_showing() && current_user_can('edit_posts') && $this->pending_count > 0) {
+            wp_enqueue_style(
+                'anonymous-messages-admin-bar',
+                ANONYMOUS_MESSAGES_PLUGIN_URL . 'assets/css/admin-style.css',
+                array(),
+                ANONYMOUS_MESSAGES_VERSION
+            );
         }
     }
 }
