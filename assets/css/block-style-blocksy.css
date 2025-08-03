@@ -582,40 +582,58 @@
 }
 
 .anonymous-messages-block .image-upload-container {
-    border: 2px dashed var(--border-color, #d1d5db);
-    border-radius: 0.5rem;
+    border: 2px dashed var(--theme-border-color, #e1e5e9);
+    border-radius: 8px;
     padding: 1rem;
     text-align: center;
     transition: border-color 0.2s ease;
 }
 
 .anonymous-messages-block .image-upload-container:hover {
-    border-color: var(--accent-color, #3b82f6);
+    border-color: var(--theme-palette-color-1, #2872fa);
 }
 
 .anonymous-messages-block .image-upload-button {
-    background: var(--button-background, #f9fafb);
-    border: 1px solid var(--border-color, #d1d5db);
-    border-radius: 0.375rem;
-    padding: 0.75rem 1.5rem;
+    min-height: var(--theme-button-min-height, 40px);
+    padding: var(--theme-button-padding, 5px 20px);
+    background: var(--theme-palette-color-8, #ffffff);
+    color: var(--theme-palette-color-1, #2872fa);
+    border: 2px solid var(--theme-palette-color-1, #2872fa);
+    border-radius: 6px;
+    font-family: var(--theme-font-family, var(--theme-font-stack-default));
+    font-size: var(--theme-button-font-size, 15px);
+    font-weight: var(--theme-button-font-weight, 500);
+    text-transform: var(--theme-text-transform, none);
+    text-decoration: var(--theme-text-decoration, none);
     cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--theme-button-shadow, none);
+    transform: var(--theme-button-transform, none);
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    color: var(--color, inherit);
+    min-width: 140px;
 }
 
-.anonymous-messages-block .image-upload-button:hover {
-    background: var(--button-background-hover, #f3f4f6);
-    border-color: var(--border-color-hover, #9ca3af);
+.anonymous-messages-block .image-upload-button:hover:not(:disabled) {
+    background: var(--theme-palette-color-1, #2872fa);
+    color: var(--theme-palette-color-8, #ffffff);
+}
+
+.anonymous-messages-block .image-upload-button:disabled {
+    background: var(--theme-palette-color-5, #e1e8ed);
+    color: var(--theme-palette-color-3, #3A4F66);
+    border-color: var(--theme-palette-color-5, #e1e8ed);
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .anonymous-messages-block .upload-help {
     margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--color-muted, #6b7280);
+    font-size: calc(var(--theme-font-size, 16px) * 0.875);
+    color: var(--theme-palette-color-3, #3A4F66);
+    opacity: 0.8;
 }
 
 .anonymous-messages-block .image-preview-container {
@@ -682,6 +700,11 @@
 
 /* Mobile responsiveness for image uploads in Blocksy */
 @media (max-width: 768px) {
+    .anonymous-messages-block .image-upload-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
     .anonymous-messages-block .image-preview-container {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         gap: 0.75rem;
