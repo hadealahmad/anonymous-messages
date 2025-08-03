@@ -2,9 +2,6 @@
 
 /* Use Blocksy's CSS variables for consistent theming */
 .anonymous-messages-block {
-    max-width: var(--theme-narrow-container-max-width, 750px);
-    margin: var(--theme-content-spacing, 1.5em) auto;
-    padding: var(--theme-content-spacing, 1.5em);
     border: 1px solid var(--theme-border-color, #e1e5e9);
     border-radius: 8px;
     background: var(--theme-palette-color-8, #ffffff);
@@ -493,10 +490,7 @@
 
 /* Responsive Design using Blocksy's container system */
 @media (max-width: 768px) {
-    .anonymous-messages-block {
-        margin: var(--theme-content-spacing, 1.5em) var(--theme-container-edge-spacing, 20px);
-        padding: var(--theme-content-spacing, 1.5em);
-    }
+
     
     .question-header {
         flex-direction: column;

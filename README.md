@@ -1,63 +1,44 @@
-# Anonymous Messages WordPress Plugin
+# Anonymous Messages for WordPress
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)](https://php.net/)
 
-A powerful WordPress plugin that enables site visitors to send anonymous messages through a customizable Gutenberg block with advanced spam protection, user management, and comprehensive admin features.
+A WordPress plugin that enables site visitors to send anonymous messages through a customizable Gutenberg block with advanced spam protection, user management, and comprehensive admin features.
 
 ## 🚀 Features
 
-### 🎯 Core Functionality
+### 🎯 Core Features
 - **Gutenberg Block Integration**: Easy-to-use block for the WordPress editor
 - **Anonymous Messaging**: Visitors can send messages without revealing their identity
-- **Random Sender Names**: Auto-generated anonymous names for message attribution
-- **Real-time Submission**: AJAX-powered message submission with instant feedback
 
-### 🛡️ Advanced Security
+### 📱 Frontend
+- **Instant Search**: Real-time search functionality
+- **Live Filtering**: Combine search with category filtering
+- **Responsive Design**: Mobile-friendly interface
+
+### ⚙️ Dashboard
+- **Message Management**: View, respond to, and manage all messages
+- **Multiple Response Types**: Short text answers – Full WordPress posts
+- **Status Management**: Message states: pending, answered, and featured
+- **Export**: Export messages with filtering options
+
+### 👥 User Management
+- **User-specific Inbox**: Messages from specific forms can be assigned to specific WordPress users
+
+### 🛡️ Security
 - **Google reCAPTCHA v3**: Invisible CAPTCHA for spam protection
-- **Session-based Rate Limiting**: Configurable cooldown periods (default: 60 seconds)
+- **Rate Limiting**: Configurable cooldown periods between messages (default: 60 seconds)
 - **Honeypot Protection**: Hidden fields to catch automated bots
 - **Input Sanitization**: Comprehensive data validation and cleaning
 - **Nonce Verification**: CSRF protection for all admin actions
-- **Security Headers**: Additional security headers for enhanced protection
-
-### 👥 User Management
-- **User Assignment**: Messages can be assigned to specific WordPress users
-- **Role-based Access Control**: Different permissions for different user roles
-- **Admin-only Categories**: Categories can only be assigned by administrators
-- **User Filtering**: Filter messages by assigned users
 
 ### 🏷️ Category System
-- **Admin-controlled Categories**: Only administrators can create and assign categories
-- **Post-submission Assignment**: Categories are assigned after message submission
 - **Category Filtering**: Visitors can filter answered questions by category
-- **CRUD Operations**: Full category management in admin interface
 
-### 📱 Frontend Features
-- **Instant Search**: Real-time search with 300ms debouncing
-- **Live Filtering**: Combine search with category filtering
-- **Responsive Design**: Mobile-friendly interface
-- **Loading States**: Clear feedback during operations
-- **Error Handling**: User-friendly error messages
-
-### ⚙️ Admin Dashboard
-- **Message Management**: View, respond to, and manage all messages
-- **Multiple Response Types**: 
-  - Short text answers
-  - Full WordPress posts
-  - Custom post type integration
-- **Status Management**: Pending, answered, and featured message states
-- **Export Functionality**: Export messages with filtering options
-- **Real-time Updates**: AJAX-powered admin interface
-
-### 🔧 Flexible Configuration
-- **Post Type Options**: 
-  - Use existing post types
-  - Create custom post types
-  - Disable post responses entirely
-- **Customizable Settings**: Rate limiting, pagination, and display options
-- **Theme Integration**: Special styling for popular themes (Blocksy included)
+### 🔧 Integration
+- **Use existing post types as the designated post type for responses**
+- **Theme Integration**: Special styling for Blocksy theme using theme formats directly
 
 ### 🌍 Internationalization
 - **Translation Ready**: Full multilingual support

@@ -1,9 +1,6 @@
 /* Anonymous Messages Block Styles */
 
 .anonymous-messages-block {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 1.5rem;
     border: 1px solid #e1e5e9;
     border-radius: 8px;
     background: #ffffff;
@@ -461,10 +458,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .anonymous-messages-block {
-        margin: 1rem;
-        padding: 1rem;
-    }
+
     
     .question-header {
         flex-direction: column;
