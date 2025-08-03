@@ -203,6 +203,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - All contributors and testers
 
 ## 📈 Changelog
+###
+- better readme
+- fixed: blocksy mobile version display issue
 
 ### Version 1.0.0
 - Initial release
@@ -216,4 +219,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-For more information, visit the [plugin homepage](https://github.com/hadealahmad/anonymous-messages) or check the [documentation](https://github.com/hadealahmad/anonymous-messages/wiki).
+For more information, visit the [plugin homepage](https://github.com/hadealahmad/anonymous-messages)
