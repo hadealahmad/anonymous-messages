@@ -3,7 +3,7 @@
  * Plugin Name: Anonymous Messages
  * Plugin URI: https://github.com/hadealahmad/anonymous-messages
  * Description: A WordPress plugin that allows site visitors to send anonymous messages through a Gutenberg block with spam protection and admin management.
- * Version: 1.1.1
+ * Version: 1.2.0
  * Author: Hadi Alahmad
  * Author URI: https://hadealahmad.com
  * Text Domain: anonymous-messages
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ANONYMOUS_MESSAGES_VERSION', '1.1.1');
+define('ANONYMOUS_MESSAGES_VERSION', '1.2.0');
 define('ANONYMOUS_MESSAGES_PLUGIN_FILE', __FILE__);
 define('ANONYMOUS_MESSAGES_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ANONYMOUS_MESSAGES_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -203,9 +203,25 @@ class AnonymousMessages {
             KEY post_id (post_id)
         ) $charset_collate;";
         
+        // Image attachments table
+        $attachments_table = $wpdb->prefix . 'anonymous_message_attachments';
+        $attachments_sql = "CREATE TABLE $attachments_table (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            message_id int(11) NOT NULL,
+            file_name varchar(255) NOT NULL,
+            file_path varchar(500) NOT NULL,
+            file_size int(11) NOT NULL,
+            mime_type varchar(100) NOT NULL,
+            upload_date datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY message_id (message_id),
+            KEY upload_date (upload_date)
+        ) $charset_collate;";
+        
         dbDelta($messages_sql);
         dbDelta($categories_sql);
         dbDelta($responses_sql);
+        dbDelta($attachments_sql);
     }
     
     /**
@@ -219,9 +235,13 @@ class AnonymousMessages {
             'messages_per_page' => 10,
             'enable_categories' => true,
             'enable_featured' => true,
-            'auto_approve' => false,
             'post_answer_mode' => 'existing', // existing, custom, disabled
-            'answer_post_type' => 'post'
+            'answer_post_type' => 'post',
+            // Image upload settings
+            'enable_image_uploads' => true,
+            'max_image_size' => 2, // MB
+            'max_images_per_message' => 3,
+            'allowed_image_types' => array('image/jpeg', 'image/png', 'image/gif', 'image/webp')
         );
         
         add_option('anonymous_messages_options', $default_options);

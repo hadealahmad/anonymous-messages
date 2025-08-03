@@ -32,6 +32,7 @@ $block_id = 'anonymous-messages-' . wp_generate_password(8, false);
      data-enable-recaptcha="<?php echo $attributes['enableRecaptcha'] ? 'true' : 'false'; ?>"
      data-assigned-user-id="<?php echo intval($attributes['assignedUserId'] ?? 0); ?>"
 data-enable-email-notifications="<?php echo isset($attributes['enableEmailNotifications']) && $attributes['enableEmailNotifications'] ? 'true' : 'false'; ?>"
+     data-enable-image-uploads="<?php echo isset($attributes['enableImageUploads']) && $attributes['enableImageUploads'] && ($options['enable_image_uploads'] ?? true) ? 'true' : 'false'; ?>"
      style="display: block !important; visibility: visible !important;">
     
     <!-- Message Submission Form -->
@@ -58,6 +59,48 @@ data-enable-email-notifications="<?php echo isset($attributes['enableEmailNotifi
             </div>
             
             <!-- Category selection removed - categories are now assigned by admin only -->
+            
+            <!-- Image Upload Section -->
+            <?php if (isset($attributes['enableImageUploads']) && $attributes['enableImageUploads'] && ($options['enable_image_uploads'] ?? true)) : ?>
+            <div class="form-group image-upload-section">
+                <label for="<?php echo esc_attr($block_id); ?>-images" class="image-upload-label">
+                    <?php _e('Attach Images (Optional)', 'anonymous-messages'); ?>
+                </label>
+                <div class="image-upload-container">
+                    <input 
+                        type="file" 
+                        id="<?php echo esc_attr($block_id); ?>-images"
+                        name="images[]"
+                        class="image-input"
+                        multiple
+                        accept="<?php echo esc_attr(implode(',', $options['allowed_image_types'] ?? array('image/jpeg', 'image/png', 'image/gif', 'image/webp'))); ?>"
+                        data-max-size="<?php echo esc_attr(($options['max_image_size'] ?? 2) * 1024 * 1024); ?>"
+                        data-max-files="<?php echo esc_attr($options['max_images_per_message'] ?? 3); ?>"
+                        style="display: none;"
+                    />
+                    <div class="image-upload-trigger">
+                        <button type="button" class="image-upload-button">
+                            <span class="upload-icon">📁</span>
+                            <span class="upload-text"><?php _e('Choose Images', 'anonymous-messages'); ?></span>
+                        </button>
+                        <div class="upload-help">
+                            <?php 
+                            printf(
+                                __('Max %d images, %s MB each. Allowed: %s', 'anonymous-messages'),
+                                $options['max_images_per_message'] ?? 3,
+                                $options['max_image_size'] ?? 2,
+                                implode(', ', array_map(function($type) {
+                                    return strtoupper(str_replace('image/', '', $type));
+                                }, $options['allowed_image_types'] ?? array('image/jpeg', 'image/png', 'image/gif', 'image/webp')))
+                            );
+                            ?>
+                        </div>
+                    </div>
+                    <div class="image-preview-container" style="display: none;"></div>
+                    <div class="image-upload-error" style="display: none;"></div>
+                </div>
+            </div>
+            <?php endif; ?>
             
             <!-- Form Actions -->
             <div class="form-actions">

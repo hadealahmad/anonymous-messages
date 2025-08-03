@@ -1,8 +1,294 @@
-/* Admin Styles for Anonymous Messages */
+/* Admin Styles for Anonymous Messages - WordPress Standard Design */
 
 /* General Admin Styles */
 .anonymous-messages-admin {
     max-width: 1200px;
+}
+
+/* WordPress Modal System */
+.am-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 160000;
+    overflow: auto;
+    animation: am-modal-fade-in 0.15s ease-out;
+}
+
+.am-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 160000;
+}
+
+.am-modal-container {
+    position: relative;
+    margin: 30px auto;
+    background: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 3px 20px rgba(0, 0, 0, 0.3);
+    max-width: 850px;
+    min-width: 600px;
+    max-height: calc(100vh - 60px);
+    z-index: 160001;
+    display: flex;
+    flex-direction: column;
+}
+
+.am-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #dcdcde;
+    background: #f6f7f7;
+    border-radius: 4px 4px 0 0;
+    flex-shrink: 0;
+}
+
+.am-modal-header h2 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #1d2327;
+    line-height: 1.4;
+}
+
+.am-modal-close {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #646970;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.am-modal-close:hover {
+    background: #dcdcde;
+    color: #1d2327;
+}
+
+.am-modal-close .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.am-modal-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.am-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #dcdcde;
+    background: #f6f7f7;
+    border-radius: 0 0 4px 4px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Message Preview in Modal */
+.am-message-preview {
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.am-message-preview h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #646970;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.am-message-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1d2327;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.am-message-meta {
+    font-size: 12px;
+    color: #646970;
+    font-style: italic;
+}
+
+/* Modal Form Styling */
+.am-modal-form {
+    max-width: none;
+}
+
+.am-response-type-selection fieldset {
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 16px;
+    margin: 0 0 20px 0;
+    background: #f6f7f7;
+}
+
+.am-response-type-selection legend {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1d2327;
+    padding: 0 8px;
+}
+
+.am-radio-label {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    cursor: pointer;
+    font-size: 14px;
+    color: #1d2327;
+}
+
+.am-radio-label input[type="radio"] {
+    margin: 0 8px 0 0;
+}
+
+.am-radio-label span {
+    font-weight: 500;
+}
+
+.am-short-response-section,
+.am-post-response-section,
+.am-edit-short-response-section,
+.am-edit-post-response-section {
+    margin-bottom: 20px;
+}
+
+.am-modal-form label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: #1d2327;
+    margin-bottom: 6px;
+}
+
+.am-modal-form select.regular-text {
+    width: 100%;
+    max-width: 25em;
+    padding: 6px 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #2c3338;
+    background: #ffffff;
+}
+
+.am-modal-form .description {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #646970;
+    font-style: italic;
+}
+
+/* WordPress Editor in Modal */
+.am-modal .wp-editor-wrap {
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+}
+
+.am-modal .wp-editor-container {
+    border: none;
+}
+
+.am-modal .mce-toolbar-grp {
+    border-bottom: 1px solid #dcdcde;
+}
+
+/* Response Messages */
+.am-response-messages,
+.am-edit-messages {
+    margin-top: 16px;
+}
+
+.am-response-messages .notice,
+.am-edit-messages .notice {
+    margin: 0;
+    padding: 12px;
+    border-radius: 4px;
+}
+
+@keyframes am-modal-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Body scroll lock when modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Focus management for accessibility */
+.am-modal button:focus,
+.am-modal input:focus,
+.am-modal select:focus,
+.am-modal textarea:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: 1px;
+}
+
+/* Mobile Modal Responsive */
+@media (max-width: 768px) {
+    .am-modal-container {
+        margin: 10px;
+        min-width: auto;
+        max-width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+    }
+    
+    .am-modal-header,
+    .am-modal-content,
+    .am-modal-footer {
+        padding: 16px;
+    }
+    
+    .am-modal-footer {
+        flex-direction: column;
+    }
+    
+    .am-modal-footer .button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .am-response-type-selection {
+        overflow-x: auto;
+    }
+    
+    .am-radio-label {
+        margin: 12px 0;
+        font-size: 16px;
+    }
 }
 
 /* Message Management */
@@ -512,42 +798,357 @@
     color: #991b1b;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .category-management {
-        flex-direction: column;
+/* Enhanced Table Styling - WordPress Standard */
+.wp-list-table.widefat {
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.wp-list-table thead th {
+    background: #f6f7f7;
+    border-bottom: 1px solid #c3c4c7;
+    font-weight: 600;
+    color: #1d2327;
+    padding: 12px 8px;
+}
+
+.wp-list-table tbody tr {
+    border-bottom: 1px solid #f0f0f1;
+    transition: background-color 0.15s ease;
+}
+
+.wp-list-table tbody tr:hover {
+    background: #f6f7f7;
+}
+
+.wp-list-table td {
+    padding: 12px 8px;
+    vertical-align: top;
+}
+
+/* Column Specific Styling */
+.column-sender {
+    width: 140px;
+    min-width: 120px;
+}
+
+.column-message {
+    min-width: 300px;
+}
+
+.column-category {
+    width: 160px;
+    min-width: 140px;
+}
+
+.column-date {
+    width: 140px;
+    min-width: 120px;
+    font-size: 13px;
+    color: #646970;
+}
+
+.column-actions {
+    width: 200px;
+    min-width: 180px;
+}
+
+/* Enhanced Row Actions */
+.row-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.row-actions span {
+    display: inline-flex;
+    align-items: center;
+}
+
+.row-actions .button-link {
+    color: #2271b1;
+    text-decoration: none;
+    padding: 4px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+    transition: all 0.15s ease;
+}
+
+.row-actions .button-link:hover {
+    background: #f0f6fc;
+    color: #135e96;
+}
+
+.row-actions .button-link:focus {
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: 2px solid transparent;
+}
+
+/* Status and Category Selects */
+.status-select,
+.category-assign-select {
+    min-width: 120px;
+    padding: 4px 6px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    font-size: 13px;
+    background: #ffffff;
+    color: #2c3338;
+}
+
+.status-select:focus,
+.category-assign-select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: 2px solid transparent;
+}
+
+/* Message Content Improvements */
+.message-content {
+    max-width: 400px;
+    line-height: 1.5;
+}
+
+.toggle-full-message,
+.toggle-full-answer {
+    color: #2271b1;
+    text-decoration: none;
+    font-size: 12px;
+    margin-top: 8px;
+    display: inline-block;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: all 0.15s ease;
+}
+
+.toggle-full-message:hover,
+.toggle-full-answer:hover {
+    background: #f0f6fc;
+    color: #135e96;
+}
+
+.full-message,
+.full-answer {
+    margin-top: 8px;
+    padding: 12px;
+    background: #f6f7f7;
+    border-radius: 4px;
+    border-left: 3px solid #2271b1;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Enhanced Answer Preview */
+.answer-preview {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f0f6fc;
+    border-left: 3px solid #00a32a;
+    border-radius: 0 4px 4px 0;
+}
+
+.answer-preview strong {
+    color: #00a32a;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+    display: block;
+    font-weight: 600;
+}
+
+.post-answer a {
+    color: #2271b1;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 3px;
+    padding: 2px 4px;
+    transition: all 0.15s ease;
+}
+
+.post-answer a:hover {
+    background: #f0f6fc;
+    color: #135e96;
+}
+
+/* Mobile-First Responsive Design */
+@media (max-width: 1200px) {
+    .wp-list-table.widefat {
+        font-size: 14px;
     }
     
-    .response-type-selection {
-        flex-direction: column;
-        gap: 10px;
+    .column-message {
+        min-width: 250px;
+    }
+}
+
+@media (max-width: 782px) {
+    /* Hide table headers and convert to card layout */
+    .wp-list-table thead {
+        display: none;
     }
     
-    .response-actions {
-        flex-direction: column;
-    }
-    
-    .form-table th,
-    .form-table td {
+    .wp-list-table tbody,
+    .wp-list-table tr,
+    .wp-list-table td {
         display: block;
         width: 100%;
-        padding: 10px 0;
     }
     
-    .form-table th {
+    .wp-list-table tr {
+        background: #ffffff;
+        border: 1px solid #c3c4c7;
+        border-radius: 6px;
+        margin-bottom: 16px;
+        padding: 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .wp-list-table tr:hover {
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .wp-list-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f1;
+        position: relative;
+    }
+    
+    .wp-list-table td:last-child {
         border-bottom: none;
-        padding-bottom: 5px;
     }
     
+    /* Add labels for mobile cards */
+    .wp-list-table td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #646970;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.4px;
+        display: block;
+        margin-bottom: 6px;
+    }
+    
+    .column-sender:before {
+        content: "Sender";
+    }
+    
+    .column-message:before {
+        content: "Message";
+    }
+    
+    .column-category:before {
+        content: "Category";
+    }
+    
+    .column-date:before {
+        content: "Date";
+    }
+    
+    .column-actions:before {
+        content: "Actions";
+    }
+    
+    /* Mobile form adjustments */
+    .row-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .row-actions span {
+        width: 100%;
+    }
+    
+    .row-actions .button-link {
+        display: block;
+        text-align: center;
+        padding: 8px 12px;
+        background: #f6f7f7;
+        border: 1px solid #c3c4c7;
+        border-radius: 4px;
+        width: 100%;
+    }
+    
+    .status-select,
+    .category-assign-select {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .message-content {
+        max-width: none;
+    }
+    
+    /* Navigation and filters */
     .nav-tab-wrapper {
         overflow-x: auto;
         white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
     }
     
-    .category-actions {
+    .nav-tab {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+    
+    .tablenav.top form {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
+        gap: 12px;
+    }
+    
+    .tablenav.top .actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    
+    #search-input,
+    .tablenav select,
+    .tablenav .button {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        margin: 0;
+    }
+    
+    .export-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .export-actions .button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .am-modal-container {
+        margin: 5px;
+        max-width: calc(100vw - 10px);
+        min-width: auto;
+    }
+    
+    .am-modal-header h2 {
+        font-size: 1.1em;
+    }
+    
+    .wp-list-table tr {
+        margin-bottom: 12px;
+    }
+    
+    .wp-list-table td {
+        padding: 10px 12px;
     }
 }
 
@@ -622,4 +1223,168 @@
 
 #wp-admin-bar-anonymous-messages-pending .pending-count {
     font-weight: 600;
+}
+
+/* Image Attachments Styles */
+.message-attachments {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+}
+
+.message-attachments h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.attachment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.attachment-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f9f9f9;
+    transition: box-shadow 0.2s ease;
+}
+
+.attachment-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.attachment-preview {
+    position: relative;
+    height: 80px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.attachment-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.attachment-preview:hover img {
+    transform: scale(1.05);
+}
+
+.attachment-info {
+    padding: 0.5rem;
+    background: white;
+}
+
+.attachment-info .file-name {
+    font-size: 0.75rem;
+    color: #333;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+.attachment-info .file-size {
+    font-size: 0.7rem;
+    color: #666;
+}
+
+/* Image Modal Styles */
+.image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.image-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.image-modal-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.image-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    transition: background 0.2s ease;
+}
+
+.image-modal-close:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.image-modal-content img {
+    max-width: 100%;
+    max-height: 80vh;
+    display: block;
+}
+
+.image-modal-caption {
+    padding: 1rem;
+    background: white;
+    color: #333;
+    font-size: 0.9rem;
+    text-align: center;
+    border-top: 1px solid #eee;
+}
+
+/* Responsive design for attachments */
+@media (max-width: 768px) {
+    .attachment-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.5rem;
+    }
+    
+    .attachment-preview {
+        height: 60px;
+    }
+    
+    .image-modal-content {
+        max-width: 95vw;
+        max-height: 95vh;
+    }
+    
+    .image-modal-caption {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+    }
 }

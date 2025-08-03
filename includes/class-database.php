@@ -92,7 +92,7 @@ class Anonymous_Messages_Database {
                 LEFT JOIN {$wpdb->prefix}anonymous_message_responses r ON m.id = r.message_id
                 LEFT JOIN {$wpdb->prefix}anonymous_message_categories c ON m.category_id = c.id
                 $where
-                ORDER BY m.status = 'featured' DESC, m.created_at DESC
+                ORDER BY m.status = 'featured' DESC, r.updated_at DESC
                 LIMIT %d OFFSET %d";
         
         $params[] = $per_page;
@@ -218,7 +218,7 @@ class Anonymous_Messages_Database {
         );
         
         if ($response_type === 'short') {
-            $data['short_response'] = sanitize_textarea_field($short_response);
+            $data['short_response'] = wp_kses_post($short_response);
             $data['post_id'] = null;
         } else {
             $data['short_response'] = null;
@@ -273,7 +273,7 @@ class Anonymous_Messages_Database {
         );
         
         if ($response_type === 'short') {
-            $data['short_response'] = sanitize_textarea_field($short_response);
+            $data['short_response'] = wp_kses_post($short_response);
             $data['post_id'] = null;
         } else {
             $data['short_response'] = null;
@@ -414,6 +414,11 @@ class Anonymous_Messages_Database {
             $this->upgrade_to_1_1_0();
             update_option('anonymous_messages_db_version', '1.1.0');
         }
+        
+        if (version_compare($current_version, '1.2.0', '<')) {
+            $this->upgrade_to_1_2_0();
+            update_option('anonymous_messages_db_version', '1.2.0');
+        }
     }
     
     /**
@@ -434,5 +439,98 @@ class Anonymous_Messages_Database {
             $wpdb->query("ALTER TABLE $table_name ADD COLUMN assigned_user_id int(11) DEFAULT NULL AFTER category_id");
             $wpdb->query("ALTER TABLE $table_name ADD KEY assigned_user_id (assigned_user_id)");
         }
+    }
+    
+    /**
+     * Upgrade to version 1.2.0 - Add image attachments table
+     */
+    private function upgrade_to_1_2_0() {
+        global $wpdb;
+        
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        // Check if attachments table exists
+        $table_name = $wpdb->prefix . 'anonymous_message_attachments';
+        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
+        
+        if (!$table_exists) {
+            $attachments_sql = "CREATE TABLE $table_name (
+                id int(11) NOT NULL AUTO_INCREMENT,
+                message_id int(11) NOT NULL,
+                file_name varchar(255) NOT NULL,
+                file_path varchar(500) NOT NULL,
+                file_size int(11) NOT NULL,
+                mime_type varchar(100) NOT NULL,
+                upload_date datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY message_id (message_id),
+                KEY upload_date (upload_date)
+            ) $charset_collate;";
+            
+            dbDelta($attachments_sql);
+        }
+    }
+    
+    /**
+     * Insert message attachment
+     */
+    public function insert_attachment($message_id, $file_name, $file_path, $file_size, $mime_type) {
+        global $wpdb;
+        
+        $result = $wpdb->insert(
+            $wpdb->prefix . 'anonymous_message_attachments',
+            array(
+                'message_id' => intval($message_id),
+                'file_name' => sanitize_file_name($file_name),
+                'file_path' => sanitize_text_field($file_path),
+                'file_size' => intval($file_size),
+                'mime_type' => sanitize_text_field($mime_type),
+                'upload_date' => current_time('mysql')
+            ),
+            array('%d', '%s', '%s', '%d', '%s', '%s')
+        );
+        
+        return $result !== false ? $wpdb->insert_id : false;
+    }
+    
+    /**
+     * Get message attachments
+     */
+    public function get_message_attachments($message_id) {
+        global $wpdb;
+        
+        return $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}anonymous_message_attachments WHERE message_id = %d ORDER BY upload_date ASC",
+            intval($message_id)
+        ));
+    }
+    
+    /**
+     * Delete message attachments
+     */
+    public function delete_message_attachments($message_id) {
+        global $wpdb;
+        
+        // Get attachment info for file cleanup
+        $attachments = $this->get_message_attachments($message_id);
+        
+        // Delete from database
+        $result = $wpdb->delete(
+            $wpdb->prefix . 'anonymous_message_attachments',
+            array('message_id' => intval($message_id)),
+            array('%d')
+        );
+        
+        // Delete physical files
+        foreach ($attachments as $attachment) {
+            $full_path = ABSPATH . $attachment->file_path;
+            if (file_exists($full_path)) {
+                wp_delete_file($full_path);
+            }
+        }
+        
+        return $result;
     }
 }

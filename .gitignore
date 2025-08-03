@@ -41,6 +41,8 @@ Desktop.ini
 *.log
 *.bak
 *.backup
+*.orig
+*.rej
 
 # Build and distribution files
 dist/
@@ -49,6 +51,13 @@ build/
 *.tar.gz
 *.tar
 *.rar
+
+# Plugin build artifacts
+anonymous-messages.zip
+anonymous-messages-*.zip
+
+# WordPress plugin specific
+readme.txt
 
 # Environment and configuration files
 .env
@@ -97,3 +106,6 @@ tests/coverage/
 
 # Project documentation and task tracking
 ANONYMOUS_MESSAGES.md
+
+# Build documentation (optional - uncomment if you don't want to track build docs)
+# BUILD.md

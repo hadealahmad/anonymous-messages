@@ -11,6 +11,7 @@ A WordPress plugin that enables site visitors to send anonymous messages through
 ### 🎯 Core Features
 - **Gutenberg Block Integration**: Easy-to-use block for the WordPress editor
 - **Anonymous Messaging**: Visitors can send messages without revealing their identity
+- **Image Uploads**: Allow users to attach images to their messages
 
 ### 📱 Frontend
 - **Instant Search**: Real-time search functionality
@@ -21,9 +22,9 @@ A WordPress plugin that enables site visitors to send anonymous messages through
 - **Message Management**: View, respond to, and manage all messages
 - **Multiple Response Types**: Short text answers – Full WordPress posts
 - **Status Management**: Message states: pending, answered, and featured
-    - **Export**: Export messages with filtering options
-    - **Email Notifications**: Get email alerts for new messages (sent to assigned user or site admin)
-    - **Admin Bar Counter**: See pending messages at a glance (frontend & backend, with red badge)
+- **Export**: Export messages with filtering options
+- **Email Notifications**: Get email alerts for new messages (sent to assigned user or site admin)
+- **Admin Bar Counter**: See pending messages at a glance (frontend & backend, with red badge)
 
 ### 👥 User Management
 - **User-specific Inbox**: Messages from specific forms can be assigned to specific WordPress users
@@ -90,6 +91,12 @@ Choose how you want to handle detailed responses:
 - **Custom Post Type**: Create a dedicated "Anonymous Answers" post type
 - **Disabled**: Only allow short text responses
 
+### 4. Image Upload Settings
+- **Enable Image Uploads**: Allow users to attach images
+- **Max Image Size**: Set the maximum file size for uploads
+- **Max Images Per Message**: Limit the number of images per submission
+- **Allowed Image Types**: Define accepted image formats (e.g., JPG, PNG, GIF)
+
 ## 📝 Usage
 
 ### Adding the Block
@@ -111,10 +118,11 @@ Choose how you want to handle detailed responses:
 - `assignedUserId`: Assign messages to specific users
 - `enableEmailNotifications`: Send an email notification to the assigned user
 - `placeholder`: Custom placeholder text
+- `enableImageUploads`: Allow image attachments in the block
 
 ### Managing Messages
 1. Go to **Anonymous Messages > Messages**
-2. View all submitted messages
+2. View all submitted messages and their attachments
 3. Respond with short answers or create full posts
 4. Assign categories and update status
 5. Mark important messages as featured
@@ -151,6 +159,7 @@ The plugin provides various hooks for customization:
 - `wp_anonymous_messages`: Core message storage
 - `wp_anonymous_message_categories`: Category management
 - `wp_anonymous_message_responses`: Message responses
+- `wp_anonymous_message_attachments`: Image attachment data
 
 ### Database Versioning
 The plugin includes automatic database migration system for updates.
@@ -163,11 +172,12 @@ The plugin includes automatic database migration system for updates.
 - **CSRF Protection**: Nonce verification for all admin actions
 - **Rate Limiting**: Server-side and client-side submission limits
 - **Capability Checks**: Proper permission verification
+- **Secure File Uploads**: Validates file types and sizes on the server
 
 ## 🌐 API Endpoints
 
 ### AJAX Endpoints
-- `submit_anonymous_message`: Handle message submissions
+- `submit_anonymous_message`: Handle message submissions (with images)
 - `get_answered_questions`: Retrieve answered questions with filtering
 - `am_respond_to_message`: Admin response handling
 - `am_update_message_status`: Status updates
@@ -207,6 +217,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - All contributors and testers
 
 ## 📈 Changelog
+
+### Version 1.2.0
+- Added: Image upload functionality for messages
+- Added: Admin settings for image uploads (size, type, count)
+- Added: Email notifications for new messages
+- Added: Admin bar counter for pending messages
+- Improved: Full plugin internationalization
+- Fixed: Recaptcha badge now only appears where the block is present
 
 ### Version 1.1.1
 - fixed: Recaptcha Integration

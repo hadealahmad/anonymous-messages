@@ -119,6 +119,9 @@ class Anonymous_Messages_Ajax_Handler {
             $message_id = $db->insert_message($message, $category_id, $assigned_user_id);
             
             if ($message_id) {
+                // Process image uploads if any
+                $upload_errors = $this->process_image_uploads($message_id);
+                
                 // Set rate limit session
                 $this->set_rate_limit();
                 
@@ -133,10 +136,17 @@ class Anonymous_Messages_Ajax_Handler {
                     }
                 }
                 
+                // Prepare success message
+                $success_message = __('Thank you! Your message has been submitted successfully.', 'anonymous-messages');
+                if (!empty($upload_errors)) {
+                    $success_message .= ' ' . __('Note: Some images could not be uploaded.', 'anonymous-messages');
+                }
+                
                 // Send success response
                 wp_send_json_success(array(
-                    'message' => __('Thank you! Your message has been submitted successfully.', 'anonymous-messages'),
-                    'message_id' => $message_id
+                    'message' => $success_message,
+                    'message_id' => $message_id,
+                    'upload_errors' => $upload_errors
                 ));
             } else {
                 wp_send_json_error(array(
@@ -480,5 +490,109 @@ class Anonymous_Messages_Ajax_Handler {
 
         // Use wp_mail to send the email
         wp_mail($admin_email, $subject, $message_body, $headers);
+    }
+    
+    /**
+     * Process image uploads for a message
+     */
+    private function process_image_uploads($message_id) {
+        $options = get_option('anonymous_messages_options', array());
+        $upload_errors = array();
+        
+        // Check if image uploads are enabled
+        if (!($options['enable_image_uploads'] ?? true)) {
+            return $upload_errors;
+        }
+        
+        // Check if files were uploaded
+        if (empty($_FILES['images']) || !is_array($_FILES['images']['name'])) {
+            return $upload_errors;
+        }
+        
+        $files = $_FILES['images'];
+        $max_size = ($options['max_image_size'] ?? 2) * 1024 * 1024; // Convert MB to bytes
+        $max_files = $options['max_images_per_message'] ?? 3;
+        $allowed_types = $options['allowed_image_types'] ?? array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
+        
+        // Validate file count
+        $file_count = is_array($files['name']) ? count($files['name']) : 1;
+        if ($file_count > $max_files) {
+            $upload_errors[] = sprintf(__('Too many files. Maximum %d allowed.', 'anonymous-messages'), $max_files);
+            return $upload_errors;
+        }
+        
+        // Create upload directory if it doesn't exist
+        $upload_dir = wp_upload_dir();
+        $anonymous_upload_dir = $upload_dir['basedir'] . '/anonymous-messages';
+        if (!file_exists($anonymous_upload_dir)) {
+            wp_mkdir_p($anonymous_upload_dir);
+        }
+        
+        $db = Anonymous_Messages_Database::get_instance();
+        
+        // Process each file
+        for ($i = 0; $i < $file_count; $i++) {
+            $file_name = is_array($files['name']) ? $files['name'][$i] : $files['name'];
+            $file_tmp = is_array($files['tmp_name']) ? $files['tmp_name'][$i] : $files['tmp_name'];
+            $file_size = is_array($files['size']) ? $files['size'][$i] : $files['size'];
+            $file_type = is_array($files['type']) ? $files['type'][$i] : $files['type'];
+            $file_error = is_array($files['error']) ? $files['error'][$i] : $files['error'];
+            
+            // Skip if no file was uploaded for this slot
+            if ($file_error === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            
+            // Check for upload errors
+            if ($file_error !== UPLOAD_ERR_OK) {
+                $upload_errors[] = sprintf(__('Upload error for %s.', 'anonymous-messages'), $file_name);
+                continue;
+            }
+            
+            // Validate file size
+            if ($file_size > $max_size) {
+                $max_size_mb = ($max_size / (1024 * 1024));
+                $upload_errors[] = sprintf(__('File %s is too large. Maximum size: %.1fMB', 'anonymous-messages'), $file_name, $max_size_mb);
+                continue;
+            }
+            
+            // Validate file type
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $detected_type = finfo_file($finfo, $file_tmp);
+            finfo_close($finfo);
+            
+            if (!in_array($detected_type, $allowed_types)) {
+                $upload_errors[] = sprintf(__('File %s has invalid type.', 'anonymous-messages'), $file_name);
+                continue;
+            }
+            
+            // Sanitize filename
+            $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
+            $sanitized_name = sanitize_file_name(pathinfo($file_name, PATHINFO_FILENAME));
+            $unique_filename = $message_id . '_' . time() . '_' . $sanitized_name . '.' . $file_extension;
+            
+            // Full file path
+            $file_path = $anonymous_upload_dir . '/' . $unique_filename;
+            $relative_path = 'wp-content/uploads/anonymous-messages/' . $unique_filename;
+            
+            // Move uploaded file
+            if (move_uploaded_file($file_tmp, $file_path)) {
+                // Set proper file permissions
+                chmod($file_path, 0644);
+                
+                // Save to database
+                $attachment_id = $db->insert_attachment($message_id, $file_name, $relative_path, $file_size, $detected_type);
+                
+                if (!$attachment_id) {
+                    $upload_errors[] = sprintf(__('Failed to save attachment info for %s.', 'anonymous-messages'), $file_name);
+                    // Clean up the file if database insert failed
+                    wp_delete_file($file_path);
+                }
+            } else {
+                $upload_errors[] = sprintf(__('Failed to upload %s.', 'anonymous-messages'), $file_name);
+            }
+        }
+        
+        return $upload_errors;
     }
 }

@@ -27,6 +27,13 @@
             this.questionsLoading = this.block.querySelector('.questions-loading');
             this.noQuestionsMessage = this.block.querySelector('.no-questions-message');
             
+            // Image upload elements
+            this.imageInput = this.block.querySelector('.image-input');
+            this.imageUploadButton = this.block.querySelector('.image-upload-button');
+            this.imagePreviewContainer = this.block.querySelector('.image-preview-container');
+            this.imageUploadError = this.block.querySelector('.image-upload-error');
+            this.selectedImages = [];
+            
             this.currentPage = 1;
             this.isLoading = false;
             this.rateLimitActive = false;
@@ -73,6 +80,17 @@
             // Form submission
             if (this.form) {
                 this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+            }
+            
+            // Image upload events
+            if (this.imageInput && this.imageUploadButton) {
+                this.imageUploadButton.addEventListener('click', () => {
+                    this.imageInput.click();
+                });
+                
+                this.imageInput.addEventListener('change', (e) => {
+                    this.handleImageSelection(e);
+                });
             }
             
             // Category filter change
@@ -149,6 +167,10 @@
                 if (response.success) {
                     this.showSuccess(response.data.message || anonymousMessages.strings.success);
                     this.form.reset();
+                    // Clear image selection
+                    this.selectedImages = [];
+                    this.showImagePreview();
+                    this.hideImageError();
                     this.startRateLimit();
                     
                     // Reload questions if showing answered questions
@@ -182,6 +204,13 @@
             
             // Always send notification flag
             formData.append('send_notification', this.attributes.enableEmailNotifications);
+            
+            // Add image uploads if any
+            if (this.selectedImages && this.selectedImages.length > 0) {
+                this.selectedImages.forEach((file, index) => {
+                    formData.append('images[]', file);
+                });
+            }
             
             if (this.recaptchaToken) {
                 formData.append('recaptcha_token', this.recaptchaToken);
@@ -293,7 +322,7 @@
             
             let responseContent = '';
             if (question.response_type === 'short' && question.short_response) {
-                responseContent = `<p class="response-content">${this.escapeHtml(question.short_response)}</p>`;
+                responseContent = `<div class="response-content">${question.short_response}</div>`;
             } else if (question.response_type === 'post' && question.post_title && question.post_url) {
                 responseContent = `
                     <p class="response-content">
@@ -731,19 +760,22 @@
                         data-question-id="${question.id || ''}"
                         data-question-text="${questionText}"
                         data-answer-text="${answerText}"
-                        title="${anonymousMessages.strings.shareOnTwitter || 'Share on Twitter'}"
-                        aria-label="${anonymousMessages.strings.shareOnTwitter || 'Share on Twitter'}">
+                        title="${anonymousMessages.strings.shareOnTwitter}"
+                        aria-label="${anonymousMessages.strings.shareOnTwitter}">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
                     </svg>
-                    <span class="twitter-share-text">${anonymousMessages.strings.share || 'Share'}</span>
+                    <span class="twitter-share-text">${anonymousMessages.strings.share}</span>
                 </button>
             `;
         }
         
         getAnswerText(question) {
             if (question.response_type === 'short' && question.short_response) {
-                return question.short_response;
+                // Strip HTML tags for Twitter sharing
+                const div = document.createElement('div');
+                div.innerHTML = question.short_response;
+                return div.textContent || div.innerText || '';
             } else if (question.response_type === 'post' && question.post_title) {
                 return question.post_title;
             }
@@ -831,6 +863,135 @@
                 'twitterShare',
                 `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
             );
+        }
+        
+        /**
+         * Handle image file selection
+         */
+        handleImageSelection(event) {
+            const files = Array.from(event.target.files);
+            const maxFiles = parseInt(this.imageInput.dataset.maxFiles);
+            const maxSize = parseInt(this.imageInput.dataset.maxSize);
+            
+            // Clear previous errors
+            this.hideImageError();
+            
+            // Check file count
+            if (files.length > maxFiles) {
+                this.showImageError(anonymousMessages.strings.maxFilesError.replace('%d', maxFiles));
+                this.imageInput.value = '';
+                return;
+            }
+            
+            // Validate each file
+            const validFiles = [];
+            for (const file of files) {
+                if (file.size > maxSize) {
+                    const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(1);
+                    this.showImageError(anonymousMessages.strings.fileTooLargeError.replace('%s', file.name).replace('%s', maxSizeMB));
+                    this.imageInput.value = '';
+                    return;
+                }
+                
+                if (!file.type.startsWith('image/')) {
+                    this.showImageError(anonymousMessages.strings.invalidImageType.replace('%s', file.name));
+                    this.imageInput.value = '';
+                    return;
+                }
+                
+                validFiles.push(file);
+            }
+            
+            this.selectedImages = validFiles;
+            this.showImagePreview();
+        }
+        
+        /**
+         * Show image preview
+         */
+        showImagePreview() {
+            if (!this.imagePreviewContainer) return;
+            
+            this.imagePreviewContainer.innerHTML = '';
+            
+            if (this.selectedImages.length === 0) {
+                this.imagePreviewContainer.style.display = 'none';
+                return;
+            }
+            
+            this.imagePreviewContainer.style.display = 'block';
+            
+            this.selectedImages.forEach((file, index) => {
+                const preview = document.createElement('div');
+                preview.className = 'image-preview-item';
+                
+                const img = document.createElement('img');
+                img.className = 'preview-image';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'remove-image';
+                removeBtn.innerHTML = '×';
+                removeBtn.title = anonymousMessages.strings.removeImage;
+                removeBtn.addEventListener('click', () => this.removeImage(index));
+                
+                const fileName = document.createElement('div');
+                fileName.className = 'image-name';
+                fileName.textContent = file.name;
+                
+                // Load image preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                
+                preview.appendChild(img);
+                preview.appendChild(removeBtn);
+                preview.appendChild(fileName);
+                this.imagePreviewContainer.appendChild(preview);
+            });
+        }
+        
+        /**
+         * Remove image from selection
+         */
+        removeImage(index) {
+            this.selectedImages.splice(index, 1);
+            this.updateImageInput();
+            this.showImagePreview();
+        }
+        
+        /**
+         * Update file input with selected images
+         */
+        updateImageInput() {
+            if (!this.imageInput) return;
+            
+            const dt = new DataTransfer();
+            this.selectedImages.forEach(file => {
+                dt.items.add(file);
+            });
+            this.imageInput.files = dt.files;
+        }
+        
+        /**
+         * Show image upload error
+         */
+        showImageError(message) {
+            if (this.imageUploadError) {
+                this.imageUploadError.textContent = message;
+                this.imageUploadError.style.display = 'block';
+            }
+        }
+        
+        /**
+         * Hide image upload error
+         */
+        hideImageError() {
+            if (this.imageUploadError) {
+                this.imageUploadError.style.display = 'none';
+            }
         }
     }
     

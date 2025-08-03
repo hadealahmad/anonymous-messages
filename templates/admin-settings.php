@@ -200,29 +200,6 @@ if (!defined('ABSPATH')) {
                 </td>
             </tr>
 
-            <!-- Moderation Settings -->
-            <tr>
-                <th colspan="2">
-                    <h2><?php _e('Moderation', 'anonymous-messages'); ?></h2>
-                </th>
-            </tr>
-            
-            <tr>
-                <th scope="row">
-                    <label for="auto_approve"><?php _e('Auto-approve Messages', 'anonymous-messages'); ?></label>
-                </th>
-                <td>
-                    <label>
-                        <input type="checkbox" id="auto_approve" name="auto_approve" 
-                               <?php checked($options['auto_approve'] ?? false); ?> />
-                        <?php _e('Automatically approve messages (not recommended)', 'anonymous-messages'); ?>
-                    </label>
-                    <p class="description">
-                        <?php _e('When enabled, messages will be automatically marked as answered without admin review', 'anonymous-messages'); ?>
-                    </p>
-                </td>
-            </tr>
-            
         </table>
         
         <!-- Twitter Share Settings -->
@@ -248,6 +225,82 @@ if (!defined('ABSPATH')) {
                                placeholder="QandA" />
                         <p class="description">
                             <?php _e('The hashtag to include with shared tweets (without the # symbol)', 'anonymous-messages'); ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="settings-section">
+            <h2><?php _e('Image Upload Settings', 'anonymous-messages'); ?></h2>
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="enable_image_uploads"><?php _e('Enable Image Uploads', 'anonymous-messages'); ?></label>
+                    </th>
+                    <td>
+                        <label>
+                            <input type="checkbox" id="enable_image_uploads" name="enable_image_uploads" 
+                                   <?php checked($options['enable_image_uploads'] ?? true); ?> />
+                            <?php _e('Allow visitors to attach images to their messages', 'anonymous-messages'); ?>
+                        </label>
+                        <p class="description">
+                            <?php _e('When enabled, visitors can upload images with their questions. Gutenberg blocks can still disable this individually.', 'anonymous-messages'); ?>
+                        </p>
+                    </td>
+                </tr>
+                
+                <tr id="image_upload_options" style="<?php echo !($options['enable_image_uploads'] ?? true) ? 'display: none;' : ''; ?>">
+                    <th scope="row">
+                        <label for="max_image_size"><?php _e('Maximum Image Size (MB)', 'anonymous-messages'); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="max_image_size" name="max_image_size" 
+                               value="<?php echo esc_attr($options['max_image_size'] ?? 2); ?>" 
+                               min="0.1" max="50" step="0.1" class="small-text" />
+                        <p class="description">
+                            <?php _e('Maximum file size allowed per image in megabytes', 'anonymous-messages'); ?>
+                        </p>
+                    </td>
+                </tr>
+                
+                <tr id="max_images_row" style="<?php echo !($options['enable_image_uploads'] ?? true) ? 'display: none;' : ''; ?>">
+                    <th scope="row">
+                        <label for="max_images_per_message"><?php _e('Maximum Images per Message', 'anonymous-messages'); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="max_images_per_message" name="max_images_per_message" 
+                               value="<?php echo esc_attr($options['max_images_per_message'] ?? 3); ?>" 
+                               min="1" max="10" class="small-text" />
+                        <p class="description">
+                            <?php _e('Maximum number of images allowed per message', 'anonymous-messages'); ?>
+                        </p>
+                    </td>
+                </tr>
+                
+                <tr id="allowed_image_types_row" style="<?php echo !($options['enable_image_uploads'] ?? true) ? 'display: none;' : ''; ?>">
+                    <th scope="row">
+                        <label for="allowed_image_types"><?php _e('Allowed Image Types', 'anonymous-messages'); ?></label>
+                    </th>
+                    <td>
+                        <?php
+                        $allowed_types = $options['allowed_image_types'] ?? array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
+                        $all_types = array(
+                            'image/jpeg' => 'JPEG',
+                            'image/png' => 'PNG',
+                            'image/gif' => 'GIF',
+                            'image/webp' => 'WebP'
+                        );
+                        foreach ($all_types as $mime_type => $label) {
+                            $checked = in_array($mime_type, $allowed_types) ? 'checked' : '';
+                            echo '<label style="margin-right: 15px;">';
+                            echo '<input type="checkbox" name="allowed_image_types[]" value="' . esc_attr($mime_type) . '" ' . $checked . '> ';
+                            echo esc_html($label);
+                            echo '</label>';
+                        }
+                        ?>
+                        <p class="description">
+                            <?php _e('Select which image file types are allowed for upload', 'anonymous-messages'); ?>
                         </p>
                     </td>
                 </tr>
@@ -288,7 +341,8 @@ if (!defined('ABSPATH')) {
                             $tables = array(
                                 $wpdb->prefix . 'anonymous_messages',
                                 $wpdb->prefix . 'anonymous_message_categories',
-                                $wpdb->prefix . 'anonymous_message_responses'
+                                $wpdb->prefix . 'anonymous_message_responses',
+                $wpdb->prefix . 'anonymous_message_attachments'
                             );
                             $all_exist = true;
                             foreach ($tables as $table) {
@@ -366,10 +420,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Image upload settings toggle
+    const enableImageUploads = document.getElementById('enable_image_uploads');
+    const imageUploadOptions = document.getElementById('image_upload_options');
+    const maxImagesRow = document.getElementById('max_images_row');
+    const allowedImageTypesRow = document.getElementById('allowed_image_types_row');
+    
+    function toggleImageUploadSettings() {
+        const isEnabled = enableImageUploads.checked;
+        
+        const rows = [imageUploadOptions, maxImagesRow, allowedImageTypesRow];
+        rows.forEach(function(row) {
+            if (row) {
+                row.style.display = isEnabled ? '' : 'none';
+            }
+        });
+    }
+    
     postAnswerMode.addEventListener('change', togglePostTypeSettings);
     enableRateLimiting.addEventListener('change', toggleRateLimitingSettings);
+    if (enableImageUploads) {
+        enableImageUploads.addEventListener('change', toggleImageUploadSettings);
+    }
     
     togglePostTypeSettings(); // Initial setup
     toggleRateLimitingSettings(); // Initial setup
+    if (enableImageUploads) {
+        toggleImageUploadSettings(); // Initial setup
+    }
 });
 </script>

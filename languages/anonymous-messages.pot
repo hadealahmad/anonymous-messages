@@ -1,805 +1,1302 @@
-# Anonymous Messages WordPress Plugin
-# Copyright (C) 2024 Anonymous Messages
-# This file is distributed under the same license as the Anonymous Messages plugin.
+# Copyright (C) 2025 Hadi Alahmad
+# This file is distributed under the MIT.
 msgid ""
 msgstr ""
-"Project-Id-Version: Anonymous Messages 1.0.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-01 00:00+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Project-Id-Version: Anonymous Messages 1.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/AskAnonWP\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"POT-Creation-Date: 2025-08-03T12:16:05+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: anonymous-messages\n"
 
+#. Plugin Name of the plugin
+#: anonymous-messages.php
+#: includes/class-admin.php:66
+#: includes/class-admin.php:70
+#: templates/admin-messages.php:19
+#: assets/js/block-editor.js:16
+msgid "Anonymous Messages"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: anonymous-messages.php
+msgid "https://github.com/hadealahmad/anonymous-messages"
+msgstr ""
+
+#. Description of the plugin
 #: anonymous-messages.php
 msgid "A WordPress plugin that allows site visitors to send anonymous messages through a Gutenberg block with spam protection and admin management."
 msgstr ""
 
-#: includes/class-admin.php
-msgid "Anonymous Messages"
+#. Author of the plugin
+#: anonymous-messages.php
+msgid "Hadi Alahmad"
 msgstr ""
 
-#: includes/class-admin.php
+#. Author URI of the plugin
+#: anonymous-messages.php
+msgid "https://hadealahmad.com"
+msgstr ""
+
+#: anonymous-messages.php:259
+#: templates/admin-settings.php:196
+msgid "Anonymous Answers"
+msgstr ""
+
+#: anonymous-messages.php:260
+msgid "Anonymous Answer"
+msgstr ""
+
+#: anonymous-messages.php:268
+msgid "Add New"
+msgstr ""
+
+#: anonymous-messages.php:269
+#, php-format
+msgid "Add New %s"
+msgstr ""
+
+#: anonymous-messages.php:270
+#, php-format
+msgid "Edit %s"
+msgstr ""
+
+#: anonymous-messages.php:271
+#, php-format
+msgid "New %s"
+msgstr ""
+
+#: anonymous-messages.php:272
+#: anonymous-messages.php:273
+#, php-format
+msgid "View %s"
+msgstr ""
+
+#: anonymous-messages.php:274
+#, php-format
+msgid "Search %s"
+msgstr ""
+
+#: anonymous-messages.php:275
+#, php-format
+msgid "No %s found"
+msgstr ""
+
+#: anonymous-messages.php:276
+#, php-format
+msgid "No %s found in trash"
+msgstr ""
+
+#: anonymous-messages.php:277
+#, php-format
+msgid "All %s"
+msgstr ""
+
+#: anonymous-messages.php:278
+#, php-format
+msgid "%s Archives"
+msgstr ""
+
+#: anonymous-messages.php:279
+#, php-format
+msgid "%s Attributes"
+msgstr ""
+
+#: anonymous-messages.php:280
+#, php-format
+msgid "Insert into %s"
+msgstr ""
+
+#: anonymous-messages.php:281
+#, php-format
+msgid "Uploaded to this %s"
+msgstr ""
+
+#: includes/class-admin.php:81
+#: includes/class-admin.php:82
+#: templates/admin-categories.php:78
 msgid "Messages"
 msgstr ""
 
-#: includes/class-admin.php
+#: includes/class-admin.php:90
+#: includes/class-admin.php:91
 msgid "Categories"
 msgstr ""
 
-#: includes/class-admin.php
+#: includes/class-admin.php:99
+#: includes/class-admin.php:100
 msgid "Settings"
 msgstr ""
 
-#: includes/class-admin.php
+#: includes/class-admin.php:136
+msgid "Are you sure you want to delete this message?"
+msgstr ""
+
+#: includes/class-admin.php:137
+msgid "Are you sure you want to delete this category?"
+msgstr ""
+
+#: includes/class-admin.php:138
+msgid "Success!"
+msgstr ""
+
+#: includes/class-admin.php:139
+msgid "Error occurred. Please try again."
+msgstr ""
+
+#: includes/class-admin.php:140
+#: includes/class-gutenberg-block.php:237
+#: includes/class-gutenberg-block.php:524
+msgid "Loading..."
+msgstr ""
+
+#: includes/class-admin.php:141
+#: includes/class-gutenberg-block.php:241
+#: includes/class-gutenberg-block.php:528
+msgid "Asked"
+msgstr ""
+
+#: includes/class-admin.php:142
+#: includes/class-gutenberg-block.php:242
+#: includes/class-gutenberg-block.php:529
+#: templates/admin-messages.php:283
+msgid "Answered"
+msgstr ""
+
+#: includes/class-admin.php:143
+#: includes/class-gutenberg-block.php:244
+#: includes/class-gutenberg-block.php:531
+#: templates/admin-messages.php:303
+msgid "Share on Twitter"
+msgstr ""
+
+#: includes/class-admin.php:144
+#: includes/class-gutenberg-block.php:245
+#: includes/class-gutenberg-block.php:532
+msgctxt "Question prefix for Twitter sharing"
+msgid "q:"
+msgstr ""
+
+#: includes/class-admin.php:145
+#: includes/class-gutenberg-block.php:246
+#: includes/class-gutenberg-block.php:533
+msgctxt "Answer prefix for Twitter sharing"
+msgid "a:"
+msgstr ""
+
+#: includes/class-admin.php:146
+msgid "Please enter a response."
+msgstr ""
+
+#: includes/class-admin.php:147
+msgid "Please select a post."
+msgstr ""
+
+#: includes/class-admin.php:148
+#: includes/class-gutenberg-block.php:231
+#: includes/class-gutenberg-block.php:518
+#: templates/block-template.php:111
+msgid "Submitting..."
+msgstr ""
+
+#: includes/class-admin.php:149
+msgid "Category name is required."
+msgstr ""
+
+#: includes/class-admin.php:150
+#: templates/admin-messages.php:225
+msgid "Show full answer"
+msgstr ""
+
+#: includes/class-admin.php:151
+msgid "Hide full answer"
+msgstr ""
+
+#: includes/class-admin.php:218
+msgid "Settings saved successfully!"
+msgstr ""
+
+#: includes/class-admin.php:366
+#: includes/class-admin.php:412
+#: includes/class-admin.php:469
+#: includes/class-admin.php:509
+#: includes/class-admin.php:537
+#: includes/class-admin.php:571
+#: includes/class-admin.php:599
+#: includes/class-admin.php:638
+#: includes/class-admin.php:678
+#: includes/class-admin.php:964
+msgid "Unauthorized"
+msgstr ""
+
+#: includes/class-admin.php:376
+#: includes/class-admin.php:479
+#: includes/class-admin.php:544
+#: includes/class-admin.php:685
+#: includes/class-admin.php:972
+msgid "Invalid message ID"
+msgstr ""
+
+#: includes/class-admin.php:382
+#: includes/class-admin.php:428
+#: includes/class-admin.php:484
+#: includes/class-admin.php:653
+msgid "Short response cannot be empty"
+msgstr ""
+
+#: includes/class-admin.php:388
+#: includes/class-admin.php:434
+#: includes/class-admin.php:489
+#: includes/class-admin.php:658
+msgid "Invalid post ID"
+msgstr ""
+
+#: includes/class-admin.php:397
+#: includes/class-admin.php:497
+msgid "Response added successfully!"
+msgstr ""
+
+#: includes/class-admin.php:399
+#: includes/class-admin.php:499
+msgid "Failed to add response"
+msgstr ""
+
+#: includes/class-admin.php:422
+#: includes/class-admin.php:648
+msgid "Invalid response ID"
+msgstr ""
+
+#: includes/class-admin.php:443
+#: includes/class-admin.php:666
+msgid "Response updated successfully!"
+msgstr ""
+
+#: includes/class-admin.php:445
+#: includes/class-admin.php:668
+msgid "Failed to update response"
+msgstr ""
+
+#: includes/class-admin.php:517
+msgid "Invalid parameters"
+msgstr ""
+
+#: includes/class-admin.php:525
+msgid "Status updated successfully!"
+msgstr ""
+
+#: includes/class-admin.php:527
+msgid "Failed to update status"
+msgstr ""
+
+#: includes/class-admin.php:559
+msgid "Message deleted successfully!"
+msgstr ""
+
+#: includes/class-admin.php:561
+msgid "Failed to delete message"
+msgstr ""
+
+#: includes/class-admin.php:579
+msgid "Category name is required"
+msgstr ""
+
+#: includes/class-admin.php:587
+msgid "Category created successfully!"
+msgstr ""
+
+#: includes/class-admin.php:589
+msgid "Failed to create category"
+msgstr ""
+
+#: includes/class-admin.php:606
+msgid "Invalid category ID"
+msgstr ""
+
+#: includes/class-admin.php:626
+msgid "Category deleted successfully!"
+msgstr ""
+
+#: includes/class-admin.php:628
+msgid "Failed to delete category"
+msgstr ""
+
+#: includes/class-admin.php:695
+msgid "Message not found"
+msgstr ""
+
+#: includes/class-admin.php:709
+msgid "You do not have permission to export messages."
+msgstr ""
+
+#: includes/class-admin.php:717
+msgid "Security check failed. Please try again."
+msgstr ""
+
+#: includes/class-admin.php:788
+msgid "No messages found to export. Please adjust your filters or check if there are any messages available."
+msgstr ""
+
+#: includes/class-admin.php:825
+msgid "ID"
+msgstr ""
+
+#: includes/class-admin.php:826
+msgid "Sender Name"
+msgstr ""
+
+#: includes/class-admin.php:827
+#: templates/admin-messages.php:140
+msgid "Message"
+msgstr ""
+
+#: includes/class-admin.php:828
+#: templates/admin-messages.php:143
+msgid "Category"
+msgstr ""
+
+#: includes/class-admin.php:829
+msgid "Status"
+msgstr ""
+
+#: includes/class-admin.php:830
+#: templates/admin-messages.php:372
+#: templates/admin-messages.php:478
+msgid "Response Type"
+msgstr ""
+
+#: includes/class-admin.php:831
+msgid "Response"
+msgstr ""
+
+#: includes/class-admin.php:832
+msgid "Created Date"
+msgstr ""
+
+#: includes/class-admin.php:833
+msgid "Updated Date"
+msgstr ""
+
+#: includes/class-admin.php:854
+#: includes/class-admin.php:893
+msgid "Uncategorized"
+msgstr ""
+
+#: includes/class-admin.php:856
+msgid "No Response"
+msgstr ""
+
+#: includes/class-admin.php:870
+#: includes/class-admin.php:934
+msgid "Export failed. Please try again or contact support if the problem persists."
+msgstr ""
+
+#: includes/class-admin.php:988
+msgid "Invalid category"
+msgstr ""
+
+#: includes/class-admin.php:1016
+msgid "Category updated successfully!"
+msgstr ""
+
+#: includes/class-admin.php:1020
+msgid "Failed to update category"
+msgstr ""
+
+#: includes/class-admin.php:1037
+msgid "Post type settings updated! The changes are now active."
+msgstr ""
+
+#: includes/class-admin.php:1061
 msgid "anon. msg."
 msgstr ""
 
-#: includes/class-admin.php
+#: includes/class-admin.php:1069
+#, php-format
 msgid "%d pending anonymous message"
 msgid_plural "%d pending anonymous messages"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-admin.php
-msgid "Anonymous Messages Settings"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Google reCAPTCHA Settings"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Site Key"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Share on Twitter"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Share"
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "q:"
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgctxt "Question prefix for Twitter sharing"
-msgid "q:"
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgctxt "Answer prefix for Twitter sharing"
-msgid "a:"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Twitter Share Settings"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Customize the Twitter sharing functionality for your questions and answers."
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Default Hashtag"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "The hashtag to include with shared tweets (without the # symbol)"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Secret Key"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Rate Limiting"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Seconds between messages"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Messages per page"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Save Settings"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Settings saved successfully!"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Message responded successfully!"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Message status updated successfully!"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Message deleted successfully!"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Category created successfully!"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Category deleted successfully!"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Response updated successfully!"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Message not found."
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Invalid response data."
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Failed to update response."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Security check failed."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Message is required."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Message is too long. Maximum 1000 characters allowed."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "reCAPTCHA verification failed."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Rate limit exceeded. Please wait before sending another message."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Failed to save message. Please try again."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Message submitted successfully!"
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Invalid category."
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "Submitting..."
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "Your message has been submitted successfully!"
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "There was an error submitting your message. Please try again."
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "Please wait %d seconds before sending another message."
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "Failed to load questions. Please try again."
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "Loading more..."
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "Load More Questions"
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "No more questions available."
-msgstr ""
-
-#: templates/block-template.php
-msgid "Anonymous Messages"
-msgstr ""
-
-#: templates/block-template.php
-msgid "Ask your anonymous question here..."
-msgstr ""
-
-#: templates/block-template.php
-msgid "Your Message"
-msgstr ""
-
-#: templates/block-template.php
-msgid "Category (Optional)"
-msgstr ""
-
-#: templates/block-template.php
-msgid "All Categories"
-msgstr ""
-
-#: templates/block-template.php
-msgid "Send Message"
-msgstr ""
-
-#: templates/block-template.php
-msgid "Please wait %d seconds before sending another message."
-msgstr ""
-
-#: templates/block-template.php
-msgid "Filter Questions"
-msgstr ""
-
-#: templates/block-template.php
-msgid "All Questions"
-msgstr ""
-
-#: templates/block-template.php
-msgid "Previously Answered Questions"
-msgstr ""
-
-#: templates/block-template.php
-msgid "No questions have been answered yet."
-msgstr ""
-
-#: templates/block-template.php
-msgid "Loading questions..."
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Anonymous Messages - Manage Messages"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Search Messages"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Search messages, sender names, or responses..."
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "All Categories"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Clear Filters"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Export CSV"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Export JSON"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Showing %d-%d of %d messages"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Filtered results: %d messages found"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Pending Messages"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Answered Messages"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "ID"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Sender"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Category"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Message"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Date"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Actions"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Answer"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "No pending messages found."
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Short Answer"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Post Answer"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Answer:"
-msgstr ""
-
-#: includes/class-admin.php:134 includes/class-gutenberg-block.php:224
-#: includes/class-gutenberg-block.php:507
-msgid "Asked"
-msgstr ""
-
-#: includes/class-admin.php:135 includes/class-gutenberg-block.php:225
-#: includes/class-gutenberg-block.php:508
-msgid "Answered"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Edit Answer"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "View Full Answer"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Hide Full Answer"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Mark as Featured"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Remove Featured"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Delete"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "No answered messages found."
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Response Type:"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Short answer (displayed directly)"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Post answer (link to full post)"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Your short answer:"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Select or create a post:"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Select a post..."
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Submit Answer"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Cancel"
-msgstr ""
-
-#: templates/admin-messages.php
-msgid "Update Answer"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Anonymous Messages - Manage Categories"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Add New Category"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Category Name"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Category Description"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Add Category"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Existing Categories"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Name"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Description"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "Messages Count"
-msgstr ""
-
-#: templates/admin-categories.php
-msgid "No categories found."
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Anonymous Messages - Settings"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Google reCAPTCHA v3 Settings"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Get your reCAPTCHA keys from"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Google reCAPTCHA"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Enter your reCAPTCHA v3 site key"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Enter your reCAPTCHA v3 secret key"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Rate Limiting Settings"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Number of seconds users must wait between sending messages"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Display Settings"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Number of messages to display per page in the frontend"
-msgstr ""
-
-#: assets/js/admin.js
-msgid "Are you sure you want to delete this message?"
-msgstr ""
-
-#: assets/js/admin.js
-msgid "Are you sure you want to delete this category?"
-msgstr ""
-
-#: assets/js/admin.js
-msgid "Please enter a category name."
-msgstr ""
-
-#: assets/js/admin.js
-msgid "Please select a response type."
-msgstr ""
-
-#: assets/js/admin.js
-msgid "Please enter a short answer."
-msgstr ""
-
-#: assets/js/admin.js
-msgid "Please select a post for the answer."
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Anonymous Answers"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Anonymous Answer"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "All %s"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "%s Archives"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "%s Attributes"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Insert into %s"
-msgstr ""
-
-#: includes/class-admin.php
-msgid "Uploaded to this %s"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Custom Post Type Details"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Post Type:"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "Display Name:"
-msgstr ""
-
-#: templates/admin-settings.php
-msgid "A custom post type will be automatically created for anonymous message responses."
-msgstr ""
-
-#: includes/class-admin.php:691
-msgid "Post type settings updated! The changes are now active."
-msgstr ""
-
-#: templates/block-template.php:55
-msgid "Your message will be sent anonymously. No personal information is collected."
-msgstr ""
-
-#: templates/block-template.php:63
-msgid "Category (optional):"
-msgstr ""
-
-#: templates/block-template.php:66
-msgid "Select a category..."
-msgstr ""
-
-#: templates/block-template.php:127
-msgid "Search questions and answers:"
-msgstr ""
-
-#: templates/block-template.php:132
-msgid "Type to search..."
-msgstr ""
-
-#: templates/block-template.php:140
-msgid "Filter by Category:"
-msgstr ""
-
-#: templates/block-template.php:162
-msgid "Loading questions..."
-msgstr ""
-
-#: templates/block-template.php:168
-msgid "Load More Questions"
-msgstr ""
-
-#: templates/block-template.php:174
-msgid "No answered questions yet. Be the first to ask!"
-msgstr ""
-
-#: templates/block-template.php:186
-msgid "JavaScript is required for the Anonymous Messages block to function properly. Please enable JavaScript in your browser."
-msgstr ""
-
-#: includes/class-gutenberg-block.php:207
-msgid "Answer:"
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "Please wait %s seconds before sending another message."
-msgstr ""
-
-#: assets/js/block-frontend.js
-msgid "Thank you! Your message has been submitted successfully."
-msgstr ""
-
-msgid "No messages found to export. Please adjust your filters or check if there are any messages available."
-msgstr ""
-
-msgid "Export failed. Please try again or contact support if the problem persists."
-msgstr ""
-
-msgid "You do not have permission to export messages."
-msgstr ""
-
-msgid "Security check failed. Please try again."
-msgstr ""
-
-msgid "Allow users to categorize their messages"
-msgstr ""
-
-msgid "Allow marking questions as featured"
-msgstr ""
-
-msgid "The site key for reCAPTCHA v3"
-msgstr ""
-
-msgid "The secret key for reCAPTCHA v3 (keep this private)"
-msgstr ""
-
-msgid "How long users must wait between message submissions (minimum 30 seconds)"
-msgstr ""
-
-msgid "Number of answered questions to show per page on frontend"
-msgstr ""
-
-msgid "Use Existing Post Type"
-msgstr ""
-
-msgid "Create Custom Post Type"
-msgstr ""
-
-msgid "Disable Post Answers"
-msgstr ""
-
-msgid "Choose how post answers should be handled"
-msgstr ""
-
-msgid "Select which post type to use for post answers"
-msgstr ""
-
-msgid "Automatically approve messages (not recommended)"
-msgstr ""
-
-msgid "When enabled, messages will be automatically marked as answered without admin review"
-msgstr ""
-
-msgid "Customize the Twitter sharing functionality for your questions and answers."
-msgstr ""
-
-msgid "The hashtag to include with shared tweets (without the # symbol)"
-msgstr ""
-
-msgid "Active"
-msgstr ""
-
-msgid "Not Available"
-msgstr ""
-
-msgid "All tables exist"
-msgstr ""
-
-msgid "Some tables missing"
-msgstr ""
-
-msgid "Custom Post Type Details"
-msgstr ""
-
-msgid "Post Type:"
-msgstr ""
-
-msgid "Display Name:"
-msgstr ""
-
-msgid "Anonymous Answers"
-msgstr ""
-
-msgid "A custom post type will be automatically created for anonymous message responses."
-msgstr ""
-
-msgid "Plugin Version:"
-msgstr ""
-
-msgid "WordPress Version:"
-msgstr ""
-
-msgid "PHP Version:"
-msgstr ""
-
-msgid "Session Support:"
-msgstr ""
-
-msgid "Database Tables:"
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Please enter a message."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Message must be at least 10 characters long."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Message is too long. Please keep it under 2000 characters."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "reCAPTCHA verification failed. Please try again."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Your message contains inappropriate content. Please modify your message and try again."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Thank you! Your message has been submitted successfully."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Failed to save your message. Please try again."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "An unexpected error occurred. Please try again."
-msgstr ""
-
-#: includes/class-ajax-handler.php
-msgid "Please wait before sending another message."
-msgstr ""
-
-#: includes/class-ajax-handler.php
+#: includes/class-ajax-handler.php:57
 msgid "Security verification failed. Please refresh the page and try again."
 msgstr ""
 
-#: includes/class-ajax-handler.php
+#: includes/class-ajax-handler.php:65
+msgid "Please wait before sending another message."
+msgstr ""
+
+#: includes/class-ajax-handler.php:79
+msgid "Please enter a message."
+msgstr ""
+
+#: includes/class-ajax-handler.php:87
+msgid "Message must be at least 10 characters long."
+msgstr ""
+
+#: includes/class-ajax-handler.php:94
+msgid "Message is too long. Please keep it under 2000 characters."
+msgstr ""
+
+#: includes/class-ajax-handler.php:102
+#: includes/class-gutenberg-block.php:234
+#: includes/class-gutenberg-block.php:521
+msgid "reCAPTCHA verification failed. Please try again."
+msgstr ""
+
+#: includes/class-ajax-handler.php:110
+msgid "Your message contains inappropriate content. Please modify your message and try again."
+msgstr ""
+
+#: includes/class-ajax-handler.php:140
+msgid "Thank you! Your message has been submitted successfully."
+msgstr ""
+
+#: includes/class-ajax-handler.php:142
+msgid "Note: Some images could not be uploaded."
+msgstr ""
+
+#: includes/class-ajax-handler.php:153
+msgid "Failed to save your message. Please try again."
+msgstr ""
+
+#: includes/class-ajax-handler.php:160
+msgid "An unexpected error occurred. Please try again."
+msgstr ""
+
+#: includes/class-ajax-handler.php:173
 msgid "Security verification failed."
 msgstr ""
 
-#: includes/class-ajax-handler.php
+#: includes/class-ajax-handler.php:239
 msgid "Failed to load questions. Please try again."
 msgstr ""
 
-#: assets/js/block-editor.js
+#: includes/class-ajax-handler.php:435
+#: includes/class-ajax-handler.php:470
+#, php-format
+msgid "New Anonymous Message Received - [%s]"
+msgstr ""
+
+#: includes/class-ajax-handler.php:441
+msgid "You have received a new anonymous message."
+msgstr ""
+
+#: includes/class-ajax-handler.php:447
+#: includes/class-ajax-handler.php:482
+msgid "View and respond to pending messages"
+msgstr ""
+
+#: includes/class-ajax-handler.php:476
+msgid "A new anonymous message has been submitted to your website."
+msgstr ""
+
+#: includes/class-ajax-handler.php:520
+#, php-format
+msgid "Too many files. Maximum %d allowed."
+msgstr ""
+
+#: includes/class-ajax-handler.php:548
+#, php-format
+msgid "Upload error for %s."
+msgstr ""
+
+#: includes/class-ajax-handler.php:555
+#, php-format
+msgid "File %s is too large. Maximum size: %.1fMB"
+msgstr ""
+
+#: includes/class-ajax-handler.php:565
+#, php-format
+msgid "File %s has invalid type."
+msgstr ""
+
+#: includes/class-ajax-handler.php:587
+#, php-format
+msgid "Failed to save attachment info for %s."
+msgstr ""
+
+#: includes/class-ajax-handler.php:592
+#, php-format
+msgid "Failed to upload %s."
+msgstr ""
+
+#: includes/class-gutenberg-block.php:89
+msgid "Show category filter for answered questions (categories are admin-assigned only)"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:94
+msgid "Show the section with answered questions below the form"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:99
+msgid "Number of questions to show per page in the answered questions list"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:104
+msgid "Enable Google reCAPTCHA v3 spam protection"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:108
+#: includes/class-gutenberg-block.php:555
+#: assets/js/block-editor.js:49
+msgid "Ask your anonymous question here..."
+msgstr ""
+
+#: includes/class-gutenberg-block.php:109
+msgid "Custom placeholder text for the message input field"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:114
+msgid "Assign messages from this block to a specific user"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:119
+msgid "Send an email notification to the assigned user or admin for new messages"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:124
+msgid "Allow image uploads with messages (can override global setting)"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:232
+#: includes/class-gutenberg-block.php:519
+msgid "Your message has been submitted successfully!"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:233
+#: includes/class-gutenberg-block.php:520
+msgid "There was an error submitting your message. Please try again."
+msgstr ""
+
+#: includes/class-gutenberg-block.php:235
+#: includes/class-gutenberg-block.php:522
+#, php-format
+msgid "Please wait %d seconds before sending another message."
+msgstr ""
+
+#: includes/class-gutenberg-block.php:236
+#: includes/class-gutenberg-block.php:523
+#: templates/block-template.php:197
+msgid "Load More Questions"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:238
+#: includes/class-gutenberg-block.php:525
+msgid "No answered questions yet."
+msgstr ""
+
+#: includes/class-gutenberg-block.php:239
+#: includes/class-gutenberg-block.php:526
+#: templates/admin-messages.php:51
+#: templates/block-template.php:172
+#: assets/js/block-editor.js:197
+msgid "All Categories"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:240
+#: includes/class-gutenberg-block.php:527
+#: templates/admin-messages.php:216
+#: assets/js/block-editor.js:232
+msgid "Answer:"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:243
+#: includes/class-gutenberg-block.php:530
+#: templates/admin-messages.php:305
+msgid "Share"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:247
+#: includes/class-gutenberg-block.php:534
+#, php-format
+msgid "Maximum %d images allowed."
+msgstr ""
+
+#: includes/class-gutenberg-block.php:248
+#: includes/class-gutenberg-block.php:535
+#, php-format
+msgid "File \"%s\" is too large. Maximum size: %sMB"
+msgstr ""
+
+#: includes/class-gutenberg-block.php:249
+#: includes/class-gutenberg-block.php:536
+#, php-format
+msgid "File \"%s\" is not a valid image."
+msgstr ""
+
+#: includes/class-gutenberg-block.php:250
+#: includes/class-gutenberg-block.php:537
+msgid "Remove image"
+msgstr ""
+
+#: includes/class-security.php:104
+msgid "Direct access to this file is not allowed."
+msgstr ""
+
+#: templates/admin-categories.php:13
+msgid "Message Categories"
+msgstr ""
+
+#: templates/admin-categories.php:19
+msgid "Add New Category"
+msgstr ""
+
+#: templates/admin-categories.php:24
+msgid "Category Name"
+msgstr ""
+
+#: templates/admin-categories.php:30
+msgid "The name of the category as it will appear to users"
+msgstr ""
+
+#: templates/admin-categories.php:36
+#: templates/admin-categories.php:75
+msgid "Description"
+msgstr ""
+
+#: templates/admin-categories.php:42
+msgid "Optional description for this category"
+msgstr ""
+
+#: templates/admin-categories.php:50
+msgid "Add Category"
+msgstr ""
+
+#: templates/admin-categories.php:60
+msgid "Existing Categories"
+msgstr ""
+
+#: templates/admin-categories.php:63
+msgid "No categories created yet."
+msgstr ""
+
+#: templates/admin-categories.php:69
+msgid "Name"
+msgstr ""
+
+#: templates/admin-categories.php:72
+msgid "Slug"
+msgstr ""
+
+#: templates/admin-categories.php:81
+#: templates/admin-messages.php:149
+msgid "Actions"
+msgstr ""
+
+#: templates/admin-categories.php:102
+#: templates/admin-categories.php:134
+msgid "Edit"
+msgstr ""
+
+#: templates/admin-categories.php:108
+#: templates/admin-categories.php:140
+#: templates/admin-messages.php:312
+msgid "Delete"
+msgstr ""
+
+#: templates/admin-categories.php:144
+msgid "Cannot delete (has messages)"
+msgstr ""
+
+#: templates/admin-categories.php:162
+msgid "Edit Category"
+msgstr ""
+
+#: templates/admin-categories.php:170
+msgid "Category Name:"
+msgstr ""
+
+#: templates/admin-categories.php:176
+msgid "Description:"
+msgstr ""
+
+#: templates/admin-categories.php:186
+msgid "Save Changes"
+msgstr ""
+
+#: templates/admin-categories.php:189
+#: templates/admin-messages.php:441
+#: templates/admin-messages.php:537
+msgid "Cancel"
+msgstr ""
+
+#: templates/admin-messages.php:25
+#, php-format
+msgid "Pending (%d)"
+msgstr ""
+
+#: templates/admin-messages.php:29
+#, php-format
+msgid "Answered (%d)"
+msgstr ""
+
+#: templates/admin-messages.php:33
+#, php-format
+msgid "Featured (%d)"
+msgstr ""
+
+#: templates/admin-messages.php:46
+msgid "Search messages..."
+msgstr ""
+
+#: templates/admin-messages.php:64
+msgid "All Users"
+msgstr ""
+
+#: templates/admin-messages.php:74
+msgid "Filter"
+msgstr ""
+
+#: templates/admin-messages.php:78
+msgid "Clear Filters"
+msgstr ""
+
+#: templates/admin-messages.php:85
+msgid "Export:"
+msgstr ""
+
+#: templates/admin-messages.php:95
+msgid "CSV"
+msgstr ""
+
+#: templates/admin-messages.php:106
+msgid "JSON"
+msgstr ""
+
+#: templates/admin-messages.php:117
+#, php-format
+msgid "Showing %d of %d pending messages"
+msgstr ""
+
+#: templates/admin-messages.php:119
+#, php-format
+msgid "Showing %d of %d answered messages"
+msgstr ""
+
+#: templates/admin-messages.php:121
+#, php-format
+msgid "Showing %d of %d featured messages"
+msgstr ""
+
+#: templates/admin-messages.php:125
+#, php-format
+msgid " matching \"%s\""
+msgstr ""
+
+#: templates/admin-messages.php:137
+msgid "Sender"
+msgstr ""
+
+#: templates/admin-messages.php:146
+msgid "Date"
+msgstr ""
+
+#: templates/admin-messages.php:157
+msgid "No messages found."
+msgstr ""
+
+#: templates/admin-messages.php:168
+#: templates/admin-messages.php:286
+msgid "Featured"
+msgstr ""
+
+#: templates/admin-messages.php:177
+#: templates/admin-messages.php:555
+msgid "Show full message"
+msgstr ""
+
+#: templates/admin-messages.php:190
+msgid "Attached Images:"
+msgstr ""
+
+#: templates/admin-messages.php:251
+msgid "No Category"
+msgstr ""
+
+#: templates/admin-messages.php:272
+msgid "Respond"
+msgstr ""
+
+#: templates/admin-messages.php:280
+msgid "Pending"
+msgstr ""
+
+#: templates/admin-messages.php:296
+#: templates/admin-messages.php:455
+msgid "Edit Answer"
+msgstr ""
+
+#: templates/admin-messages.php:333
+msgid "&laquo;"
+msgstr ""
+
+#: templates/admin-messages.php:334
+msgid "&raquo;"
+msgstr ""
+
+#: templates/admin-messages.php:350
+msgid "Respond to Message"
+msgstr ""
+
+#: templates/admin-messages.php:351
+#: templates/admin-messages.php:456
+msgid "Close"
+msgstr ""
+
+#: templates/admin-messages.php:358
+#: templates/admin-messages.php:463
+msgid "Original Message"
+msgstr ""
+
+#: templates/admin-messages.php:375
+#: templates/admin-messages.php:481
+msgid "Rich Text Answer"
+msgstr ""
+
+#: templates/admin-messages.php:380
+#: templates/admin-messages.php:486
+msgid "Link to Post"
+msgstr ""
+
+#: templates/admin-messages.php:388
+#: templates/admin-messages.php:494
+msgid "Your Answer"
+msgstr ""
+
+#: templates/admin-messages.php:412
+#: templates/admin-messages.php:517
+msgid "Select Post"
+msgstr ""
+
+#: templates/admin-messages.php:415
+#: templates/admin-messages.php:520
+msgid "Select a post..."
+msgstr ""
+
+#: templates/admin-messages.php:431
+#: templates/admin-messages.php:527
+msgid "Link this message to an existing post instead of providing a text answer."
+msgstr ""
+
+#: templates/admin-messages.php:444
+msgid "Send Response"
+msgstr ""
+
+#: templates/admin-messages.php:540
+msgid "Update Answer"
+msgstr ""
+
+#: templates/admin-messages.php:558
+msgid "Hide full message"
+msgstr ""
+
+#: templates/admin-settings.php:13
+msgid "Anonymous Messages Settings"
+msgstr ""
+
+#: templates/admin-settings.php:23
+msgid "reCAPTCHA v3 Settings"
+msgstr ""
+
+#: templates/admin-settings.php:26
+#, php-format
+msgid "Get your reCAPTCHA keys from <a href=\"%s\" target=\"_blank\">Google reCAPTCHA</a>"
+msgstr ""
+
+#: templates/admin-settings.php:35
+msgid "Site Key"
+msgstr ""
+
+#: templates/admin-settings.php:42
+msgid "The site key for reCAPTCHA v3"
+msgstr ""
+
+#: templates/admin-settings.php:49
+msgid "Secret Key"
+msgstr ""
+
+#: templates/admin-settings.php:56
+msgid "The secret key for reCAPTCHA v3 (keep this private)"
+msgstr ""
+
+#: templates/admin-settings.php:64
+msgid "Rate Limiting"
+msgstr ""
+
+#: templates/admin-settings.php:70
+msgid "Enable Rate Limiting"
+msgstr ""
+
+#: templates/admin-settings.php:76
+msgid "Enable rate limiting for message submissions"
+msgstr ""
+
+#: templates/admin-settings.php:79
+msgid "When disabled, users can submit messages without any time restrictions"
+msgstr ""
+
+#: templates/admin-settings.php:86
+msgid "Apply to Logged-in Users"
+msgstr ""
+
+#: templates/admin-settings.php:92
+msgid "Apply rate limiting to logged-in users"
+msgstr ""
+
+#: templates/admin-settings.php:95
+msgid "When unchecked, logged-in users can submit messages without rate limiting"
+msgstr ""
+
+#: templates/admin-settings.php:102
+msgid "Rate Limit (seconds)"
+msgstr ""
+
+#: templates/admin-settings.php:109
+msgid "How long users must wait between message submissions (minimum 30 seconds)"
+msgstr ""
+
+#: templates/admin-settings.php:117
+#: assets/js/block-editor.js:82
+msgid "Display Settings"
+msgstr ""
+
+#: templates/admin-settings.php:123
+msgid "Messages Per Page"
+msgstr ""
+
+#: templates/admin-settings.php:130
+msgid "Number of answered questions to show per page on frontend"
+msgstr ""
+
+#: templates/admin-settings.php:140
+msgid "Post Answer Settings"
+msgstr ""
+
+#: templates/admin-settings.php:146
+msgid "Post Answer Mode"
+msgstr ""
+
+#: templates/admin-settings.php:151
+msgid "Use Existing Post Type"
+msgstr ""
+
+#: templates/admin-settings.php:154
+msgid "Create Custom Post Type"
+msgstr ""
+
+#: templates/admin-settings.php:157
+msgid "Disable Post Answers"
+msgstr ""
+
+#: templates/admin-settings.php:161
+msgid "Choose how post answers should be handled"
+msgstr ""
+
+#: templates/admin-settings.php:168
+msgid "Answer Post Type"
+msgstr ""
+
+#: templates/admin-settings.php:185
+msgid "Select which post type to use for post answers"
+msgstr ""
+
+#: templates/admin-settings.php:192
+msgid "Custom Post Type Details"
+msgstr ""
+
+#: templates/admin-settings.php:195
+msgid "Post Type:"
+msgstr ""
+
+#: templates/admin-settings.php:196
+msgid "Display Name:"
+msgstr ""
+
+#: templates/admin-settings.php:198
+msgid "A custom post type will be automatically created for anonymous message responses."
+msgstr ""
+
+#: templates/admin-settings.php:210
+msgid "Twitter Share Settings"
+msgstr ""
+
+#: templates/admin-settings.php:212
+msgid "Customize the Twitter sharing functionality for your questions and answers."
+msgstr ""
+
+#: templates/admin-settings.php:219
+msgid "Default Hashtag"
+msgstr ""
+
+#: templates/admin-settings.php:227
+msgid "The hashtag to include with shared tweets (without the # symbol)"
+msgstr ""
+
+#: templates/admin-settings.php:235
+msgid "Image Upload Settings"
+msgstr ""
+
+#: templates/admin-settings.php:239
+#: assets/js/block-editor.js:128
+msgid "Enable Image Uploads"
+msgstr ""
+
+#: templates/admin-settings.php:245
+msgid "Allow visitors to attach images to their messages"
+msgstr ""
+
+#: templates/admin-settings.php:248
+msgid "When enabled, visitors can upload images with their questions. Gutenberg blocks can still disable this individually."
+msgstr ""
+
+#: templates/admin-settings.php:255
+msgid "Maximum Image Size (MB)"
+msgstr ""
+
+#: templates/admin-settings.php:262
+msgid "Maximum file size allowed per image in megabytes"
+msgstr ""
+
+#: templates/admin-settings.php:269
+msgid "Maximum Images per Message"
+msgstr ""
+
+#: templates/admin-settings.php:276
+msgid "Maximum number of images allowed per message"
+msgstr ""
+
+#: templates/admin-settings.php:283
+msgid "Allowed Image Types"
+msgstr ""
+
+#: templates/admin-settings.php:303
+msgid "Select which image file types are allowed for upload"
+msgstr ""
+
+#: templates/admin-settings.php:311
+msgid "Plugin Information"
+msgstr ""
+
+#: templates/admin-settings.php:315
+msgid "Plugin Version:"
+msgstr ""
+
+#: templates/admin-settings.php:319
+msgid "WordPress Version:"
+msgstr ""
+
+#: templates/admin-settings.php:323
+msgid "PHP Version:"
+msgstr ""
+
+#: templates/admin-settings.php:327
+msgid "Session Support:"
+msgstr ""
+
+#: templates/admin-settings.php:330
+msgid "Active"
+msgstr ""
+
+#: templates/admin-settings.php:332
+msgid "Not Available"
+msgstr ""
+
+#: templates/admin-settings.php:337
+msgid "Database Tables:"
+msgstr ""
+
+#: templates/admin-settings.php:356
+msgid "All tables exist"
+msgstr ""
+
+#: templates/admin-settings.php:358
+msgid "Some tables missing"
+msgstr ""
+
+#: templates/admin-settings.php:366
+msgid "Save Settings"
+msgstr ""
+
+#: templates/block-template.php:45
+msgid "Your Message"
+msgstr ""
+
+#: templates/block-template.php:57
+msgid "Your message will be sent anonymously. No personal information is collected."
+msgstr ""
+
+#: templates/block-template.php:67
+msgid "Attach Images (Optional)"
+msgstr ""
+
+#: templates/block-template.php:84
+msgid "Choose Images"
+msgstr ""
+
+#: templates/block-template.php:89
+#, php-format
+msgid "Max %d images, %s MB each. Allowed: %s"
+msgstr ""
+
+#: templates/block-template.php:109
+#: assets/js/block-editor.js:218
+msgid "Send Message"
+msgstr ""
+
+#: templates/block-template.php:118
+#, php-format
+msgid "Please wait %s seconds before sending another message."
+msgstr ""
+
+#: templates/block-template.php:148
+#: assets/js/block-editor.js:224
+msgid "Previously Answered Questions"
+msgstr ""
+
+#: templates/block-template.php:156
+msgid "Search questions and answers:"
+msgstr ""
+
+#: templates/block-template.php:161
+msgid "Type to search..."
+msgstr ""
+
+#: templates/block-template.php:169
+#: assets/js/block-editor.js:195
+msgid "Filter by Category:"
+msgstr ""
+
+#: templates/block-template.php:191
+msgid "Loading questions..."
+msgstr ""
+
+#: templates/block-template.php:203
+msgid "No answered questions yet. Be the first to ask!"
+msgstr ""
+
+#: templates/block-template.php:215
+msgid "JavaScript is required for the Anonymous Messages block to function properly. Please enable JavaScript in your browser."
+msgstr ""
+
+#: assets/js/block-editor.js:17
+msgid "A block for collecting anonymous messages from visitors"
+msgstr ""
+
+#: assets/js/block-editor.js:21
 msgid "anonymous"
 msgstr ""
 
-#: assets/js/block-editor.js
+#: assets/js/block-editor.js:22
 msgid "messages"
 msgstr ""
 
-#: assets/js/block-editor.js
+#: assets/js/block-editor.js:23
 msgid "questions"
 msgstr ""
 
-#: assets/js/block-editor.js
+#: assets/js/block-editor.js:24
 msgid "contact"
 msgstr ""
 
-#: assets/js/block-editor.js
+#: assets/js/block-editor.js:87
+msgid "Show Categories Filter (for answered questions)"
+msgstr ""
+
+#: assets/js/block-editor.js:90
+msgid "Categories are assigned by admin only. This option controls filtering of answered questions."
+msgstr ""
+
+#: assets/js/block-editor.js:94
+msgid "Show Answered Questions"
+msgstr ""
+
+#: assets/js/block-editor.js:100
+msgid "Questions Per Page"
+msgstr ""
+
+#: assets/js/block-editor.js:110
+msgid "Form Settings"
+msgstr ""
+
+#: assets/js/block-editor.js:115
+msgid "Enable reCAPTCHA"
+msgstr ""
+
+#: assets/js/block-editor.js:118
+msgid "Requires reCAPTCHA keys to be configured in plugin settings"
+msgstr ""
+
+#: assets/js/block-editor.js:122
+msgid "Message Placeholder Text"
+msgstr ""
+
+#: assets/js/block-editor.js:131
+msgid "Allow visitors to attach images to their messages. Can override global setting."
+msgstr ""
+
+#: assets/js/block-editor.js:146
+msgid "Assigned User (Messages will be sent to this user)"
+msgstr ""
+
+#: assets/js/block-editor.js:152
+msgid "No specific user (Admin only)"
+msgstr ""
+
+#: assets/js/block-editor.js:168
+msgid "If no user is selected, only administrators can view the messages."
+msgstr ""
+
+#: assets/js/block-editor.js:172
+msgid "Send Email Notification"
+msgstr ""
+
+#: assets/js/block-editor.js:176
+msgid "If enabled, the assigned user will receive an email for each new submission."
+msgstr ""
+
+#: assets/js/block-editor.js:177
 msgid "If enabled, the site administrator will receive an email for each new submission."
 msgstr ""
 
-#: includes/class-ajax-handler.php
-msgid "A new anonymous message has been submitted to your website."
+#: assets/js/block-editor.js:189
+msgid "Anonymous Messages Block"
+msgstr ""
+
+#: assets/js/block-editor.js:190
+msgid "Preview of how the block will appear on the frontend"
+msgstr ""
+
+#: assets/js/block-editor.js:198
+#: assets/js/block-editor.js:228
+msgid "General"
+msgstr ""
+
+#: assets/js/block-editor.js:199
+msgid "Technical"
+msgstr ""
+
+#: assets/js/block-editor.js:212
+msgid "⚡ reCAPTCHA protection enabled"
+msgstr ""
+
+#: assets/js/block-editor.js:227
+msgid "Curious Fox 123:"
+msgstr ""
+
+#: assets/js/block-editor.js:230
+msgid "This is a sample question that has been answered..."
+msgstr ""
+
+#: assets/js/block-editor.js:233
+msgid "This is a sample answer to the question."
+msgstr ""
+
+#: assets/js/block-editor.js:237
+#, js-format
+msgid "Showing %d questions per page"
 msgstr ""

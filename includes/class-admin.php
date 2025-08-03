@@ -115,7 +115,7 @@ class Anonymous_Messages_Admin {
         wp_enqueue_script(
             'anonymous-messages-admin',
             ANONYMOUS_MESSAGES_PLUGIN_URL . 'assets/js/admin.js',
-            array('jquery', 'wp-util'),
+            array('jquery', 'wp-util', 'wp-i18n'),
             ANONYMOUS_MESSAGES_VERSION,
             true
         );
@@ -142,7 +142,13 @@ class Anonymous_Messages_Admin {
                 'answered' => __('Answered', 'anonymous-messages'),
                 'shareOnTwitter' => __('Share on Twitter', 'anonymous-messages'),
                 'questionPrefix' => _x('q:', 'Question prefix for Twitter sharing', 'anonymous-messages'),
-                'answerPrefix' => _x('a:', 'Answer prefix for Twitter sharing', 'anonymous-messages')
+                'answerPrefix' => _x('a:', 'Answer prefix for Twitter sharing', 'anonymous-messages'),
+                'enterResponse' => __('Please enter a response.', 'anonymous-messages'),
+                'selectPost' => __('Please select a post.', 'anonymous-messages'),
+                'submitting' => __('Submitting...', 'anonymous-messages'),
+                'categoryNameRequired' => __('Category name is required.', 'anonymous-messages'),
+                'showFullAnswer' => __('Show full answer', 'anonymous-messages'),
+                'hideFullAnswer' => __('Hide full answer', 'anonymous-messages')
             ),
             'twitterHashtag' => isset($options['twitter_hashtag']) ? $options['twitter_hashtag'] : 'QandA'
         ));
@@ -156,6 +162,9 @@ class Anonymous_Messages_Admin {
             return;
         }
         
+        // Handle modal form submissions first (before other admin actions)
+        $this->handle_modal_post_requests();
+        
         // Handle settings form submission
         if (isset($_POST['submit_settings']) && 
             wp_verify_nonce($_POST['_wpnonce'], 'anonymous_messages_settings')) {
@@ -167,11 +176,17 @@ class Anonymous_Messages_Admin {
                 'rate_limit_logged_in_users' => isset($_POST['rate_limit_logged_in_users']),
                 'rate_limit_seconds' => max(30, intval($_POST['rate_limit_seconds'] ?? 60)),
                 'messages_per_page' => max(5, min(50, intval($_POST['messages_per_page'] ?? 10))),
-                'auto_approve' => isset($_POST['auto_approve']),
                 'post_answer_mode' => in_array($_POST['post_answer_mode'] ?? 'existing', ['existing', 'custom', 'disabled']) ? 
                     sanitize_text_field($_POST['post_answer_mode']) : 'existing',
                 'answer_post_type' => sanitize_text_field($_POST['answer_post_type'] ?? 'post'),
-                'twitter_hashtag' => sanitize_text_field($_POST['twitter_hashtag'] ?? 'QandA')
+                'twitter_hashtag' => sanitize_text_field($_POST['twitter_hashtag'] ?? 'QandA'),
+                // Image upload settings
+                'enable_image_uploads' => isset($_POST['enable_image_uploads']),
+                'max_image_size' => max(0.1, min(50, floatval($_POST['max_image_size'] ?? 2))),
+                'max_images_per_message' => max(1, min(10, intval($_POST['max_images_per_message'] ?? 3))),
+                'allowed_image_types' => isset($_POST['allowed_image_types']) && is_array($_POST['allowed_image_types']) ? 
+                    array_intersect($_POST['allowed_image_types'], array('image/jpeg', 'image/png', 'image/gif', 'image/webp')) :
+                    array('image/jpeg', 'image/png', 'image/gif', 'image/webp')
             );
             
             // Get old options to check if post type settings changed
@@ -318,6 +333,134 @@ class Anonymous_Messages_Admin {
     }
     
     /**
+     * Handle POST requests for modal forms
+     */
+    private function handle_modal_post_requests() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        // Only handle on the messages page
+        if (!isset($_GET['page']) || $_GET['page'] !== 'anonymous-messages') {
+            return;
+        }
+        
+        $action = isset($_POST['action']) ? $_POST['action'] : '';
+        
+        switch ($action) {
+            case 'am_respond_to_message':
+                $this->handle_post_response();
+                break;
+            case 'am_update_response':
+                $this->handle_post_update_response();
+                break;
+        }
+    }
+    
+    /**
+     * Handle POST response to message
+     */
+    private function handle_post_response() {
+        if (!current_user_can('manage_options') || 
+            !wp_verify_nonce($_POST['am_response_nonce'], 'am_respond_to_message')) {
+            wp_die(__('Unauthorized', 'anonymous-messages'));
+            return;
+        }
+        
+        $message_id = intval($_POST['message_id']);
+        $response_type = sanitize_text_field($_POST['response_type']);
+        $short_response = wp_kses_post($_POST['short_response'] ?? '');
+        $post_id = intval($_POST['post_id'] ?? 0);
+        
+        if (!$message_id) {
+            $this->set_admin_notice(__('Invalid message ID', 'anonymous-messages'), 'error');
+            wp_redirect(admin_url('admin.php?page=anonymous-messages'));
+            exit;
+        }
+        
+        if ($response_type === 'short' && empty($short_response)) {
+            $this->set_admin_notice(__('Short response cannot be empty', 'anonymous-messages'), 'error');
+            wp_redirect(admin_url('admin.php?page=anonymous-messages'));
+            exit;
+        }
+        
+        if ($response_type === 'post' && (!$post_id || !get_post($post_id))) {
+            $this->set_admin_notice(__('Invalid post ID', 'anonymous-messages'), 'error');
+            wp_redirect(admin_url('admin.php?page=anonymous-messages'));
+            exit;
+        }
+        
+        $db = Anonymous_Messages_Database::get_instance();
+        $success = $db->add_response($message_id, $response_type, $short_response, $post_id);
+        
+        if ($success) {
+            $this->set_admin_notice(__('Response added successfully!', 'anonymous-messages'), 'success');
+        } else {
+            $this->set_admin_notice(__('Failed to add response', 'anonymous-messages'), 'error');
+        }
+        
+        wp_redirect(admin_url('admin.php?page=anonymous-messages'));
+        exit;
+    }
+    
+    /**
+     * Handle POST update response
+     */
+    private function handle_post_update_response() {
+        if (!current_user_can('manage_options') || 
+            !wp_verify_nonce($_POST['am_edit_nonce'], 'am_update_response')) {
+            wp_die(__('Unauthorized', 'anonymous-messages'));
+            return;
+        }
+        
+        $response_id = intval($_POST['response_id']);
+        $response_type = sanitize_text_field($_POST['edit_response_type']);
+        $short_response = wp_kses_post($_POST['edit_short_response'] ?? '');
+        $post_id = intval($_POST['edit_post_id'] ?? 0);
+        
+        if (!$response_id) {
+            $this->set_admin_notice(__('Invalid response ID', 'anonymous-messages'), 'error');
+            wp_redirect(admin_url('admin.php?page=anonymous-messages'));
+            exit;
+        }
+        
+        if ($response_type === 'short' && empty($short_response)) {
+            $this->set_admin_notice(__('Short response cannot be empty', 'anonymous-messages'), 'error');
+            wp_redirect(admin_url('admin.php?page=anonymous-messages'));
+            exit;
+        }
+        
+        if ($response_type === 'post' && (!$post_id || !get_post($post_id))) {
+            $this->set_admin_notice(__('Invalid post ID', 'anonymous-messages'), 'error');
+            wp_redirect(admin_url('admin.php?page=anonymous-messages'));
+            exit;
+        }
+        
+        $db = Anonymous_Messages_Database::get_instance();
+        $success = $db->update_response($response_id, $response_type, $short_response, $post_id);
+        
+        if ($success) {
+            $this->set_admin_notice(__('Response updated successfully!', 'anonymous-messages'), 'success');
+        } else {
+            $this->set_admin_notice(__('Failed to update response', 'anonymous-messages'), 'error');
+        }
+        
+        wp_redirect(admin_url('admin.php?page=anonymous-messages'));
+        exit;
+    }
+    
+    /**
+     * Set admin notice for next page load
+     */
+    private function set_admin_notice($message, $type = 'success') {
+        $notice_key = 'am_admin_notice_' . get_current_user_id();
+        set_transient($notice_key, array(
+            'message' => $message,
+            'type' => $type
+        ), 30);
+    }
+
+    /**
      * Handle message response AJAX
      */
     public function handle_message_response() {
@@ -329,7 +472,7 @@ class Anonymous_Messages_Admin {
         
         $message_id = intval($_POST['message_id']);
         $response_type = sanitize_text_field($_POST['response_type']);
-        $short_response = sanitize_textarea_field($_POST['short_response'] ?? '');
+        $short_response = wp_kses_post($_POST['short_response'] ?? '');
         $post_id = intval($_POST['post_id'] ?? 0);
         
         if (!$message_id) {
@@ -402,9 +545,13 @@ class Anonymous_Messages_Admin {
             return;
         }
         
-        global $wpdb;
+        $db = Anonymous_Messages_Database::get_instance();
+        
+        // Delete message attachments (files and database records)
+        $db->delete_message_attachments($message_id);
         
         // Delete message and its response
+        global $wpdb;
         $wpdb->delete($wpdb->prefix . 'anonymous_message_responses', array('message_id' => $message_id));
         $result = $wpdb->delete($wpdb->prefix . 'anonymous_messages', array('id' => $message_id));
         
@@ -494,7 +641,7 @@ class Anonymous_Messages_Admin {
         
         $response_id = intval($_POST['response_id']);
         $response_type = sanitize_text_field($_POST['response_type']);
-        $short_response = sanitize_textarea_field($_POST['short_response'] ?? '');
+        $short_response = wp_kses_post($_POST['short_response'] ?? '');
         $post_id = intval($_POST['post_id'] ?? 0);
         
         if (!$response_id) {
@@ -675,15 +822,15 @@ class Anonymous_Messages_Admin {
         
         // CSV headers
         fputcsv($output, array(
-            'ID',
-            'Sender Name',
-            'Message',
-            'Category',
-            'Status',
-            'Response Type',
-            'Response',
-            'Created Date',
-            'Updated Date'
+            __('ID', 'anonymous-messages'),
+            __('Sender Name', 'anonymous-messages'),
+            __('Message', 'anonymous-messages'),
+            __('Category', 'anonymous-messages'),
+            __('Status', 'anonymous-messages'),
+            __('Response Type', 'anonymous-messages'),
+            __('Response', 'anonymous-messages'),
+            __('Created Date', 'anonymous-messages'),
+            __('Updated Date', 'anonymous-messages')
         ));
         
         // CSV data
@@ -704,9 +851,9 @@ class Anonymous_Messages_Admin {
                 $message->id,
                 $message->sender_name,
                 $message->message,
-                $message->category_name ?: 'Uncategorized',
+                $message->category_name ?: __('Uncategorized', 'anonymous-messages'),
                 ucfirst($message->status),
-                isset($message->response_type) ? ucfirst($message->response_type) : 'No Response',
+                isset($message->response_type) ? ucfirst($message->response_type) : __('No Response', 'anonymous-messages'),
                 $response,
                 $message->created_at,
                 $message->updated_at
@@ -743,7 +890,7 @@ class Anonymous_Messages_Admin {
                 'id' => intval($message->id),
                 'sender_name' => $message->sender_name,
                 'message' => $message->message,
-                'category' => $message->category_name ?: 'Uncategorized',
+                'category' => $message->category_name ?: __('Uncategorized', 'anonymous-messages'),
                 'status' => $message->status,
                 'created_at' => $message->created_at,
                 'updated_at' => $message->updated_at
@@ -911,10 +1058,7 @@ class Anonymous_Messages_Admin {
             return;
         }
 
-        // Determine text based on locale
-        $current_locale = get_locale();
-        $is_arabic = strpos($current_locale, 'ar') === 0;
-        $text = $is_arabic ? 'من مجهول' : __('anon. msg.', 'anonymous-messages');
+        $text = __('anon. msg.', 'anonymous-messages');
         
         $args = array(
             'id'    => 'anonymous-messages-pending',

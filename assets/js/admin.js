@@ -15,11 +15,15 @@
         }
         
         bindEvents() {
-            // Message response handling
-            $(document).on('click', '.respond-to-message', this.showResponseForm.bind(this));
-            $(document).on('click', '.cancel-response', this.hideResponseForm.bind(this));
-            $(document).on('submit', '.message-response-form', this.submitResponse.bind(this));
+            // Modal system
+            $(document).on('click', '.respond-to-message', this.showResponseModal.bind(this));
+            $(document).on('click', '.edit-answer', this.showEditModal.bind(this));
+            $(document).on('click', '.am-modal-close, .am-modal-cancel', this.closeModal.bind(this));
+            $(document).on('click', '.am-modal-backdrop', this.closeModal.bind(this));
+            $(document).on('submit', '#am-response-form', this.handleFormSubmit.bind(this));
+            $(document).on('submit', '#am-edit-form', this.handleFormSubmit.bind(this));
             $(document).on('change', 'input[name="response_type"]', this.toggleResponseType.bind(this));
+            $(document).on('change', 'input[name="edit_response_type"]', this.toggleEditResponseType.bind(this));
             
             // Status updates
             $(document).on('change', '.status-select', this.updateMessageStatus.bind(this));
@@ -37,110 +41,239 @@
             $(document).on('click', '#save-category', this.saveCategory.bind(this));
             $(document).on('click', '.modal-close', this.closeModal.bind(this));
             
-            // Answer editing
-            $(document).on('click', '.edit-answer', this.showEditAnswerForm.bind(this));
-            $(document).on('click', '.cancel-edit-answer', this.hideEditAnswerForm.bind(this));
-            $(document).on('submit', '.edit-answer-form', this.submitEditAnswer.bind(this));
-            $(document).on('change', 'input[name="edit_response_type"]', this.toggleEditResponseType.bind(this));
-            
             // Toggle full answer
             $(document).on('click', '.toggle-full-answer', this.toggleFullAnswer.bind(this));
             
             // Twitter share buttons
             $(document).on('click', '.twitter-share-admin-btn', this.handleTwitterShare.bind(this));
+            
+            // Keyboard navigation for modals
+            $(document).on('keydown', this.handleModalKeydown.bind(this));
         }
         
-        showResponseForm(e) {
+        showResponseModal(e) {
             e.preventDefault();
-            const messageId = $(e.target).data('message-id');
-            const responseRow = $('#response-row-' + messageId);
+            const button = $(e.target);
+            const messageId = button.data('message-id');
+            const messageRow = button.closest('tr');
             
-            $('.response-row').hide(); // Hide other response forms
-            responseRow.show();
+            // Get message data from the row
+            const senderName = messageRow.find('.column-sender strong').text();
+            const messageText = messageRow.find('.column-message .message-content').text().trim();
+            const messageDate = messageRow.find('.column-date').text();
             
-            // Focus on textarea
-            responseRow.find('textarea[name="short_response"]').focus();
+            // Populate modal with message data
+            const modal = $('#am-response-modal');
+            modal.find('.am-message-text').text(messageText);
+            modal.find('.am-sender').text(senderName);
+            modal.find('.am-date').text(messageDate);
+            modal.find('input[name="message_id"]').val(messageId);
+            
+            // Reset form
+            modal.find('#am-response-form')[0].reset();
+            modal.find('input[name="response_type"][value="short"]').prop('checked', true);
+            this.toggleResponseType({target: modal.find('input[name="response_type"][value="short"]')[0]});
+            
+            // Clear any previous messages
+            modal.find('.am-response-messages').empty();
+            
+            // Show modal
+            this.openModal(modal);
+            
+            // Focus on editor if available, otherwise textarea
+            setTimeout(() => {
+                if (typeof tinymce !== 'undefined' && tinymce.get('am-short-response')) {
+                    tinymce.get('am-short-response').focus();
+                } else {
+                    modal.find('textarea[name="short_response"]').focus();
+                }
+            }, 300);
         }
         
-        hideResponseForm(e) {
+        showEditModal(e) {
             e.preventDefault();
-            $(e.target).closest('.response-row').hide();
+            const button = $(e.target);
+            const messageId = button.data('message-id');
+            const responseId = button.data('response-id');
+            const messageRow = button.closest('tr');
+            
+            // Get message data from the row
+            const senderName = messageRow.find('.column-sender strong').text();
+            const messageText = messageRow.find('.column-message .message-content').text().trim();
+            const messageDate = messageRow.find('.column-date').text();
+            
+            // Get existing answer data
+            const answerPreview = messageRow.find('.answer-preview');
+            let existingAnswer = '';
+            let responseType = 'short';
+            let postId = '';
+            
+            if (answerPreview.find('.short-answer').length) {
+                existingAnswer = answerPreview.find('.short-answer').text().trim();
+                responseType = 'short';
+            } else if (answerPreview.find('.post-answer').length) {
+                responseType = 'post';
+                // Extract post ID from the link if needed
+                const postLink = answerPreview.find('.post-answer a');
+                if (postLink.length) {
+                    const href = postLink.attr('href');
+                    const matches = href.match(/(\?|&)p=(\d+)/);
+                    if (matches) {
+                        postId = matches[2];
+                    }
+                }
+            }
+            
+            // Populate modal with message data
+            const modal = $('#am-edit-modal');
+            modal.find('.am-message-text').text(messageText);
+            modal.find('.am-sender').text(senderName);
+            modal.find('.am-date').text(messageDate);
+            modal.find('input[name="message_id"]').val(messageId);
+            modal.find('input[name="response_id"]').val(responseId);
+            
+            // Set response type
+            modal.find(`input[name="edit_response_type"][value="${responseType}"]`).prop('checked', true);
+            
+            // Set existing content
+            if (responseType === 'short') {
+                // Set editor content
+                if (typeof tinymce !== 'undefined' && tinymce.get('am-edit-short-response')) {
+                    tinymce.get('am-edit-short-response').setContent(existingAnswer);
+                } else {
+                    modal.find('textarea[name="edit_short_response"]').val(existingAnswer);
+                }
+            } else {
+                modal.find('select[name="edit_post_id"]').val(postId);
+            }
+            
+            this.toggleEditResponseType({target: modal.find(`input[name="edit_response_type"][value="${responseType}"]`)[0]});
+            
+            // Clear any previous messages
+            modal.find('.am-edit-messages').empty();
+            
+            // Show modal
+            this.openModal(modal);
+        }
+        
+        openModal(modal) {
+            modal.show();
+            $('body').addClass('modal-open');
+            
+            // Trap focus in modal
+            const focusableElements = modal.find('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            const firstFocusable = focusableElements.first();
+            const lastFocusable = focusableElements.last();
+            
+            firstFocusable.focus();
+            
+            modal.data('firstFocusable', firstFocusable);
+            modal.data('lastFocusable', lastFocusable);
+        }
+        
+        closeModal(e) {
+            if (e) {
+                e.preventDefault();
+            }
+            
+            $('.am-modal').hide();
+            $('body').removeClass('modal-open');
+            
+            // Reset any TinyMCE editors
+            if (typeof tinymce !== 'undefined') {
+                tinymce.get('am-short-response')?.setContent('');
+                tinymce.get('am-edit-short-response')?.setContent('');
+            }
+        }
+        
+        handleModalKeydown(e) {
+            const modal = $('.am-modal:visible');
+            if (!modal.length) return;
+            
+            // Close on Escape
+            if (e.keyCode === 27) {
+                this.closeModal();
+                return;
+            }
+            
+            // Trap focus with Tab
+            if (e.keyCode === 9) {
+                const firstFocusable = modal.data('firstFocusable');
+                const lastFocusable = modal.data('lastFocusable');
+                
+                if (e.shiftKey && document.activeElement === firstFocusable[0]) {
+                    e.preventDefault();
+                    lastFocusable.focus();
+                } else if (!e.shiftKey && document.activeElement === lastFocusable[0]) {
+                    e.preventDefault();
+                    firstFocusable.focus();
+                }
+            }
         }
         
         toggleResponseType(e) {
             const responseType = $(e.target).val();
-            const form = $(e.target).closest('.message-response-form');
+            const modal = $(e.target).closest('.am-modal');
             
             if (responseType === 'short') {
-                form.find('.short-response-section').show();
-                form.find('.post-response-section').hide();
+                modal.find('.am-short-response-section').show();
+                modal.find('.am-post-response-section').hide();
             } else {
-                form.find('.short-response-section').hide();
-                form.find('.post-response-section').show();
+                modal.find('.am-short-response-section').hide();
+                modal.find('.am-post-response-section').show();
             }
         }
         
-        async submitResponse(e) {
+        handleFormSubmit(e) {
             e.preventDefault();
             
             const form = $(e.target);
-            const messageId = form.data('message-id');
-            const responseType = form.find('input[name="response_type"]:checked').val();
-            const shortResponse = form.find('textarea[name="short_response"]').val();
-            const postId = form.find('select[name="post_id"]').val();
-            const messagesDiv = form.find('.response-messages');
+            const formId = form.attr('id');
+            const responseType = form.find('input[name="response_type"]:checked, input[name="edit_response_type"]:checked').val();
             
-            // Validation
-            if (responseType === 'short' && !shortResponse.trim()) {
-                this.showMessage(messagesDiv, 'Please enter a response.', 'error');
-                return;
-            }
-            
-            if (responseType === 'post' && !postId) {
-                this.showMessage(messagesDiv, 'Please select a post.', 'error');
-                return;
-            }
-            
-            // Show loading
-            const submitButton = form.find('button[type="submit"]');
-            const originalText = submitButton.text();
-            submitButton.text(anonymousMessagesAdmin.strings.loading).prop('disabled', true);
-            
-            try {
-                const response = await $.ajax({
-                    url: anonymousMessagesAdmin.ajaxUrl,
-                    type: 'POST',
-                    data: {
-                        action: 'am_respond_to_message',
-                        message_id: messageId,
-                        response_type: responseType,
-                        short_response: shortResponse,
-                        post_id: postId,
-                        nonce: anonymousMessagesAdmin.nonce
-                    }
-                });
-                
-                if (response.success) {
-                    this.showMessage(messagesDiv, response.data.message, 'success');
-                    
-                    // Update message status to answered
-                    const statusSelect = $('#message-' + messageId).find('.status-select');
-                    statusSelect.val('answered').trigger('change');
-                    
-                    // Hide form after 2 seconds
-                    setTimeout(() => {
-                        form.closest('.response-row').hide();
-                    }, 2000);
-                } else {
-                    this.showMessage(messagesDiv, response.data.message, 'error');
+            // Get content from TinyMCE editor and put it in the form
+            if (responseType === 'short') {
+                if (formId === 'am-response-form' && typeof tinymce !== 'undefined' && tinymce.get('am-short-response')) {
+                    form.find('textarea[name="short_response"]').val(tinymce.get('am-short-response').getContent());
+                } else if (formId === 'am-edit-form' && typeof tinymce !== 'undefined' && tinymce.get('am-edit-short-response')) {
+                    form.find('textarea[name="edit_short_response"]').val(tinymce.get('am-edit-short-response').getContent());
                 }
-                
-            } catch (error) {
-                this.showMessage(messagesDiv, anonymousMessagesAdmin.strings.error, 'error');
             }
             
-            // Reset button
-            submitButton.text(originalText).prop('disabled', false);
+            // Basic validation
+            const messagesDiv = form.find('.am-response-messages, .am-edit-messages');
+            
+            if (responseType === 'short') {
+                const content = formId === 'am-response-form' ? 
+                    form.find('textarea[name="short_response"]').val() : 
+                    form.find('textarea[name="edit_short_response"]').val();
+                    
+                if (!content.trim()) {
+                    this.showMessage(messagesDiv, anonymousMessagesAdmin.strings.enterResponse, 'error');
+                    return;
+                }
+            }
+            
+            if (responseType === 'post') {
+                const postId = formId === 'am-response-form' ? 
+                    form.find('select[name="post_id"]').val() : 
+                    form.find('select[name="edit_post_id"]').val();
+                    
+                if (!postId) {
+                    this.showMessage(messagesDiv, anonymousMessagesAdmin.strings.selectPost, 'error');
+                    return;
+                }
+            }
+            
+            // Show loading state
+            const submitButton = $('.am-modal:visible .am-modal-footer .button-primary');
+            const originalText = submitButton.text();
+            submitButton.text(anonymousMessagesAdmin.strings.submitting || 'Submitting...').prop('disabled', true);
+            
+            // Submit the form normally
+            setTimeout(() => {
+                form[0].submit();
+            }, 100);
         }
         
         async updateMessageStatus(e) {
@@ -235,7 +368,7 @@
             const messagesDiv = form.find('.form-messages');
             
             if (!name) {
-                this.showMessage(messagesDiv, 'Category name is required.', 'error');
+                this.showMessage(messagesDiv, anonymousMessagesAdmin.strings.categoryNameRequired || 'Category name is required.', 'error');
                 return;
             }
             
@@ -301,7 +434,7 @@
             const messagesDiv = form.find('.form-messages');
             
             if (!name) {
-                this.showMessage(messagesDiv, 'Category name is required.', 'error');
+                this.showMessage(messagesDiv, anonymousMessagesAdmin.strings.categoryNameRequired || 'Category name is required.', 'error');
                 return;
             }
             
@@ -383,92 +516,18 @@
             $(e.target).closest('.category-modal').hide();
         }
         
-        showEditAnswerForm(e) {
-            e.preventDefault();
-            const messageId = $(e.target).data('message-id');
-            const editRow = $('#edit-answer-row-' + messageId);
-            
-            $('.edit-answer-row').hide(); // Hide other edit forms
-            editRow.show();
-            
-            // Focus on textarea
-            editRow.find('textarea[name="edit_short_response"]').focus();
-        }
-        
-        hideEditAnswerForm(e) {
-            e.preventDefault();
-            $(e.target).closest('.edit-answer-row').hide();
-        }
-        
-        async submitEditAnswer(e) {
-            e.preventDefault();
-            
-            const form = $(e.target);
-            const responseId = form.data('response-id');
-            const responseType = form.find('input[name="edit_response_type"]:checked').val();
-            const shortResponse = form.find('textarea[name="edit_short_response"]').val();
-            const postId = form.find('select[name="edit_post_id"]').val();
-            const messagesDiv = form.find('.edit-response-messages');
-            
-            // Validation
-            if (responseType === 'short' && !shortResponse.trim()) {
-                this.showMessage(messagesDiv, 'Please enter a response.', 'error');
-                return;
-            }
-            
-            if (responseType === 'post' && !postId) {
-                this.showMessage(messagesDiv, 'Please select a post.', 'error');
-                return;
-            }
-            
-            // Show loading
-            const submitButton = form.find('button[type="submit"]');
-            const originalText = submitButton.text();
-            submitButton.text(anonymousMessagesAdmin.strings.loading).prop('disabled', true);
-            
-            try {
-                const response = await $.ajax({
-                    url: anonymousMessagesAdmin.ajaxUrl,
-                    type: 'POST',
-                    data: {
-                        action: 'am_update_response',
-                        response_id: responseId,
-                        response_type: responseType,
-                        short_response: shortResponse,
-                        post_id: postId,
-                        nonce: anonymousMessagesAdmin.nonce
-                    }
-                });
-                
-                if (response.success) {
-                    this.showMessage(messagesDiv, response.data.message, 'success');
-                    
-                    // Hide form after 2 seconds and reload page to show updated answer
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    this.showMessage(messagesDiv, response.data.message, 'error');
-                }
-                
-            } catch (error) {
-                this.showMessage(messagesDiv, anonymousMessagesAdmin.strings.error, 'error');
-            }
-            
-            // Reset button
-            submitButton.text(originalText).prop('disabled', false);
-        }
+
         
         toggleEditResponseType(e) {
             const responseType = $(e.target).val();
-            const form = $(e.target).closest('.edit-answer-form');
+            const modal = $(e.target).closest('.am-modal');
             
             if (responseType === 'short') {
-                form.find('.edit-short-response-section').show();
-                form.find('.edit-post-response-section').hide();
+                modal.find('.am-edit-short-response-section').show();
+                modal.find('.am-edit-post-response-section').hide();
             } else {
-                form.find('.edit-short-response-section').hide();
-                form.find('.edit-post-response-section').show();
+                modal.find('.am-edit-short-response-section').hide();
+                modal.find('.am-edit-post-response-section').show();
             }
         }
         
@@ -479,10 +538,10 @@
             
             if ($fullAnswer.is(':visible')) {
                 $fullAnswer.hide();
-                $this.text('Show full answer');
+                $this.text(anonymousMessagesAdmin.strings.showFullAnswer);
             } else {
                 $fullAnswer.show();
-                $this.text('Hide full answer');
+                $this.text(anonymousMessagesAdmin.strings.hideFullAnswer);
             }
         }
         

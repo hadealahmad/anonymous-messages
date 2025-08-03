@@ -86,31 +86,42 @@ class Anonymous_Messages_Gutenberg_Block {
                 'showCategories' => array(
                     'type' => 'boolean',
                     'default' => true,
-                    'description' => 'Show category filter for answered questions (categories are admin-assigned only)'
+                    'description' => __('Show category filter for answered questions (categories are admin-assigned only)', 'anonymous-messages')
                 ),
                 'showAnsweredQuestions' => array(
                     'type' => 'boolean',
-                    'default' => true
+                    'default' => true,
+                    'description' => __('Show the section with answered questions below the form', 'anonymous-messages')
                 ),
                 'questionsPerPage' => array(
                     'type' => 'number',
-                    'default' => 10
+                    'default' => 10,
+                    'description' => __('Number of questions to show per page in the answered questions list', 'anonymous-messages')
                 ),
                 'enableRecaptcha' => array(
                     'type' => 'boolean',
-                    'default' => true
+                    'default' => true,
+                    'description' => __('Enable Google reCAPTCHA v3 spam protection', 'anonymous-messages')
                 ),
                 'placeholder' => array(
                     'type' => 'string',
-                    'default' => 'Ask your anonymous question here...'
+                    'default' => __('Ask your anonymous question here...', 'anonymous-messages'),
+                    'description' => __('Custom placeholder text for the message input field', 'anonymous-messages')
                 ),
                 'assignedUserId' => array(
                     'type' => 'number',
-                    'default' => 0
+                    'default' => 0,
+                    'description' => __('Assign messages from this block to a specific user', 'anonymous-messages')
                 ),
                 'enableEmailNotifications' => array(
                     'type' => 'boolean',
-                    'default' => true
+                    'default' => true,
+                    'description' => __('Send an email notification to the assigned user or admin for new messages', 'anonymous-messages')
+                ),
+                'enableImageUploads' => array(
+                    'type' => 'boolean',
+                    'default' => true,
+                    'description' => __('Allow image uploads with messages (can override global setting)', 'anonymous-messages')
                 )
             )
         ));
@@ -232,7 +243,11 @@ class Anonymous_Messages_Gutenberg_Block {
                     'share' => __('Share', 'anonymous-messages'),
                     'shareOnTwitter' => __('Share on Twitter', 'anonymous-messages'),
                     'questionPrefix' => _x('q:', 'Question prefix for Twitter sharing', 'anonymous-messages'),
-                    'answerPrefix' => _x('a:', 'Answer prefix for Twitter sharing', 'anonymous-messages')
+                    'answerPrefix' => _x('a:', 'Answer prefix for Twitter sharing', 'anonymous-messages'),
+                    'maxFilesError' => __('Maximum %d images allowed.', 'anonymous-messages'),
+                    'fileTooLargeError' => __('File "%s" is too large. Maximum size: %sMB', 'anonymous-messages'),
+                    'invalidImageType' => __('File "%s" is not a valid image.', 'anonymous-messages'),
+                    'removeImage' => __('Remove image', 'anonymous-messages')
                 ),
                 'twitterHashtag' => isset($options['twitter_hashtag']) ? $options['twitter_hashtag'] : 'QandA'
             ));
@@ -515,7 +530,11 @@ class Anonymous_Messages_Gutenberg_Block {
                         'share' => __('Share', 'anonymous-messages'),
                         'shareOnTwitter' => __('Share on Twitter', 'anonymous-messages'),
                         'questionPrefix' => _x('q:', 'Question prefix for Twitter sharing', 'anonymous-messages'),
-                        'answerPrefix' => _x('a:', 'Answer prefix for Twitter sharing', 'anonymous-messages')
+                        'answerPrefix' => _x('a:', 'Answer prefix for Twitter sharing', 'anonymous-messages'),
+                        'maxFilesError' => __('Maximum %d images allowed.', 'anonymous-messages'),
+                        'fileTooLargeError' => __('File "%s" is too large. Maximum size: %sMB', 'anonymous-messages'),
+                        'invalidImageType' => __('File "%s" is not a valid image.', 'anonymous-messages'),
+                        'removeImage' => __('Remove image', 'anonymous-messages')
                     ),
                     'twitterHashtag' => isset($options['twitter_hashtag']) ? $options['twitter_hashtag'] : 'QandA'
                 ));
@@ -533,7 +552,7 @@ class Anonymous_Messages_Gutenberg_Block {
             'show_answered_questions' => 'true',
             'questions_per_page' => '10',
             'enable_recaptcha' => 'true',
-            'placeholder' => 'Ask your anonymous question here...'
+            'placeholder' => __('Ask your anonymous question here...', 'anonymous-messages')
         ), $atts, 'anonymous_messages_block');
 
         // Convert boolean attributes to actual booleans

@@ -181,18 +181,51 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                                     </div>
                                 <?php endif; ?>
                                 
+                                <?php 
+                                // Display attached images
+                                $db = Anonymous_Messages_Database::get_instance();
+                                $attachments = $db->get_message_attachments($message->id);
+                                if (!empty($attachments)) : ?>
+                                    <div class="message-attachments">
+                                        <h4><?php _e('Attached Images:', 'anonymous-messages'); ?></h4>
+                                        <div class="attachment-grid">
+                                            <?php foreach ($attachments as $attachment) : ?>
+                                                <div class="attachment-item">
+                                                    <div class="attachment-preview">
+                                                        <img src="<?php echo esc_url(site_url($attachment->file_path)); ?>" 
+                                                             alt="<?php echo esc_attr($attachment->file_name); ?>"
+                                                             loading="lazy" 
+                                                             onclick="openImageModal(this.src, '<?php echo esc_js($attachment->file_name); ?>')">
+                                                    </div>
+                                                    <div class="attachment-info">
+                                                        <div class="file-name" title="<?php echo esc_attr($attachment->file_name); ?>">
+                                                            <?php echo esc_html(wp_trim_words($attachment->file_name, 3, '...')); ?>
+                                                        </div>
+                                                        <div class="file-size">
+                                                            <?php echo size_format($attachment->file_size); ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                                
                                 <?php if ($status !== 'pending' && isset($message->response_type)) : ?>
                                     <div class="answer-preview">
                                         <strong><?php _e('Answer:', 'anonymous-messages'); ?></strong>
                                         <?php if ($message->response_type === 'short' && !empty($message->short_response)) : ?>
                                             <div class="short-answer">
-                                                <?php echo nl2br(esc_html(wp_trim_words($message->short_response, 15))); ?>
-                                                <?php if (strlen($message->short_response) > 100) : ?>
+                                                <?php 
+                                                $truncated_answer = wp_trim_words(strip_tags($message->short_response), 15);
+                                                echo wpautop($truncated_answer);
+                                                ?>
+                                                <?php if (strlen(strip_tags($message->short_response)) > 100) : ?>
                                                     <button type="button" class="button-link toggle-full-answer">
                                                         <?php _e('Show full answer', 'anonymous-messages'); ?>
                                                     </button>
                                                     <div class="full-answer" style="display: none;">
-                                                        <?php echo nl2br(esc_html($message->short_response)); ?>
+                                                        <?php echo wpautop($message->short_response); ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
@@ -266,7 +299,7 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                                     <span class="share-twitter">
                                         <button type="button" class="button-link twitter-share-admin-btn" 
                                                 data-question-text="<?php echo esc_attr($message->message); ?>"
-                                                data-answer-text="<?php echo esc_attr($message->response_type === 'short' ? $message->short_response : ($message->response_type === 'post' && !empty($message->post_id) ? get_the_title($message->post_id) : '')); ?>"
+                                                data-answer-text="<?php echo esc_attr($message->response_type === 'short' ? wp_strip_all_tags($message->short_response) : ($message->response_type === 'post' && !empty($message->post_id) ? get_the_title($message->post_id) : '')); ?>"
                                                 title="<?php _e('Share on Twitter', 'anonymous-messages'); ?>">
                                             <span class="dashicons dashicons-twitter"></span>
                                             <?php _e('Share', 'anonymous-messages'); ?>
@@ -283,146 +316,7 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                         </td>
                     </tr>
                     
-                    <!-- Response Row (hidden by default) -->
-                    <tr id="response-row-<?php echo $message->id; ?>" class="response-row" style="display: none;">
-                        <td colspan="5">
-                            <div class="response-form">
-                                <h4><?php _e('Respond to Message', 'anonymous-messages'); ?></h4>
-                                <form class="message-response-form" data-message-id="<?php echo $message->id; ?>">
-                                    
-                                    <div class="response-type-selection">
-                                        <label>
-                                            <input type="radio" name="response_type" value="short" checked>
-                                            <?php _e('Short Answer', 'anonymous-messages'); ?>
-                                        </label>
-                                        <?php if ($post_answers_enabled) : ?>
-                                        <label>
-                                            <input type="radio" name="response_type" value="post">
-                                            <?php _e('Link to Post', 'anonymous-messages'); ?>
-                                        </label>
-                                        <?php endif; ?>
-                                    </div>
-                                    
-                                    <div class="short-response-section">
-                                        <label for="short-response-<?php echo $message->id; ?>">
-                                            <?php _e('Your Answer:', 'anonymous-messages'); ?>
-                                        </label>
-                                        <textarea id="short-response-<?php echo $message->id; ?>" 
-                                                  name="short_response" rows="4" 
-                                                  placeholder="<?php _e('Enter your answer here...', 'anonymous-messages'); ?>"></textarea>
-                                    </div>
-                                    
-                                    <?php if ($post_answers_enabled) : ?>
-                                    <div class="post-response-section" style="display: none;">
-                                        <label for="post-id-<?php echo $message->id; ?>">
-                                            <?php _e('Select Post:', 'anonymous-messages'); ?>
-                                        </label>
-                                        <select id="post-id-<?php echo $message->id; ?>" name="post_id">
-                                            <option value=""><?php _e('Select a post...', 'anonymous-messages'); ?></option>
-                                            <?php
-                                            $posts = get_posts(array(
-                                                'numberposts' => 50,
-                                                'post_status' => 'publish',
-                                                'post_type' => $response_post_type,
-                                                'orderby' => 'date',
-                                                'order' => 'DESC'
-                                            ));
-                                            foreach ($posts as $post) :
-                                            ?>
-                                                <option value="<?php echo $post->ID; ?>">
-                                                    <?php echo esc_html($post->post_title); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <?php endif; ?>
-                                    
-                                    <div class="response-actions">
-                                        <button type="submit" class="button button-primary">
-                                            <?php _e('Send Response', 'anonymous-messages'); ?>
-                                        </button>
-                                        <button type="button" class="button cancel-response">
-                                            <?php _e('Cancel', 'anonymous-messages'); ?>
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="response-messages"></div>
-                                </form>
-                            </div>
-                        </td>
-                    
-                    <!-- Edit Answer Row (hidden by default) -->
-                    <?php if ($status !== 'pending' && isset($message->response_id)) : ?>
-                    <tr id="edit-answer-row-<?php echo $message->id; ?>" class="edit-answer-row" style="display: none;">
-                        <td colspan="5">
-                            <div class="edit-answer-form">
-                                <h4><?php _e('Edit Answer', 'anonymous-messages'); ?></h4>
-                                <form class="edit-answer-form" data-message-id="<?php echo $message->id; ?>" data-response-id="<?php echo $message->response_id; ?>">
-                                    
-                                    <div class="response-type-selection">
-                                        <label>
-                                            <input type="radio" name="edit_response_type" value="short" 
-                                                   <?php checked($message->response_type, 'short'); ?>>
-                                            <?php _e('Short Answer', 'anonymous-messages'); ?>
-                                        </label>
-                                        <?php if ($post_answers_enabled) : ?>
-                                        <label>
-                                            <input type="radio" name="edit_response_type" value="post"
-                                                   <?php checked($message->response_type, 'post'); ?>>
-                                            <?php _e('Link to Post', 'anonymous-messages'); ?>
-                                        </label>
-                                        <?php endif; ?>
-                                    </div>
-                                    
-                                    <div class="edit-short-response-section" <?php echo $message->response_type !== 'short' ? 'style="display: none;"' : ''; ?>>
-                                        <label for="edit-short-response-<?php echo $message->id; ?>">
-                                            <?php _e('Your Answer:', 'anonymous-messages'); ?>
-                                        </label>
-                                        <textarea id="edit-short-response-<?php echo $message->id; ?>" 
-                                                  name="edit_short_response" rows="4" 
-                                                  placeholder="<?php _e('Enter your answer here...', 'anonymous-messages'); ?>"><?php echo esc_textarea($message->short_response ?? ''); ?></textarea>
-                                    </div>
-                                    
-                                    <?php if ($post_answers_enabled) : ?>
-                                    <div class="edit-post-response-section" <?php echo $message->response_type !== 'post' ? 'style="display: none;"' : ''; ?>>
-                                        <label for="edit-post-id-<?php echo $message->id; ?>">
-                                            <?php _e('Select Post:', 'anonymous-messages'); ?>
-                                        </label>
-                                        <select id="edit-post-id-<?php echo $message->id; ?>" name="edit_post_id">
-                                            <option value=""><?php _e('Select a post...', 'anonymous-messages'); ?></option>
-                                            <?php
-                                            $posts = get_posts(array(
-                                                'numberposts' => 50,
-                                                'post_status' => 'publish',
-                                                'post_type' => $response_post_type,
-                                                'orderby' => 'date',
-                                                'order' => 'DESC'
-                                            ));
-                                            foreach ($posts as $post) :
-                                            ?>
-                                                <option value="<?php echo $post->ID; ?>" <?php selected($message->post_id, $post->ID); ?>>
-                                                    <?php echo esc_html($post->post_title); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <?php endif; ?>
-                                    
-                                    <div class="edit-response-actions">
-                                        <button type="submit" class="button button-primary">
-                                            <?php _e('Update Answer', 'anonymous-messages'); ?>
-                                        </button>
-                                        <button type="button" class="button cancel-edit-answer">
-                                            <?php _e('Cancel', 'anonymous-messages'); ?>
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="edit-response-messages"></div>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endif; ?>
+
                 <?php endforeach; ?>
             <?php endif; ?>
         </tbody>
@@ -448,6 +342,207 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
     <?php endif; ?>
 </div>
 
+<!-- Response Modal -->
+<div id="am-response-modal" class="am-modal" style="display: none;">
+    <div class="am-modal-backdrop"></div>
+    <div class="am-modal-container">
+        <div class="am-modal-header">
+            <h2><?php _e('Respond to Message', 'anonymous-messages'); ?></h2>
+            <button type="button" class="am-modal-close" aria-label="<?php _e('Close', 'anonymous-messages'); ?>">
+                <span class="dashicons dashicons-no-alt"></span>
+            </button>
+        </div>
+        
+        <div class="am-modal-content">
+            <div class="am-message-preview">
+                <h3><?php _e('Original Message', 'anonymous-messages'); ?></h3>
+                <div class="am-message-text"></div>
+                <div class="am-message-meta">
+                    <span class="am-sender"></span> • <span class="am-date"></span>
+                </div>
+            </div>
+            
+            <form id="am-response-form" class="am-modal-form" method="post" action="">
+                <?php wp_nonce_field('am_respond_to_message', 'am_response_nonce'); ?>
+                <input type="hidden" name="action" value="am_respond_to_message">
+                <input type="hidden" name="message_id" value="">
+                
+                <div class="am-response-type-selection">
+                    <fieldset>
+                        <legend><?php _e('Response Type', 'anonymous-messages'); ?></legend>
+                        <label class="am-radio-label">
+                            <input type="radio" name="response_type" value="short" checked>
+                            <span><?php _e('Rich Text Answer', 'anonymous-messages'); ?></span>
+                        </label>
+                        <?php if ($post_answers_enabled) : ?>
+                        <label class="am-radio-label">
+                            <input type="radio" name="response_type" value="post">
+                            <span><?php _e('Link to Post', 'anonymous-messages'); ?></span>
+                        </label>
+                        <?php endif; ?>
+                    </fieldset>
+                </div>
+                
+                <div class="am-short-response-section">
+                    <label for="am-short-response">
+                        <?php _e('Your Answer', 'anonymous-messages'); ?>
+                    </label>
+                    <?php 
+                    $editor_settings = array(
+                        'textarea_name' => 'short_response',
+                        'textarea_rows' => 8,
+                        'media_buttons' => false,
+                        'teeny' => true,
+                        'quicktags' => array(
+                            'buttons' => 'strong,em,ul,ol,li,link,block,del,ins,img,code'
+                        ),
+                        'tinymce' => array(
+                            'toolbar1' => 'bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,undo,redo',
+                            'toolbar2' => '',
+                            'height' => 200
+                        )
+                    );
+                    wp_editor('', 'am-short-response', $editor_settings);
+                    ?>
+                </div>
+                
+                <?php if ($post_answers_enabled) : ?>
+                <div class="am-post-response-section" style="display: none;">
+                    <label for="am-post-id">
+                        <?php _e('Select Post', 'anonymous-messages'); ?>
+                    </label>
+                    <select id="am-post-id" name="post_id" class="regular-text">
+                        <option value=""><?php _e('Select a post...', 'anonymous-messages'); ?></option>
+                        <?php
+                        $posts = get_posts(array(
+                            'numberposts' => 50,
+                            'post_status' => 'publish',
+                            'post_type' => $response_post_type,
+                            'orderby' => 'date',
+                            'order' => 'DESC'
+                        ));
+                        foreach ($posts as $post) :
+                        ?>
+                            <option value="<?php echo $post->ID; ?>">
+                                <?php echo esc_html($post->post_title); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="description"><?php _e('Link this message to an existing post instead of providing a text answer.', 'anonymous-messages'); ?></p>
+                </div>
+                <?php endif; ?>
+                
+                <div class="am-response-messages"></div>
+            </form>
+        </div>
+        
+        <div class="am-modal-footer">
+            <button type="button" class="button button-secondary am-modal-cancel">
+                <?php _e('Cancel', 'anonymous-messages'); ?>
+            </button>
+            <button type="submit" form="am-response-form" class="button button-primary">
+                <?php _e('Send Response', 'anonymous-messages'); ?>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Answer Modal -->
+<div id="am-edit-modal" class="am-modal" style="display: none;">
+    <div class="am-modal-backdrop"></div>
+    <div class="am-modal-container">
+        <div class="am-modal-header">
+            <h2><?php _e('Edit Answer', 'anonymous-messages'); ?></h2>
+            <button type="button" class="am-modal-close" aria-label="<?php _e('Close', 'anonymous-messages'); ?>">
+                <span class="dashicons dashicons-no-alt"></span>
+            </button>
+        </div>
+        
+        <div class="am-modal-content">
+            <div class="am-message-preview">
+                <h3><?php _e('Original Message', 'anonymous-messages'); ?></h3>
+                <div class="am-message-text"></div>
+                <div class="am-message-meta">
+                    <span class="am-sender"></span> • <span class="am-date"></span>
+                </div>
+            </div>
+            
+            <form id="am-edit-form" class="am-modal-form" method="post" action="">
+                <?php wp_nonce_field('am_update_response', 'am_edit_nonce'); ?>
+                <input type="hidden" name="action" value="am_update_response">
+                <input type="hidden" name="message_id" value="">
+                <input type="hidden" name="response_id" value="">
+                
+                <div class="am-response-type-selection">
+                    <fieldset>
+                        <legend><?php _e('Response Type', 'anonymous-messages'); ?></legend>
+                        <label class="am-radio-label">
+                            <input type="radio" name="edit_response_type" value="short">
+                            <span><?php _e('Rich Text Answer', 'anonymous-messages'); ?></span>
+                        </label>
+                        <?php if ($post_answers_enabled) : ?>
+                        <label class="am-radio-label">
+                            <input type="radio" name="edit_response_type" value="post">
+                            <span><?php _e('Link to Post', 'anonymous-messages'); ?></span>
+                        </label>
+                        <?php endif; ?>
+                    </fieldset>
+                </div>
+                
+                <div class="am-edit-short-response-section">
+                    <label for="am-edit-short-response">
+                        <?php _e('Your Answer', 'anonymous-messages'); ?>
+                    </label>
+                    <?php 
+                    wp_editor('', 'am-edit-short-response', array(
+                        'textarea_name' => 'edit_short_response',
+                        'textarea_rows' => 8,
+                        'media_buttons' => false,
+                        'teeny' => true,
+                        'quicktags' => array(
+                            'buttons' => 'strong,em,ul,ol,li,link,block,del,ins,img,code'
+                        ),
+                        'tinymce' => array(
+                            'toolbar1' => 'bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,undo,redo',
+                            'toolbar2' => '',
+                            'height' => 200
+                        )
+                    ));
+                    ?>
+                </div>
+                
+                <?php if ($post_answers_enabled) : ?>
+                <div class="am-edit-post-response-section" style="display: none;">
+                    <label for="am-edit-post-id">
+                        <?php _e('Select Post', 'anonymous-messages'); ?>
+                    </label>
+                    <select id="am-edit-post-id" name="edit_post_id" class="regular-text">
+                        <option value=""><?php _e('Select a post...', 'anonymous-messages'); ?></option>
+                        <?php foreach ($posts as $post) : ?>
+                            <option value="<?php echo $post->ID; ?>">
+                                <?php echo esc_html($post->post_title); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="description"><?php _e('Link this message to an existing post instead of providing a text answer.', 'anonymous-messages'); ?></p>
+                </div>
+                <?php endif; ?>
+                
+                <div class="am-edit-messages"></div>
+            </form>
+        </div>
+        
+        <div class="am-modal-footer">
+            <button type="button" class="button button-secondary am-modal-cancel">
+                <?php _e('Cancel', 'anonymous-messages'); ?>
+            </button>
+            <button type="submit" form="am-edit-form" class="button button-primary">
+                <?php _e('Update Answer', 'anonymous-messages'); ?>
+            </button>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
 jQuery(document).ready(function($) {
     // Toggle full message
@@ -457,10 +552,10 @@ jQuery(document).ready(function($) {
         
         if ($fullMessage.is(':visible')) {
             $fullMessage.hide();
-            $this.text('<?php _e('Show full message', 'anonymous-messages'); ?>');
+            $this.text('<?php echo esc_js(__('Show full message', 'anonymous-messages')); ?>');
         } else {
             $fullMessage.show();
-            $this.text('<?php _e('Hide full message', 'anonymous-messages'); ?>');
+            $this.text('<?php echo esc_js(__('Hide full message', 'anonymous-messages')); ?>');
         }
     });
     
@@ -471,4 +566,34 @@ jQuery(document).ready(function($) {
         }
     });
 });
+
+// Image modal functions
+function openImageModal(src, caption) {
+    document.getElementById('modal-image').src = src;
+    document.querySelector('.image-modal-caption').textContent = caption;
+    document.getElementById('image-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+    document.getElementById('image-modal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('image-modal').style.display === 'flex') {
+        closeImageModal();
+    }
+});
 </script>
+
+<!-- Image Modal -->
+<div id="image-modal" class="image-modal" style="display: none;">
+    <div class="image-modal-overlay" onclick="closeImageModal()"></div>
+    <div class="image-modal-content">
+        <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
+        <img id="modal-image" src="" alt="">
+        <div class="image-modal-caption"></div>
+    </div>
+</div>

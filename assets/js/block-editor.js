@@ -4,7 +4,7 @@
     const { registerBlockType } = wp.blocks;
     const { InspectorControls } = wp.blockEditor;
     const { PanelBody, ToggleControl, RangeControl, TextControl } = wp.components;
-    const { __ } = wp.i18n;
+    const { __, sprintf } = wp.i18n;
     const { createElement: el } = wp.element;
     
     // Check if block is already registered
@@ -55,6 +55,10 @@
             enableEmailNotifications: {
                 type: 'boolean',
                 default: true
+            },
+            enableImageUploads: {
+                type: 'boolean',
+                default: true
             }
         },
         
@@ -67,7 +71,8 @@
                 enableRecaptcha,
                 placeholder,
                 assignedUserId,
-                enableEmailNotifications
+                enableEmailNotifications,
+                enableImageUploads
             } = attributes;
             
             return el('div', { className: 'anonymous-messages-editor' }, [
@@ -118,6 +123,13 @@
                             value: placeholder,
                             onChange: (value) => setAttributes({ placeholder: value }),
                             key: 'placeholder'
+                        }),
+                        el(ToggleControl, {
+                            label: __('Enable Image Uploads', 'anonymous-messages'),
+                            checked: enableImageUploads,
+                            onChange: (value) => setAttributes({ enableImageUploads: value }),
+                            help: __('Allow visitors to attach images to their messages. Can override global setting.', 'anonymous-messages'),
+                            key: 'enable-image-uploads'
                         }),
                         // User Selection Control
                         anonymousMessages.users && anonymousMessages.users.length > 0 && el('div', { key: 'user-selection' }, [
@@ -222,7 +234,7 @@
                             ])
                         ]),
                         el('p', { className: 'questions-info' }, 
-                            __('Showing ' + questionsPerPage + ' questions per page', 'anonymous-messages')
+                            sprintf(__('Showing %d questions per page', 'anonymous-messages'), questionsPerPage)
                         )
                     ])
                 ])
