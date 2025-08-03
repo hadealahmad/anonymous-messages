@@ -580,6 +580,7 @@
                 $this.text(anonymousMessagesAdmin.strings.hideFullAnswer);
             }
         }
+
         
         showMessage(container, message, type) {
             const alertClass = type === 'success' ? 'notice-success' : 'notice-error';

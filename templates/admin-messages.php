@@ -171,15 +171,7 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                         
                         <td class="column-message">
                             <div class="message-content">
-                                <?php echo nl2br(esc_html(wp_trim_words($message->message, 20))); ?>
-                                <?php if (strlen($message->message) > 100) : ?>
-                                    <button type="button" class="button-link toggle-full-message">
-                                        <?php _e('Show full message', 'anonymous-messages'); ?>
-                                    </button>
-                                    <div class="full-message" style="display: none;">
-                                        <?php echo nl2br(esc_html($message->message)); ?>
-                                    </div>
-                                <?php endif; ?>
+                                <?php echo nl2br(esc_html($message->message)); ?>
                                 
                                 <?php 
                                 // Display attached images
