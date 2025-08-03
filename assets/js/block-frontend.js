@@ -474,18 +474,31 @@
             if (window.grecaptcha && anonymousMessages.recaptchaSiteKey) {
                 window.grecaptcha.ready(() => {
                     // Find the reCAPTCHA container
-                    const recaptchaContainer = this.block.querySelector('.recaptcha-container div');
+                    const recaptchaContainer = this.block.querySelector('.recaptcha-container');
                     if (recaptchaContainer) {
-                        // Render reCAPTCHA with explicit badge positioning
+                        // Hide global reCAPTCHA badge since we'll manage it locally
+                        this.hideGlobalRecaptchaBadge();
+                        
+                        // Create a specific container div if it doesn't exist
+                        let targetContainer = recaptchaContainer.querySelector('div');
+                        if (!targetContainer) {
+                            targetContainer = document.createElement('div');
+                            recaptchaContainer.appendChild(targetContainer);
+                        }
+                        
+                        // Render reCAPTCHA with proper badge positioning
                         try {
-                            this.recaptchaWidgetId = window.grecaptcha.render(recaptchaContainer, {
+                            this.recaptchaWidgetId = window.grecaptcha.render(targetContainer, {
                                 'sitekey': anonymousMessages.recaptchaSiteKey,
-                                'badge': 'inline', // Use bottomleft as fallback from inline
+                                'badge': 'bottomright', // Use bottomright within the container
                                 'size': 'invisible',
                                 'callback': (token) => {
                                     // Token will be handled in submitMessage
                                 }
                             });
+                            
+                            // Make sure the badge is visible only within this block
+                            this.positionRecaptchaBadge();
                             
                             console.log('reCAPTCHA initialized with widget ID:', this.recaptchaWidgetId);
                         } catch (error) {
@@ -493,6 +506,82 @@
                         }
                     }
                 });
+            }
+        }
+        
+        hideGlobalRecaptchaBadge() {
+            // Hide the global reCAPTCHA badge that appears by default
+            const style = document.createElement('style');
+            style.textContent = `
+                .grecaptcha-badge {
+                    display: none !important;
+                }
+                .anonymous-messages-block .grecaptcha-badge {
+                    display: block !important;
+                    position: relative !important;
+                    bottom: auto !important;
+                    right: auto !important;
+                    margin: 10px 0;
+                }
+            `;
+            
+            // Only add the style if it doesn't already exist
+            if (!document.querySelector('#recaptcha-badge-styles')) {
+                style.id = 'recaptcha-badge-styles';
+                document.head.appendChild(style);
+            }
+        }
+        
+        positionRecaptchaBadge() {
+            // Wait for reCAPTCHA badge to be created
+            setTimeout(() => {
+                const badges = document.querySelectorAll('.grecaptcha-badge');
+                badges.forEach(badge => {
+                    // Check if this badge is within our block
+                    if (this.block.contains(badge) || this.isRecaptchaBadgeForThisBlock(badge)) {
+                        badge.style.position = 'relative';
+                        badge.style.bottom = 'auto';
+                        badge.style.right = 'auto';
+                        badge.style.margin = '10px 0';
+                        badge.style.display = 'block';
+                        
+                        // Move badge to our reCAPTCHA container if it's not already there
+                        const recaptchaContainer = this.block.querySelector('.recaptcha-container');
+                        if (recaptchaContainer && !recaptchaContainer.contains(badge)) {
+                            recaptchaContainer.appendChild(badge);
+                        }
+                    }
+                });
+            }, 500);
+        }
+        
+        isRecaptchaBadgeForThisBlock(badge) {
+            // Check if this badge was created for this specific block
+            // by checking if our widget ID corresponds to this badge
+            return this.recaptchaWidgetId !== undefined && badge.dataset && 
+                   badge.dataset.sitekey === anonymousMessages.recaptchaSiteKey;
+        }
+        
+        cleanup() {
+            // Clean up reCAPTCHA widget if it exists
+            if (this.recaptchaWidgetId !== undefined && window.grecaptcha) {
+                try {
+                    window.grecaptcha.reset(this.recaptchaWidgetId);
+                } catch (error) {
+                    console.log('reCAPTCHA widget cleanup:', error);
+                }
+                this.recaptchaWidgetId = undefined;
+            }
+            
+            // Clear any timeouts
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = null;
+            }
+            
+            // Mark block as uninitialized
+            if (this.block) {
+                this.block.dataset.initialized = 'false';
             }
         }
         
@@ -748,6 +837,9 @@
     // Make the class globally available
     window.AnonymousMessagesBlock = AnonymousMessagesBlock;
     
+    // Store block instances for cleanup
+    window.AnonymousMessagesBlockInstances = window.AnonymousMessagesBlockInstances || [];
+    
     // Auto-initialize blocks when DOM is ready
     function initializeBlocks() {
         // Check if anonymousMessages object is available
@@ -756,6 +848,9 @@
         }
         
         const blocks = document.querySelectorAll('.anonymous-messages-block');
+        
+        // Check if any blocks need reCAPTCHA before initializing
+        let hasRecaptchaBlocks = false;
         
         blocks.forEach(block => {
             const blockId = block.id;
@@ -775,9 +870,16 @@
                 enableEmailNotifications: block.dataset.enableEmailNotifications !== 'false' // Default to true if not set
             };
             
+            // Track if any block needs reCAPTCHA
+            if (attributes.enableRecaptcha && anonymousMessages.recaptchaSiteKey) {
+                hasRecaptchaBlocks = true;
+            }
+            
             // Initialize the block
             try {
-                new AnonymousMessagesBlock(blockId, attributes);
+                const blockInstance = new AnonymousMessagesBlock(blockId, attributes);
+                // Store instance for cleanup
+                window.AnonymousMessagesBlockInstances.push(blockInstance);
             } catch (error) {
                 console.error('Error initializing block:', blockId, error);
             }
@@ -785,6 +887,38 @@
             // Mark as initialized
             block.dataset.initialized = 'true';
         });
+        
+        // If no blocks need reCAPTCHA, ensure global badge is hidden
+        if (!hasRecaptchaBlocks && window.grecaptcha) {
+            hideGlobalRecaptchaBadgeCompletely();
+        }
+    }
+    
+    // Global function to completely hide reCAPTCHA badge when not needed
+    function hideGlobalRecaptchaBadgeCompletely() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .grecaptcha-badge {
+                display: none !important;
+            }
+        `;
+        
+        if (!document.querySelector('#recaptcha-global-hide-styles')) {
+            style.id = 'recaptcha-global-hide-styles';
+            document.head.appendChild(style);
+        }
+    }
+    
+    // Global cleanup function
+    function cleanupAllInstances() {
+        if (window.AnonymousMessagesBlockInstances) {
+            window.AnonymousMessagesBlockInstances.forEach(instance => {
+                if (instance && typeof instance.cleanup === 'function') {
+                    instance.cleanup();
+                }
+            });
+            window.AnonymousMessagesBlockInstances = [];
+        }
     }
     
     // Initialize when DOM is ready
@@ -835,5 +969,9 @@
             });
         }
     });
+    
+    // Cleanup on page unload to prevent reCAPTCHA badges from lingering
+    window.addEventListener('beforeunload', cleanupAllInstances);
+    window.addEventListener('pagehide', cleanupAllInstances);
     
 })(jQuery);

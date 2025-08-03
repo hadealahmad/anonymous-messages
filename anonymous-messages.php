@@ -3,7 +3,7 @@
  * Plugin Name: Anonymous Messages
  * Plugin URI: https://github.com/hadealahmad/anonymous-messages
  * Description: A WordPress plugin that allows site visitors to send anonymous messages through a Gutenberg block with spam protection and admin management.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Hadi Alahmad
  * Author URI: https://hadealahmad.com
  * Text Domain: anonymous-messages
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ANONYMOUS_MESSAGES_VERSION', '1.1.0');
+define('ANONYMOUS_MESSAGES_VERSION', '1.1.1');
 define('ANONYMOUS_MESSAGES_PLUGIN_FILE', __FILE__);
 define('ANONYMOUS_MESSAGES_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ANONYMOUS_MESSAGES_PLUGIN_URL', plugin_dir_url(__FILE__));
