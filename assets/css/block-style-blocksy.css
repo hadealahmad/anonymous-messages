@@ -577,32 +577,32 @@
 .anonymous-messages-block .image-upload-label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--color, #1e1e1e);
+    font-weight: var(--theme-button-font-weight, 700);
+    color: var(--theme-headings-color, var(--theme-palette-color-4));
 }
 
 .anonymous-messages-block .image-upload-container {
-    border: 2px dashed var(--theme-border-color, #e1e5e9);
-    border-radius: 8px;
+    border: 2px dashed var(--theme-border-color, #054239);
+    border-radius: var(--theme-form-field-border-radius, 10px);
     padding: 1rem;
     text-align: center;
     transition: border-color 0.2s ease;
 }
 
 .anonymous-messages-block .image-upload-container:hover {
-    border-color: var(--theme-palette-color-1, #2872fa);
+    border-color: var(--theme-palette-color-1, #b9a779);
 }
 
 .anonymous-messages-block .image-upload-button {
     min-height: var(--theme-button-min-height, 40px);
     padding: var(--theme-button-padding, 5px 20px);
-    background: var(--theme-palette-color-8, #ffffff);
-    color: var(--theme-palette-color-1, #2872fa);
-    border: 2px solid var(--theme-palette-color-1, #2872fa);
-    border-radius: 6px;
-    font-family: var(--theme-font-family, var(--theme-font-stack-default));
+    background: var(--theme-button-background-initial-color, var(--theme-palette-color-8));
+    color: var(--theme-button-text-initial-color, var(--theme-palette-color-1));
+    border: var(--theme-button-border, none);
+    border-radius: var(--theme-button-border-radius, 10px);
+    font-family: var(--theme-font-family, 'Noto Naskh Arabic', Sans-Serif);
     font-size: var(--theme-button-font-size, 15px);
-    font-weight: var(--theme-button-font-weight, 500);
+    font-weight: var(--theme-button-font-weight, 700);
     text-transform: var(--theme-text-transform, none);
     text-decoration: var(--theme-text-decoration, none);
     cursor: pointer;
@@ -617,22 +617,21 @@
 }
 
 .anonymous-messages-block .image-upload-button:hover:not(:disabled) {
-    background: var(--theme-palette-color-1, #2872fa);
-    color: var(--theme-palette-color-8, #ffffff);
+    background: var(--theme-button-background-hover-color, var(--theme-palette-color-1));
+    color: var(--theme-button-text-hover-color, var(--theme-palette-color-8));
 }
 
 .anonymous-messages-block .image-upload-button:disabled {
-    background: var(--theme-palette-color-5, #e1e8ed);
-    color: var(--theme-palette-color-3, #3A4F66);
-    border-color: var(--theme-palette-color-5, #e1e8ed);
+    background: var(--theme-palette-color-5, #054239);
+    color: var(--theme-palette-color-3, #edebe0);
     cursor: not-allowed;
     opacity: 0.6;
 }
 
 .anonymous-messages-block .upload-help {
     margin-top: 0.5rem;
-    font-size: calc(var(--theme-font-size, 16px) * 0.875);
-    color: var(--theme-palette-color-3, #3A4F66);
+    font-size: calc(var(--theme-font-size, 20px) * 0.875);
+    color: var(--theme-palette-color-3, #edebe0);
     opacity: 0.8;
 }
 
@@ -645,10 +644,10 @@
 
 .anonymous-messages-block .image-preview-item {
     position: relative;
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 0.5rem;
+    border: 1px solid var(--theme-border-color, #054239);
+    border-radius: var(--theme-form-field-border-radius, 10px);
     overflow: hidden;
-    background: var(--background-color, #f9fafb);
+    background: var(--theme-palette-color-8, #002623);
 }
 
 .anonymous-messages-block .preview-image {
@@ -683,7 +682,7 @@
 .anonymous-messages-block .image-name {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
-    color: var(--color, #374151);
+    color: var(--theme-text-color, var(--theme-palette-color-3));
     text-align: center;
     word-break: break-word;
 }
@@ -693,9 +692,9 @@
     padding: 0.5rem;
     background: #fef2f2;
     border: 1px solid #fecaca;
-    border-radius: 0.375rem;
+    border-radius: var(--theme-form-field-border-radius, 10px);
     color: #dc2626;
-    font-size: 0.875rem;
+    font-size: calc(var(--theme-font-size, 20px) * 0.875);
 }
 
 /* Mobile responsiveness for image uploads in Blocksy */
