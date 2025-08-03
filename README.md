@@ -203,7 +203,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - All contributors and testers
 
 ## 📈 Changelog
-###
+
+### Version 1.0.1
 - better readme
 - fixed: blocksy mobile version display issue
 
