@@ -59,12 +59,30 @@
             
             // Get message data from the row
             const senderName = messageRow.find('.column-sender strong').text();
-            const messageText = messageRow.find('.column-message .message-content').text().trim();
+            const messageContent = messageRow.find('.column-message .message-content').clone();
             const messageDate = messageRow.find('.column-date').text();
+            
+            // Convert image previews to clickable links that open in new tabs
+            messageContent.find('.attachment-preview img').each(function() {
+                const $img = $(this);
+                const src = $img.attr('src');
+                const alt = $img.attr('alt');
+                
+                // Replace image with clickable link
+                const $link = $('<a>', {
+                    href: src,
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    text: '🖼️ ' + alt + ' (انقر للفتح في تبويب جديد)',
+                    style: 'color: #0073aa; text-decoration: none; display: inline-block; margin: 5px 0; padding: 5px 10px; border: 1px solid #ddd; border-radius: 3px; background: #f9f9f9;'
+                });
+                
+                $img.closest('.attachment-item').replaceWith($link);
+            });
             
             // Populate modal with message data
             const modal = $('#am-response-modal');
-            modal.find('.am-message-text').text(messageText);
+            modal.find('.am-message-text').html(messageContent.html());
             modal.find('.am-sender').text(senderName);
             modal.find('.am-date').text(messageDate);
             modal.find('input[name="message_id"]').val(messageId);
@@ -99,8 +117,26 @@
             
             // Get message data from the row
             const senderName = messageRow.find('.column-sender strong').text();
-            const messageText = messageRow.find('.column-message .message-content').text().trim();
+            const messageContent = messageRow.find('.column-message .message-content').clone();
             const messageDate = messageRow.find('.column-date').text();
+            
+            // Convert image previews to clickable links that open in new tabs
+            messageContent.find('.attachment-preview img').each(function() {
+                const $img = $(this);
+                const src = $img.attr('src');
+                const alt = $img.attr('alt');
+                
+                // Replace image with clickable link
+                const $link = $('<a>', {
+                    href: src,
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    text: '🖼️ ' + alt + ' (انقر للفتح في تبويب جديد)',
+                    style: 'color: #0073aa; text-decoration: none; display: inline-block; margin: 5px 0; padding: 5px 10px; border: 1px solid #ddd; border-radius: 3px; background: #f9f9f9;'
+                });
+                
+                $img.closest('.attachment-item').replaceWith($link);
+            });
             
             // Get existing answer data
             const answerPreview = messageRow.find('.answer-preview');
@@ -126,7 +162,7 @@
             
             // Populate modal with message data
             const modal = $('#am-edit-modal');
-            modal.find('.am-message-text').text(messageText);
+            modal.find('.am-message-text').html(messageContent.html());
             modal.find('.am-sender').text(senderName);
             modal.find('.am-date').text(messageDate);
             modal.find('input[name="message_id"]').val(messageId);

@@ -244,7 +244,8 @@
 }
 
 /* Body scroll lock when modal is open */
-body.modal-open {
+body.modal-open,
+body.image-modal-open {
     overflow: hidden;
 }
 
@@ -1265,6 +1266,14 @@ body.modal-open {
     cursor: pointer;
 }
 
+.attachment-preview a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    outline: none;
+}
+
 .attachment-preview img {
     width: 100%;
     height: 100%;
@@ -1275,6 +1284,30 @@ body.modal-open {
 
 .attachment-preview:hover img {
     transform: scale(1.05);
+}
+
+.attachment-preview a:hover img {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Add visual indicator for clickable images */
+.attachment-preview a::after {
+    content: '🔗';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.attachment-preview:hover a::after {
+    opacity: 1;
 }
 
 .attachment-info {

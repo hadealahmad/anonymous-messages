@@ -192,10 +192,15 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                                             <?php foreach ($attachments as $attachment) : ?>
                                                 <div class="attachment-item">
                                                     <div class="attachment-preview">
-                                                        <img src="<?php echo esc_url(site_url($attachment->file_path)); ?>" 
-                                                             alt="<?php echo esc_attr($attachment->file_name); ?>"
-                                                             loading="lazy" 
-                                                             onclick="openImageModal(this.src, '<?php echo esc_js($attachment->file_name); ?>')">
+                                                        <a href="<?php echo esc_url(home_url('/' . $attachment->file_path)); ?>" 
+                                                           target="_blank" 
+                                                           rel="noopener noreferrer" 
+                                                           title="<?php _e('Click to open in new tab', 'anonymous-messages'); ?>">
+                                                            <img src="<?php echo esc_url(home_url('/' . $attachment->file_path)); ?>" 
+                                                                 alt="<?php echo esc_attr($attachment->file_name); ?>"
+                                                                 loading="lazy" 
+                                                                 style="cursor: pointer;">
+                                                        </a>
                                                     </div>
                                                     <div class="attachment-info">
                                                         <div class="file-name" title="<?php echo esc_attr($attachment->file_name); ?>">
@@ -545,55 +550,62 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
 
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-    // Toggle full message
-    $('.toggle-full-message').on('click', function() {
-        var $this = $(this);
-        var $fullMessage = $this.siblings('.full-message');
+    'use strict';
+    
+    // Images now open in new tabs directly - no modal needed
+    
+    // Ensure modal close buttons work properly
+    $(document).off('click', '.am-modal-close, .am-modal-cancel').on('click', '.am-modal-close, .am-modal-cancel', function(e) {
+        e.preventDefault();
+        console.log('Modal close button clicked');
         
-        if ($fullMessage.is(':visible')) {
-            $fullMessage.hide();
-            $this.text('<?php echo esc_js(__('Show full message', 'anonymous-messages')); ?>');
-        } else {
-            $fullMessage.show();
-            $this.text('<?php echo esc_js(__('Hide full message', 'anonymous-messages')); ?>');
+        const $modal = $(this).closest('.am-modal');
+        if ($modal.length) {
+            $modal.hide();
+            $('body').removeClass('modal-open');
+            
+            // Reset TinyMCE editors
+            if (typeof tinymce !== 'undefined') {
+                const responseEditor = tinymce.get('am-short-response');
+                const editEditor = tinymce.get('am-edit-short-response');
+                
+                if (responseEditor) responseEditor.setContent('');
+                if (editEditor) editEditor.setContent('');
+            }
+            
+            console.log('Admin modal closed successfully');
         }
     });
     
-    // Auto-submit search form on enter
-    $('#search-input').on('keypress', function(e) {
-        if (e.which === 13) { // Enter key
-            $(this).closest('form').submit();
+    // Close admin modal on backdrop click
+    $(document).off('click', '.am-modal-backdrop').on('click', '.am-modal-backdrop', function(e) {
+        e.preventDefault();
+        console.log('Modal backdrop clicked');
+        
+        const $modal = $(this).closest('.am-modal');
+        if ($modal.length) {
+            $modal.hide();
+            $('body').removeClass('modal-open');
+            console.log('Admin modal closed via backdrop');
         }
     });
-});
-
-// Image modal functions
-function openImageModal(src, caption) {
-    document.getElementById('modal-image').src = src;
-    document.querySelector('.image-modal-caption').textContent = caption;
-    document.getElementById('image-modal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeImageModal() {
-    document.getElementById('image-modal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && document.getElementById('image-modal').style.display === 'flex') {
-        closeImageModal();
-    }
+    
+    // Debug image link clicks in message list
+    $(document).on('click', '.attachment-preview a', function(e) {
+        console.log('Image link clicked in message list:', this.href);
+        // Don't prevent default - let the link open normally
+        return true;
+    });
+    
+    // Add visual feedback for image links
+    $('.attachment-preview a').each(function() {
+        $(this).attr('title', $(this).attr('title') || 'Click to open image in new tab');
+    });
+    
+    // Debug logging
+    console.log('Enhanced modal handlers loaded');
+    console.log('Found', $('.attachment-preview a').length, 'image links in message list');
 });
 </script>
 
-<!-- Image Modal -->
-<div id="image-modal" class="image-modal" style="display: none;">
-    <div class="image-modal-overlay" onclick="closeImageModal()"></div>
-    <div class="image-modal-content">
-        <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
-        <img id="modal-image" src="" alt="">
-        <div class="image-modal-caption"></div>
-    </div>
-</div>
+<!-- Images now open in new tabs directly -->
