@@ -322,7 +322,8 @@
             
             let responseContent = '';
             if (question.response_type === 'short' && question.short_response) {
-                responseContent = `<div class="response-content">${question.short_response}</div>`;
+                // Allow HTML content in responses while maintaining security
+                responseContent = `<div class="response-content">${this.sanitizeHtml(question.short_response)}</div>`;
             } else if (question.response_type === 'post' && question.post_title && question.post_url) {
                 responseContent = `
                     <p class="response-content">
@@ -617,6 +618,30 @@
         escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        sanitizeHtml(html) {
+            // Create a temporary div to parse and sanitize HTML
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            
+            // Remove any script tags and event handlers for security
+            const scripts = div.querySelectorAll('script');
+            scripts.forEach(script => script.remove());
+            
+            // Remove any elements with event handlers
+            const elementsWithEvents = div.querySelectorAll('*');
+            elementsWithEvents.forEach(element => {
+                const attributes = element.attributes;
+                for (let i = attributes.length - 1; i >= 0; i--) {
+                    const attr = attributes[i];
+                    if (attr.name.startsWith('on') || attr.name.startsWith('javascript:')) {
+                        element.removeAttribute(attr.name);
+                    }
+                }
+            });
+            
             return div.innerHTML;
         }
         

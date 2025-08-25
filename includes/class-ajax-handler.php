@@ -213,7 +213,8 @@ class Anonymous_Messages_Ajax_Handler {
                 
                 // Add response content based on type
                 if ($question->response_type === 'short' && !empty($question->short_response)) {
-                    $formatted_question['short_response'] = $question->short_response;
+                    // Process the response to preserve formatting (convert line breaks to HTML)
+                    $formatted_question['short_response'] = wpautop($question->short_response);
                 } elseif ($question->response_type === 'post' && !empty($question->post_id)) {
                     $post = get_post($question->post_id);
                     if ($post && $post->post_status === 'publish') {
