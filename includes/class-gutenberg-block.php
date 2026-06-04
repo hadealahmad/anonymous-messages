@@ -67,6 +67,31 @@ class Anonymous_Messages_Gutenberg_Block {
     }
     
     /**
+     * Check if GreenShift/GreenLight builder is active
+     * 
+     * @return bool True if GreenShift is active
+     */
+    private function is_greenshift_active() {
+        $active_plugins = get_option('active_plugins', array());
+        
+        if (is_multisite()) {
+            $network_active_plugins = get_site_option('active_sitewide_plugins', array());
+            $active_plugins = array_merge($active_plugins, array_keys($network_active_plugins));
+        }
+        
+        foreach ($active_plugins as $basename) {
+            if (
+                0 === strpos($basename, 'greenshift-animation-and-page-builder-blocks/') ||
+                0 === strpos($basename, 'gl-page-builder/')
+            ) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
      * Register the Gutenberg block
      */
     public function register_block() {
@@ -126,6 +151,65 @@ class Anonymous_Messages_Gutenberg_Block {
             )
         ));
         
+        // Register static child blocks
+        $static_child_blocks = array(
+            'anonymous-messages/message-textarea',
+            'anonymous-messages/submit-button'
+        );
+
+        foreach ($static_child_blocks as $child) {
+            if (!$block_registry->is_registered($child)) {
+                register_block_type($child, array(
+                    'editor_script' => 'anonymous-messages-block-editor',
+                    'editor_style' => 'anonymous-messages-block-editor-style',
+                    'style' => 'anonymous-messages-block-style'
+                ));
+            }
+        }
+
+        // Register dynamic child blocks
+        if (!$block_registry->is_registered('anonymous-messages/image-uploader')) {
+            register_block_type('anonymous-messages/image-uploader', array(
+                'editor_script' => 'anonymous-messages-block-editor',
+                'editor_style' => 'anonymous-messages-block-editor-style',
+                'style' => 'anonymous-messages-block-style',
+                'render_callback' => array($this, 'render_image_uploader'),
+                'attributes' => array(
+                    'labelText' => array(
+                        'type' => 'string',
+                        'default' => __('Attach Images (Optional)', 'anonymous-messages')
+                    ),
+                    'buttonText' => array(
+                        'type' => 'string',
+                        'default' => __('Choose Images', 'anonymous-messages')
+                    )
+                )
+            ));
+        }
+
+        if (!$block_registry->is_registered('anonymous-messages/questions-list')) {
+            register_block_type('anonymous-messages/questions-list', array(
+                'editor_script' => 'anonymous-messages-block-editor',
+                'editor_style' => 'anonymous-messages-block-editor-style',
+                'style' => 'anonymous-messages-block-style',
+                'render_callback' => array($this, 'render_questions_list'),
+                'attributes' => array(
+                    'titleText' => array(
+                        'type' => 'string',
+                        'default' => __('Previously Answered Questions', 'anonymous-messages')
+                    ),
+                    'showSearch' => array(
+                        'type' => 'boolean',
+                        'default' => true
+                    ),
+                    'showCategories' => array(
+                        'type' => 'boolean',
+                        'default' => true
+                    )
+                )
+            ));
+        }
+        
         // Also register a shortcode as fallback
         add_shortcode('anonymous_messages_block', array($this, 'render_shortcode'));
     }
@@ -134,20 +218,68 @@ class Anonymous_Messages_Gutenberg_Block {
      * Enqueue block editor assets
      */
     public function enqueue_block_editor_assets() {
-        wp_enqueue_script(
-            'anonymous-messages-block-editor',
-            ANONYMOUS_MESSAGES_PLUGIN_URL . 'assets/js/block-editor.js',
-            array('wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n'),
-            ANONYMOUS_MESSAGES_VERSION,
-            true
-        );
+        // Check if we have a modern build
+        $asset_file_path = ANONYMOUS_MESSAGES_PLUGIN_DIR . 'build/index.asset.php';
+        $build_index_path = ANONYMOUS_MESSAGES_PLUGIN_DIR . 'build/index.js';
         
-        wp_enqueue_style(
-            'anonymous-messages-block-editor-style',
-            ANONYMOUS_MESSAGES_PLUGIN_URL . 'assets/css/block-editor.css',
-            array('wp-edit-blocks'),
-            ANONYMOUS_MESSAGES_VERSION
-        );
+        // Use modern build if available, fallback to legacy
+        if (file_exists($build_index_path) && file_exists($asset_file_path)) {
+            // Modern @wordpress/scripts build
+            $asset_file = include($asset_file_path);
+            
+            // Base dependencies from asset file
+            $dependencies = $asset_file['dependencies'];
+            
+            // Add GreenShift dependencies if GreenShift is active
+            if ($this->is_greenshift_active()) {
+                $dependencies = array_merge($dependencies, array(
+                    'greenShift-editor-js',
+                    'greenShift-library-script'
+                ));
+            }
+            
+            wp_enqueue_script(
+                'anonymous-messages-block-editor',
+                ANONYMOUS_MESSAGES_PLUGIN_URL . 'build/index.js',
+                $dependencies,
+                $asset_file['version'],
+                true
+            );
+            
+            // Enqueue block editor styles if they exist
+            $build_css_path = ANONYMOUS_MESSAGES_PLUGIN_DIR . 'build/index.css';
+            if (file_exists($build_css_path)) {
+                $style_deps = array('wp-edit-blocks');
+                
+                // Add GreenShift style dependency if available
+                if ($this->is_greenshift_active()) {
+                    $style_deps[] = 'greenShift-library-editor';
+                }
+                
+                wp_enqueue_style(
+                    'anonymous-messages-block-editor-style',
+                    ANONYMOUS_MESSAGES_PLUGIN_URL . 'build/index.css',
+                    $style_deps,
+                    $asset_file['version']
+                );
+            }
+        } else {
+            // Legacy fallback - use old assets
+            wp_enqueue_script(
+                'anonymous-messages-block-editor',
+                ANONYMOUS_MESSAGES_PLUGIN_URL . 'assets/js/block-editor.js',
+                array('wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n'),
+                ANONYMOUS_MESSAGES_VERSION,
+                true
+            );
+            
+            wp_enqueue_style(
+                'anonymous-messages-block-editor-style',
+                ANONYMOUS_MESSAGES_PLUGIN_URL . 'assets/css/block-editor.css',
+                array('wp-edit-blocks'),
+                ANONYMOUS_MESSAGES_VERSION
+            );
+        }
         
         // Localize script with data
         wp_localize_script('anonymous-messages-block-editor', 'anonymousMessages', array(
@@ -286,7 +418,7 @@ class Anonymous_Messages_Gutenberg_Block {
     /**
      * Render the block on frontend
      */
-    public function render_block($attributes) {
+    public function render_block($attributes, $content = '') {
         // Ensure block is registered before rendering
         $this->ensure_block_registered();
         
@@ -297,10 +429,163 @@ class Anonymous_Messages_Gutenberg_Block {
         include ANONYMOUS_MESSAGES_PLUGIN_DIR . 'templates/block-template.php';
         
         // Get the buffered content
-        $content = ob_get_clean();
+        $output = ob_get_clean();
         
         // Return the buffered content
-        return $content;
+        return $output;
+    }
+
+    /**
+     * Render the child image uploader block dynamically
+     */
+    public function render_image_uploader($attributes, $content = '') {
+        $options = get_option('anonymous_messages_options', array());
+        $enable_image_uploads = $options['enable_image_uploads'] ?? true;
+        
+        if (!$enable_image_uploads) {
+            return '';
+        }
+        
+        $max_size = ($options['max_image_size'] ?? 2) * 1024 * 1024;
+        $max_files = $options['max_images_per_message'] ?? 3;
+        $allowed_types = implode(',', $options['allowed_image_types'] ?? array('image/jpeg', 'image/png', 'image/gif', 'image/webp'));
+        $label = $attributes['labelText'] ?? __('Attach Images (Optional)', 'anonymous-messages');
+        $btn_text = $attributes['buttonText'] ?? __('Choose Images', 'anonymous-messages');
+        
+        // Generate allowed types string for help text
+        $allowed_types_upper = implode(', ', array_map(function($type) {
+            return strtoupper(str_replace('image/', '', $type));
+        }, $options['allowed_image_types'] ?? array('image/jpeg', 'image/png', 'image/gif', 'image/webp')));
+        
+        $help = sprintf(__('Max %d images, %s MB each. Allowed: %s', 'anonymous-messages'), $max_files, $options['max_image_size'] ?? 2, $allowed_types_upper);
+        
+        $wrapper_attributes = get_block_wrapper_attributes(array(
+            'class' => 'form-group image-upload-section'
+        ));
+
+        ob_start();
+        ?>
+        <div <?php echo $wrapper_attributes; ?>>
+            <label class="image-upload-label"><?php echo esc_html($label); ?></label>
+            <div class="image-upload-container">
+                <input 
+                    type="file" 
+                    name="images[]"
+                    class="image-input"
+                    multiple
+                    accept="<?php echo esc_attr($allowed_types); ?>"
+                    data-max-size="<?php echo esc_attr($max_size); ?>"
+                    data-max-files="<?php echo esc_attr($max_files); ?>"
+                    style="display: none;"
+                />
+                <div class="image-upload-trigger">
+                    <button type="button" class="image-upload-button">
+                        <span class="upload-icon">📁</span>
+                        <span class="upload-text"><?php echo esc_html($btn_text); ?></span>
+                    </button>
+                    <div class="upload-help"><?php echo esc_html($help); ?></div>
+                </div>
+                <div class="image-preview-container" style="display: none;"></div>
+                <div class="image-upload-error" style="display: none;"></div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render the child questions list block dynamically
+     */
+    public function render_questions_list($attributes, $content = '') {
+        $options = get_option('anonymous_messages_options', array());
+        $enable_categories = isset($options['enable_categories']) ? $options['enable_categories'] : true;
+        
+        // Get categories if enabled
+        $categories = array();
+        if ($enable_categories && ($attributes['showCategories'] ?? true)) {
+            $db = Anonymous_Messages_Database::get_instance();
+            $categories = $db->get_categories();
+        }
+
+        $title = $attributes['titleText'] ?? __('Previously Answered Questions', 'anonymous-messages');
+        $show_search = $attributes['showSearch'] ?? true;
+        $show_categories = $attributes['showCategories'] ?? true;
+        
+        $wrapper_attributes = get_block_wrapper_attributes(array(
+            'class' => 'anonymous-messages-questions'
+        ));
+
+        $rand_id = wp_generate_password(4, false);
+        $search_id = 'search-' . $rand_id;
+        $category_id = 'category-' . $rand_id;
+
+        ob_start();
+        ?>
+        <div <?php echo $wrapper_attributes; ?>>
+            <h3 class="questions-title">
+                <?php echo esc_html($title); ?>
+            </h3>
+            
+            <!-- Search and Filter Section -->
+            <div class="questions-search-filter">
+                <?php if ($show_search) : ?>
+                <!-- Instant Search -->
+                <div class="search-group">
+                    <label for="<?php echo esc_attr($search_id); ?>" class="search-label">
+                        <?php _e('Search questions and answers:', 'anonymous-messages'); ?>
+                    </label>
+                    <input type="text" 
+                           id="<?php echo esc_attr($search_id); ?>"
+                           class="questions-search" 
+                           placeholder="<?php esc_attr_e('Type to search...', 'anonymous-messages'); ?>"
+                           autocomplete="off">
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($enable_categories && $show_categories && !empty($categories)) : ?>
+                <!-- Category Filter -->
+                <div class="filter-group">
+                    <label for="<?php echo esc_attr($category_id); ?>">
+                        <?php _e('Filter by Category:', 'anonymous-messages'); ?>
+                    </label>
+                    <select id="<?php echo esc_attr($category_id); ?>" class="category-filter">
+                        <option value=""><?php _e('All Categories', 'anonymous-messages'); ?></option>
+                        <?php foreach ($categories as $category) : ?>
+                            <option value="<?php echo esc_attr($category->id); ?>">
+                                <?php echo esc_html($category->name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Questions Container -->
+            <div class="questions-container">
+                <div class="questions-list">
+                    <!-- Questions will be loaded via AJAX -->
+                </div>
+                
+                <!-- Loading indicator -->
+                <div class="questions-loading" style="display: none;">
+                    <span><?php _e('Loading questions...', 'anonymous-messages'); ?></span>
+                </div>
+                
+                <!-- Load More Button -->
+                <div class="questions-pagination">
+                    <button type="button" class="load-more-button" style="display: none;">
+                        <?php _e('Load More Questions', 'anonymous-messages'); ?>
+                    </button>
+                </div>
+                
+                <!-- No Questions Message -->
+                <div class="no-questions-message" style="display: none;">
+                    <p><?php _e('No answered questions yet. Be the first to ask!', 'anonymous-messages'); ?></p>
+                </div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
     }
     
     /**

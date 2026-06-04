@@ -3,7 +3,7 @@
  * Plugin Name: Anonymous Messages
  * Plugin URI: https://github.com/hadealahmad/anonymous-messages
  * Description: A WordPress plugin that allows site visitors to send anonymous messages through a Gutenberg block with spam protection and admin management.
- * Version: 1.2.2
+ * Version: 2.0.0
  * Author: Hadi Alahmad
  * Author URI: https://hadealahmad.com
  * Text Domain: anonymous-messages
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ANONYMOUS_MESSAGES_VERSION', '1.2.2');
+define('ANONYMOUS_MESSAGES_VERSION', '2.0.0');
 define('ANONYMOUS_MESSAGES_PLUGIN_FILE', __FILE__);
 define('ANONYMOUS_MESSAGES_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ANONYMOUS_MESSAGES_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -64,25 +64,24 @@ class AnonymousMessages {
         
         add_action('init', array($this, 'init'));
         add_action('plugins_loaded', array($this, 'load_textdomain'));
+        add_action('save_post', array($this, 'invalidate_posts_cache'));
+        add_action('delete_post', array($this, 'invalidate_posts_cache'));
     }
     
     /**
      * Plugin activation
      */
     public function activate() {
-        // Create database tables
-        $this->create_tables();
-        
         // Add plugin version option
         add_option('anonymous_messages_version', ANONYMOUS_MESSAGES_VERSION);
         
         // Set default options
         $this->set_default_options();
         
-        // Set transient to flush rewrite rules on next admin page load
-        set_transient('anonymous_messages_flush_rewrite_rules', true, 30);
+        // Register custom post type and taxonomy during activation before flushing
+        $this->register_post_type_and_taxonomy();
         
-        // Flush rewrite rules
+        // Flush rewrite rules directly
         flush_rewrite_rules();
     }
     
@@ -103,6 +102,12 @@ class AnonymousMessages {
         
         // Initialize components
         $this->init_components();
+
+        // Run data migration check
+        if (!get_option('anonymous_messages_migrated')) {
+            require_once ANONYMOUS_MESSAGES_PLUGIN_DIR . 'includes/class-migration.php';
+            Anonymous_Messages_Migration::run_migration();
+        }
     }
     
     /**
@@ -144,8 +149,8 @@ class AnonymousMessages {
         // Initialize security handler
         Anonymous_Messages_Security::get_instance();
         
-        // Register custom post type directly
-        $this->register_custom_post_type();
+        // Register custom post type and taxonomy directly
+        $this->register_post_type_and_taxonomy();
     }
     
     /**
@@ -248,56 +253,72 @@ class AnonymousMessages {
     }
     
     /**
-     * Register custom post type if enabled
+     * Register CPT and taxonomy
      */
-    public function register_custom_post_type() {
-        $options = get_option('anonymous_messages_options', array());
-        $post_answer_mode = $options['post_answer_mode'] ?? 'existing';
-        
-        if ($post_answer_mode === 'custom') {
-            $post_type_name = 'anonymous_answers';
-            $post_type_label = __('Anonymous Answers', 'anonymous-messages');
-            $post_type_singular = __('Anonymous Answer', 'anonymous-messages');
-            
-            // Register the post type
-            register_post_type($post_type_name, array(
-                'labels' => array(
-                    'name' => $post_type_label,
-                    'singular_name' => $post_type_singular,
-                    'menu_name' => $post_type_label,
-                    'add_new' => __('Add New', 'anonymous-messages'),
-                    'add_new_item' => sprintf(__('Add New %s', 'anonymous-messages'), $post_type_singular),
-                    'edit_item' => sprintf(__('Edit %s', 'anonymous-messages'), $post_type_singular),
-                    'new_item' => sprintf(__('New %s', 'anonymous-messages'), $post_type_singular),
-                    'view_item' => sprintf(__('View %s', 'anonymous-messages'), $post_type_singular),
-                    'view_items' => sprintf(__('View %s', 'anonymous-messages'), $post_type_label),
-                    'search_items' => sprintf(__('Search %s', 'anonymous-messages'), $post_type_label),
-                    'not_found' => sprintf(__('No %s found', 'anonymous-messages'), strtolower($post_type_label)),
-                    'not_found_in_trash' => sprintf(__('No %s found in trash', 'anonymous-messages'), strtolower($post_type_label)),
-                    'all_items' => sprintf(__('All %s', 'anonymous-messages'), $post_type_label),
-                    'archives' => sprintf(__('%s Archives', 'anonymous-messages'), $post_type_singular),
-                    'attributes' => sprintf(__('%s Attributes', 'anonymous-messages'), $post_type_singular),
-                    'insert_into_item' => sprintf(__('Insert into %s', 'anonymous-messages'), strtolower($post_type_singular)),
-                    'uploaded_to_this_item' => sprintf(__('Uploaded to this %s', 'anonymous-messages'), strtolower($post_type_singular))
-                ),
-                'public' => true,
-                'publicly_queryable' => true,
-                'show_ui' => true,
-                'show_in_menu' => true,
-                'query_var' => true,
-                'rewrite' => array(
-                    'slug' => 'anonymous-answers',
-                    'with_front' => false
-                ),
-                'capability_type' => 'post',
-                'has_archive' => true,
-                'hierarchical' => false,
-                'menu_position' => 20,
-                'menu_icon' => 'dashicons-format-chat',
-                'supports' => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments'),
-                'show_in_rest' => true
-            ));
-        }
+    public function register_post_type_and_taxonomy() {
+        // Register Custom Taxonomy
+        register_taxonomy('anonymous_message_category', 'anonymous_message', array(
+            'labels' => array(
+                'name' => __('Message Categories', 'anonymous-messages'),
+                'singular_name' => __('Message Category', 'anonymous-messages'),
+                'menu_name' => __('Categories', 'anonymous-messages'),
+                'all_items' => __('All Categories', 'anonymous-messages'),
+                'edit_item' => __('Edit Category', 'anonymous-messages'),
+                'view_item' => __('View Category', 'anonymous-messages'),
+                'update_item' => __('Update Category', 'anonymous-messages'),
+                'add_new_item' => __('Add New Category', 'anonymous-messages'),
+                'new_item_name' => __('New Category Name', 'anonymous-messages'),
+                'search_items' => __('Search Categories', 'anonymous-messages'),
+                'popular_items' => __('Popular Categories', 'anonymous-messages'),
+                'separate_items_with_commas' => __('Separate categories with commas', 'anonymous-messages'),
+                'add_or_remove_items' => __('Add or remove categories', 'anonymous-messages'),
+                'choose_from_most_used' => __('Choose from the most used categories', 'anonymous-messages'),
+                'not_found' => __('No categories found.', 'anonymous-messages'),
+            ),
+            'hierarchical' => true,
+            'show_ui' => true,
+            'show_admin_column' => true,
+            'query_var' => true,
+            'rewrite' => array('slug' => 'message-category'),
+            'show_in_rest' => true,
+        ));
+
+        // Register Custom Post Type
+        register_post_type('anonymous_message', array(
+            'labels' => array(
+                'name' => __('Anonymous Messages', 'anonymous-messages'),
+                'singular_name' => __('Anonymous Message', 'anonymous-messages'),
+                'menu_name' => __('Anonymous Messages', 'anonymous-messages'),
+                'name_admin_bar' => __('Anonymous Message', 'anonymous-messages'),
+                'add_new' => __('Add New', 'anonymous-messages'),
+                'add_new_item' => __('Add New Message', 'anonymous-messages'),
+                'new_item' => __('New Message', 'anonymous-messages'),
+                'edit_item' => __('Edit Message', 'anonymous-messages'),
+                'view_item' => __('View Message', 'anonymous-messages'),
+                'all_items' => __('All Messages', 'anonymous-messages'),
+                'search_items' => __('Search Messages', 'anonymous-messages'),
+                'parent_item_colon' => __('Parent Messages:', 'anonymous-messages'),
+                'not_found' => __('No messages found.', 'anonymous-messages'),
+                'not_found_in_trash' => __('No messages found in trash.', 'anonymous-messages'),
+            ),
+            'public' => true,
+            'publicly_queryable' => true,
+            'show_ui' => true,
+            'show_in_menu' => true,
+            'query_var' => true,
+            'rewrite' => array(
+                'slug' => 'anonymous-messages',
+                'with_front' => false
+            ),
+            'capability_type' => 'post',
+            'has_archive' => true,
+            'hierarchical' => false,
+            'menu_position' => 25,
+            'menu_icon' => 'dashicons-email-alt2',
+            'supports' => array('title', 'editor', 'author'),
+            'taxonomies' => array('anonymous_message_category'),
+            'show_in_rest' => true
+        ));
     }
     
     /**
@@ -305,8 +326,18 @@ class AnonymousMessages {
      */
     public function force_flush_rewrite_rules() {
         delete_option('anonymous_messages_rewrite_flushed');
-        $this->register_custom_post_type();
+        $this->register_post_type_and_taxonomy();
         flush_rewrite_rules();
+    }
+
+    /**
+     * Invalidate response posts cache transient on post save or delete
+     */
+    public function invalidate_posts_cache($post_id) {
+        $post_type = get_post_type($post_id);
+        if ($post_type) {
+            delete_transient('am_response_posts_' . sanitize_key($post_type));
+        }
     }
 }
 

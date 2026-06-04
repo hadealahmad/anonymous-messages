@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 }
 ?>
 
-<div class="wrap">
+<div class="wrap anonymous-messages-admin">
     <h1><?php _e('Anonymous Messages Settings', 'anonymous-messages'); ?></h1>
     
     <form method="post" action="">
@@ -131,8 +131,6 @@ if (!defined('ABSPATH')) {
                     </p>
                 </td>
             </tr>
-            
-
             
             <!-- Post Answer Settings -->
             <tr>
@@ -309,7 +307,7 @@ if (!defined('ABSPATH')) {
         
         <div class="settings-section">
             <h2><?php _e('Plugin Information', 'anonymous-messages'); ?></h2>
-            <table class="widefat">
+            <table class="widefat plugin-info-table">
                 <tbody>
                     <tr>
                         <td><strong><?php _e('Plugin Version:', 'anonymous-messages'); ?></strong></td>
@@ -326,10 +324,12 @@ if (!defined('ABSPATH')) {
                     <tr>
                         <td><strong><?php _e('Session Support:', 'anonymous-messages'); ?></strong></td>
                         <td>
-                            <?php if (session_id() || session_start()) : ?>
-                                <span style="color: green;">✓ <?php _e('Active', 'anonymous-messages'); ?></span>
+                            <?php if (function_exists('session_start') && (session_status() === PHP_SESSION_ACTIVE || session_id())) : ?>
+                                <span class="status-indicator status-good">✓ <?php _e('Active', 'anonymous-messages'); ?></span>
                             <?php else : ?>
-                                <span style="color: red;">✗ <?php _e('Not Available', 'anonymous-messages'); ?></span>
+                                <span class="status-indicator status-bad">
+                                    ✗ <?php _e('Not Active (Plugin handles this)', 'anonymous-messages'); ?>
+                                </span>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -342,20 +342,21 @@ if (!defined('ABSPATH')) {
                                 $wpdb->prefix . 'anonymous_messages',
                                 $wpdb->prefix . 'anonymous_message_categories',
                                 $wpdb->prefix . 'anonymous_message_responses',
-                $wpdb->prefix . 'anonymous_message_attachments'
+                                $wpdb->prefix . 'anonymous_message_attachments'
                             );
                             $all_exist = true;
+                            // Check table existence efficiently not in a loop for SHOW which can be slow
                             foreach ($tables as $table) {
-                                if ($wpdb->get_var("SHOW TABLES LIKE '$table'") != $table) {
+                                if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table)) !== $table) {
                                     $all_exist = false;
                                     break;
                                 }
                             }
                             ?>
                             <?php if ($all_exist) : ?>
-                                <span style="color: green;">✓ <?php _e('All tables exist', 'anonymous-messages'); ?></span>
+                                <span class="status-indicator status-good">✓ <?php _e('All tables exist', 'anonymous-messages'); ?></span>
                             <?php else : ?>
-                                <span style="color: red;">✗ <?php _e('Some tables missing', 'anonymous-messages'); ?></span>
+                                <span class="status-indicator status-bad">✗ <?php _e('Some tables missing', 'anonymous-messages'); ?></span>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -366,22 +367,6 @@ if (!defined('ABSPATH')) {
         <?php submit_button(__('Save Settings', 'anonymous-messages'), 'primary', 'submit_settings'); ?>
     </form>
 </div>
-
-<style>
-.settings-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #ccd0d4;
-}
-
-.settings-section h2 {
-    margin-bottom: 15px;
-}
-
-.widefat td {
-    padding: 8px 10px;
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -394,30 +379,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const rateLimitSecondsRow = document.getElementById('rate_limit_seconds_row');
     
     function togglePostTypeSettings() {
+        if (!postAnswerMode) return;
         const mode = postAnswerMode.value;
         
-        if (mode === 'existing') {
-            existingRow.style.display = '';
-            customInfoRow.style.display = 'none';
-        } else if (mode === 'custom') {
-            existingRow.style.display = 'none';
-            customInfoRow.style.display = '';
-        } else {
-            existingRow.style.display = 'none';
-            customInfoRow.style.display = 'none';
-        }
+        if (existingRow) existingRow.style.display = (mode === 'existing') ? '' : 'none';
+        if (customInfoRow) customInfoRow.style.display = (mode === 'custom') ? '' : 'none';
     }
     
     function toggleRateLimitingSettings() {
+        if (!enableRateLimiting) return;
         const isEnabled = enableRateLimiting.checked;
         
-        if (isEnabled) {
-            rateLimitingOptions.style.display = '';
-            rateLimitSecondsRow.style.display = '';
-        } else {
-            rateLimitingOptions.style.display = 'none';
-            rateLimitSecondsRow.style.display = 'none';
-        }
+        if (rateLimitingOptions) rateLimitingOptions.style.display = isEnabled ? '' : 'none';
+        if (rateLimitSecondsRow) rateLimitSecondsRow.style.display = isEnabled ? '' : 'none';
     }
     
     // Image upload settings toggle
@@ -427,26 +401,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const allowedImageTypesRow = document.getElementById('allowed_image_types_row');
     
     function toggleImageUploadSettings() {
+        if (!enableImageUploads) return;
         const isEnabled = enableImageUploads.checked;
         
-        const rows = [imageUploadOptions, maxImagesRow, allowedImageTypesRow];
-        rows.forEach(function(row) {
-            if (row) {
-                row.style.display = isEnabled ? '' : 'none';
-            }
+        [imageUploadOptions, maxImagesRow, allowedImageTypesRow].forEach(function(row) {
+            if (row) row.style.display = isEnabled ? '' : 'none';
         });
     }
     
-    postAnswerMode.addEventListener('change', togglePostTypeSettings);
-    enableRateLimiting.addEventListener('change', toggleRateLimitingSettings);
-    if (enableImageUploads) {
-        enableImageUploads.addEventListener('change', toggleImageUploadSettings);
-    }
+    if (postAnswerMode) postAnswerMode.addEventListener('change', togglePostTypeSettings);
+    if (enableRateLimiting) enableRateLimiting.addEventListener('change', toggleRateLimitingSettings);
+    if (enableImageUploads) enableImageUploads.addEventListener('change', toggleImageUploadSettings);
     
-    togglePostTypeSettings(); // Initial setup
-    toggleRateLimitingSettings(); // Initial setup
-    if (enableImageUploads) {
-        toggleImageUploadSettings(); // Initial setup
-    }
+    togglePostTypeSettings();
+    toggleRateLimitingSettings();
+    toggleImageUploadSettings();
 });
 </script>

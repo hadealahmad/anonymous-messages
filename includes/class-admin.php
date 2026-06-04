@@ -57,48 +57,22 @@ class Anonymous_Messages_Admin {
         add_action('admin_init', array($this, 'handle_export'));
         add_action('admin_bar_menu', array($this, 'add_admin_bar_menu'), 100);
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_admin_assets'));
+        
+        // CPT Columns and Meta Boxes
+        add_action('add_meta_boxes', array($this, 'add_message_meta_boxes'));
+        add_filter('manage_anonymous_message_posts_columns', array($this, 'set_custom_anonymous_message_columns'));
+        add_action('manage_anonymous_message_posts_custom_column', array($this, 'custom_anonymous_message_column'), 10, 2);
     }
     
     /**
      * Add admin menu
      */
     public function add_admin_menu() {
-        $menu_title = __('Anonymous Messages', 'anonymous-messages');
-        $bubble = ' <span class="awaiting-mod">' . number_format_i18n($this->pending_count) . '</span>';
-        
-        add_menu_page(
-            __('Anonymous Messages', 'anonymous-messages'),
-            $menu_title . ($this->pending_count > 0 ? $bubble : ''),
-            'manage_options',
-            'anonymous-messages',
-            array($this, 'render_messages_page'),
-            'dashicons-email-alt2',
-            30
-        );
-        
         add_submenu_page(
-            'anonymous-messages',
-            __('Messages', 'anonymous-messages'),
-            __('Messages', 'anonymous-messages') . ($this->pending_count > 0 ? $bubble : ''),
-            'manage_options',
-            'anonymous-messages',
-            array($this, 'render_messages_page')
-        );
-        
-        add_submenu_page(
-            'anonymous-messages',
-            __('Categories', 'anonymous-messages'),
-            __('Categories', 'anonymous-messages'),
-            'manage_options',
-            'anonymous-messages-categories',
-            array($this, 'render_categories_page')
-        );
-        
-        add_submenu_page(
-            'anonymous-messages',
+            'edit.php?post_type=anonymous_message',
             __('Settings', 'anonymous-messages'),
             __('Settings', 'anonymous-messages'),
-            'administrator',
+            'manage_options',
             'anonymous-messages-settings',
             array($this, 'render_settings_page')
         );
@@ -556,6 +530,7 @@ class Anonymous_Messages_Admin {
         $result = $wpdb->delete($wpdb->prefix . 'anonymous_messages', array('id' => $message_id));
         
         if ($result) {
+            Anonymous_Messages_Database::clear_query_cache();
             wp_send_json_success(array('message' => __('Message deleted successfully!', 'anonymous-messages')));
         } else {
             wp_send_json_error(array('message' => __('Failed to delete message', 'anonymous-messages')));
@@ -623,6 +598,7 @@ class Anonymous_Messages_Admin {
         );
         
         if ($result) {
+            Anonymous_Messages_Database::clear_query_cache();
             wp_send_json_success(array('message' => __('Category deleted successfully!', 'anonymous-messages')));
         } else {
             wp_send_json_error(array('message' => __('Failed to delete category', 'anonymous-messages')));
@@ -1002,6 +978,7 @@ class Anonymous_Messages_Admin {
         );
         
         if ($result !== false) {
+            Anonymous_Messages_Database::clear_query_cache();
             // Get category name for response
             $category_name = '';
             if ($category_id) {
@@ -1103,6 +1080,99 @@ class Anonymous_Messages_Admin {
                 array(),
                 ANONYMOUS_MESSAGES_VERSION
             );
+        }
+    }
+
+    /**
+     * Add meta boxes for anonymous message posts
+     */
+    public function add_message_meta_boxes() {
+        add_meta_box(
+            'anonymous_message_details',
+            __('Anonymous Message Details', 'anonymous-messages'),
+            array($this, 'render_message_meta_box'),
+            'anonymous_message',
+            'normal',
+            'high'
+        );
+    }
+
+    /**
+     * Render details meta box
+     */
+    public function render_message_meta_box($post) {
+        $message_text = get_post_meta($post->ID, '_anonymous_message_text', true);
+        $sender_name = get_post_meta($post->ID, '_anonymous_sender_name', true);
+        $attachments = get_attached_media('image', $post->ID);
+        ?>
+        <div class="am-meta-box" style="padding: 10px 0;">
+            <p><strong><?php _e('Sender Random Name:', 'anonymous-messages'); ?></strong> <?php echo esc_html($sender_name); ?></p>
+            <p><strong><?php _e('Submission Date:', 'anonymous-messages'); ?></strong> <?php echo esc_html(get_the_date('', $post->ID)) . ' ' . esc_html(get_the_time('', $post->ID)); ?></p>
+            <hr style="border-top: 1px solid #ccc; margin: 15px 0;" />
+            <p><strong><?php _e('Original Question:', 'anonymous-messages'); ?></strong></p>
+            <div style="background: #f7f7f7; padding: 15px; border-left: 4px solid #007cba; font-size: 1.1em; margin-bottom: 15px; border-radius: 4px; line-height: 1.5;">
+                <?php echo nl2br(esc_html($message_text)); ?>
+            </div>
+            
+            <?php if (!empty($attachments)) : ?>
+                <hr style="border-top: 1px solid #ccc; margin: 15px 0;" />
+                <p><strong><?php _e('Attachments:', 'anonymous-messages'); ?></strong></p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <?php foreach ($attachments as $att) : 
+                        $url = wp_get_attachment_url($att->ID);
+                        ?>
+                        <div style="text-align: center; border: 1px solid #ddd; padding: 8px; background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            <a href="<?php echo esc_url($url); ?>" target="_blank">
+                                <img src="<?php echo esc_url($url); ?>" style="max-width: 150px; max-height: 150px; display: block; margin-bottom: 5px; border-radius: 2px;" />
+                            </a>
+                            <span style="font-size: 10px; display: block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666;">
+                                <?php echo esc_html(basename(get_attached_file($att->ID))); ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * Set custom CPT columns
+     */
+    public function set_custom_anonymous_message_columns($columns) {
+        $new_columns = array(
+            'cb' => $columns['cb'],
+            'title' => $columns['title'],
+            'original_message' => __('Original Message', 'anonymous-messages'),
+            'sender_name' => __('Sender Name', 'anonymous-messages'),
+            'taxonomy-anonymous_message_category' => __('Categories', 'anonymous-messages'),
+            'author' => __('Assigned To', 'anonymous-messages'),
+            'featured' => __('Featured', 'anonymous-messages'),
+            'date' => $columns['date']
+        );
+        return $new_columns;
+    }
+
+    /**
+     * Display custom CPT column data
+     */
+    public function custom_anonymous_message_column($column, $post_id) {
+        switch ($column) {
+            case 'original_message':
+                $message = get_post_meta($post_id, '_anonymous_message_text', true);
+                echo esc_html(wp_trim_words($message, 10, '...'));
+                break;
+            case 'sender_name':
+                echo esc_html(get_post_meta($post_id, '_anonymous_sender_name', true));
+                break;
+            case 'featured':
+                $is_featured = get_post_meta($post_id, '_is_featured', true) === '1';
+                if ($is_featured) {
+                    echo '<span style="color: #d63638; font-weight: bold;">★ ' . __('Featured', 'anonymous-messages') . '</span>';
+                } else {
+                    echo '—';
+                }
+                break;
         }
     }
 }

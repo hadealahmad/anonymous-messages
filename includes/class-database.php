@@ -1,6 +1,6 @@
 <?php
 /**
- * Database operations class
+ * Database operations class using WordPress CPT and Metadata API
  */
 
 // Prevent direct access
@@ -29,313 +29,301 @@ class Anonymous_Messages_Database {
      * Constructor
      */
     private function __construct() {
-        // Database is already created in main plugin file
-        add_action('init', array($this, 'maybe_upgrade_database'));
+        // Core CPT and Taxonomy registration is handled in main plugin class
     }
     
     /**
      * Insert a new message
      */
     public function insert_message($message, $category_id = null, $assigned_user_id = null) {
-        global $wpdb;
-        
         $sender_name = $this->generate_random_name();
         
-        $result = $wpdb->insert(
-            $wpdb->prefix . 'anonymous_messages',
-            array(
-                'message' => sanitize_textarea_field($message),
-                'sender_name' => $sender_name,
-                'category_id' => $category_id ? intval($category_id) : null,
-                'assigned_user_id' => $assigned_user_id ? intval($assigned_user_id) : null,
-                'status' => 'pending',
-                'created_at' => current_time('mysql')
-            ),
-            array('%s', '%s', '%d', '%d', '%s', '%s')
+        $post_data = array(
+            'post_title' => 'Anonymous Message',
+            'post_content' => '',
+            'post_status' => 'pending',
+            'post_type' => 'anonymous_message',
+            'post_author' => $assigned_user_id ? intval($assigned_user_id) : 1
         );
         
-        return $result !== false ? $wpdb->insert_id : false;
+        $post_id = wp_insert_post($post_data);
+        
+        if ($post_id && !is_wp_error($post_id)) {
+            // Update title to include ID
+            wp_update_post(array(
+                'ID' => $post_id,
+                'post_title' => 'Anonymous Message #' . $post_id
+            ));
+            
+            // Set metadata
+            update_post_meta($post_id, '_anonymous_message_text', sanitize_textarea_field($message));
+            update_post_meta($post_id, '_anonymous_sender_name', $sender_name);
+            update_post_meta($post_id, '_anonymous_response_type', 'short');
+            
+            // Set category
+            if ($category_id) {
+                wp_set_object_terms($post_id, intval($category_id), 'anonymous_message_category');
+            }
+            
+            self::clear_query_cache();
+            
+            return $post_id;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Map CPT post object to legacy message database row standard
+     */
+    private function map_post_to_message($post) {
+        if (!$post) {
+            return null;
+        }
+        
+        $post_id = $post->ID;
+        $is_featured = get_post_meta($post_id, '_is_featured', true) === '1';
+        $response_type = get_post_meta($post_id, '_anonymous_response_type', true);
+        if (empty($response_type)) {
+            $response_type = 'short';
+        }
+        $linked_post_id = get_post_meta($post_id, '_linked_post_id', true);
+        
+        // Category
+        $category_name = '';
+        $category_id = null;
+        $terms = get_the_terms($post_id, 'anonymous_message_category');
+        if ($terms && !is_wp_error($terms)) {
+            $first_term = reset($terms);
+            $category_name = $first_term->name;
+            $category_id = $first_term->term_id;
+        }
+
+        $msg = new stdClass();
+        $msg->id = $post_id;
+        $msg->message = get_post_meta($post_id, '_anonymous_message_text', true);
+        if (empty($msg->message)) {
+            $msg->message = $post->post_title;
+        }
+        $msg->sender_name = get_post_meta($post_id, '_anonymous_sender_name', true);
+        $msg->category_id = $category_id;
+        $msg->category_name = $category_name;
+        $msg->assigned_user_id = $post->post_author;
+        $msg->status = $is_featured ? 'featured' : ($post->post_status === 'publish' ? 'answered' : 'pending');
+        $msg->created_at = $post->post_date;
+        $msg->answered_at = $post->post_modified;
+        $msg->response_type = $response_type;
+        $msg->short_response = $post->post_content;
+        $msg->post_id = $linked_post_id ? intval($linked_post_id) : null;
+        
+        if ($response_type === 'post' && $linked_post_id) {
+            $msg->post_title = get_the_title($linked_post_id);
+            $msg->post_url = get_permalink($linked_post_id);
+        }
+        
+        return $msg;
     }
     
     /**
      * Get answered messages with optional category filter
      */
     public function get_answered_messages($category_id = null, $page = 1, $per_page = 10, $search = '', $assigned_user_id = null) {
-        global $wpdb;
+        $version = get_transient('am_cache_version');
+        if (empty($version)) {
+            $version = time();
+            set_transient('am_cache_version', $version, YEAR_IN_SECONDS);
+        }
+        $cache_key = 'am_aq_' . md5($version . '_' . serialize(array($category_id, $page, $per_page, $search, $assigned_user_id)));
         
-        $offset = ($page - 1) * $per_page;
-        
-        $where = "WHERE m.status IN ('answered', 'featured')";
-        $params = array();
-        
+        $cached_results = get_transient($cache_key);
+        if ($cached_results !== false) {
+            return $cached_results;
+        }
+
+        $args = array(
+            'post_type' => 'anonymous_message',
+            'post_status' => 'publish',
+            'posts_per_page' => $per_page,
+            'paged' => $page,
+            'orderby' => 'modified',
+            'order' => 'DESC'
+        );
+
         if ($category_id) {
-            $where .= " AND m.category_id = %d";
-            $params[] = intval($category_id);
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'anonymous_message_category',
+                    'field' => 'term_id',
+                    'terms' => intval($category_id)
+                )
+            );
         }
-        
-        if ($assigned_user_id) {
-            $where .= " AND m.assigned_user_id = %d";
-            $params[] = intval($assigned_user_id);
-        }
-        
-        // Add search filter
+
         if (!empty($search)) {
-            $where .= " AND (m.message LIKE %s OR m.sender_name LIKE %s OR r.short_response LIKE %s)";
-            $search_term = '%' . $wpdb->esc_like($search) . '%';
-            $params[] = $search_term;
-            $params[] = $search_term;
-            $params[] = $search_term;
+            $args['s'] = $search;
         }
+
+        if ($assigned_user_id) {
+            $args['author'] = intval($assigned_user_id);
+        }
+
+        $query = new WP_Query($args);
+        $results = array();
+        foreach ($query->posts as $post) {
+            $results[] = $this->map_post_to_message($post);
+        }
+
+        set_transient($cache_key, $results, DAY_IN_SECONDS);
         
-        $sql = "SELECT m.*, r.response_type, r.short_response, r.post_id, r.updated_at as answered_at, c.name as category_name
-                FROM {$wpdb->prefix}anonymous_messages m
-                LEFT JOIN {$wpdb->prefix}anonymous_message_responses r ON m.id = r.message_id
-                LEFT JOIN {$wpdb->prefix}anonymous_message_categories c ON m.category_id = c.id
-                $where
-                ORDER BY m.status = 'featured' DESC, r.updated_at DESC
-                LIMIT %d OFFSET %d";
-        
-        $params[] = $per_page;
-        $params[] = $offset;
-        
-        return $wpdb->get_results($wpdb->prepare($sql, ...$params));
+        return $results;
     }
     
     /**
      * Get pending messages for admin
      */
     public function get_pending_messages($page = 1, $per_page = 20, $search = '', $category_id = null, $assigned_user_id = null) {
-        global $wpdb;
-        
-        $offset = ($page - 1) * $per_page;
-        
-        $where = "WHERE m.status = 'pending'";
-        $params = array();
-        
-        // Add search filter
-        if (!empty($search)) {
-            $where .= " AND (m.message LIKE %s OR m.sender_name LIKE %s)";
-            $search_term = '%' . $wpdb->esc_like($search) . '%';
-            $params[] = $search_term;
-            $params[] = $search_term;
-        }
-        
-        // Add category filter
+        $args = array(
+            'post_type' => 'anonymous_message',
+            'post_status' => 'pending',
+            'posts_per_page' => $per_page,
+            'paged' => $page,
+            'orderby' => 'date',
+            'order' => 'DESC'
+        );
+
         if ($category_id) {
-            $where .= " AND m.category_id = %d";
-            $params[] = intval($category_id);
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'anonymous_message_category',
+                    'field' => 'term_id',
+                    'terms' => intval($category_id)
+                )
+            );
         }
-        
-        // Add user filter
+
+        if (!empty($search)) {
+            $args['s'] = $search;
+        }
+
         if ($assigned_user_id) {
-            $where .= " AND m.assigned_user_id = %d";
-            $params[] = intval($assigned_user_id);
+            $args['author'] = intval($assigned_user_id);
         }
-        
-        $sql = "SELECT m.*, c.name as category_name
-                FROM {$wpdb->prefix}anonymous_messages m
-                LEFT JOIN {$wpdb->prefix}anonymous_message_categories c ON m.category_id = c.id
-                $where
-                ORDER BY m.created_at DESC
-                LIMIT %d OFFSET %d";
-        
-        $params[] = $per_page;
-        $params[] = $offset;
-        
-        return $wpdb->get_results($wpdb->prepare($sql, ...$params));
+
+        $query = new WP_Query($args);
+        $results = array();
+        foreach ($query->posts as $post) {
+            $results[] = $this->map_post_to_message($post);
+        }
+        return $results;
     }
     
     /**
      * Get answered messages with responses for admin
      */
     public function get_answered_messages_admin($category_id = null, $page = 1, $per_page = 20, $search = '', $assigned_user_id = null) {
-        global $wpdb;
-        
-        $offset = ($page - 1) * $per_page;
-        
-        $where = "WHERE m.status IN ('answered', 'featured')";
-        $params = array();
-        
-        // Add category filter
-        if ($category_id) {
-            $where .= " AND m.category_id = %d";
-            $params[] = intval($category_id);
-        }
-        
-        // Add user filter
-        if ($assigned_user_id) {
-            $where .= " AND m.assigned_user_id = %d";
-            $params[] = intval($assigned_user_id);
-        }
-        
-        // Add search filter
-        if (!empty($search)) {
-            $where .= " AND (m.message LIKE %s OR m.sender_name LIKE %s OR r.short_response LIKE %s)";
-            $search_term = '%' . $wpdb->esc_like($search) . '%';
-            $params[] = $search_term;
-            $params[] = $search_term;
-            $params[] = $search_term;
-        }
-        
-        $sql = "SELECT m.*, r.response_type, r.short_response, r.post_id, r.id as response_id, r.updated_at as answered_at, c.name as category_name
-                FROM {$wpdb->prefix}anonymous_messages m
-                LEFT JOIN {$wpdb->prefix}anonymous_message_responses r ON m.id = r.message_id
-                LEFT JOIN {$wpdb->prefix}anonymous_message_categories c ON m.category_id = c.id
-                $where
-                ORDER BY m.status = 'featured' DESC, m.created_at DESC
-                LIMIT %d OFFSET %d";
-        
-        $params[] = $per_page;
-        $params[] = $offset;
-        
-        return $wpdb->get_results($wpdb->prepare($sql, ...$params));
+        return $this->get_answered_messages($category_id, $page, $per_page, $search, $assigned_user_id);
     }
     
     /**
      * Get single message with response
      */
     public function get_message_with_response($message_id) {
-        global $wpdb;
-        
-        $sql = "SELECT m.*, r.response_type, r.short_response, r.post_id, r.id as response_id, c.name as category_name
-                FROM {$wpdb->prefix}anonymous_messages m
-                LEFT JOIN {$wpdb->prefix}anonymous_message_responses r ON m.id = r.message_id
-                LEFT JOIN {$wpdb->prefix}anonymous_message_categories c ON m.category_id = c.id
-                WHERE m.id = %d";
-        
-        return $wpdb->get_row($wpdb->prepare($sql, $message_id));
+        $post = get_post($message_id);
+        if (!$post || $post->post_type !== 'anonymous_message') {
+            return null;
+        }
+        return $this->map_post_to_message($post);
     }
     
     /**
      * Update response
      */
-    public function update_response($response_id, $response_type, $short_response = '', $post_id = null) {
-        global $wpdb;
-        
+    public function update_response($message_id, $response_type, $short_response = '', $post_id = null) {
         $data = array(
-            'response_type' => $response_type,
-            'updated_at' => current_time('mysql')
+            'ID' => intval($message_id),
+            'post_content' => wp_kses_post($short_response),
+            'post_status' => 'publish'
         );
         
-        if ($response_type === 'short') {
-            $data['short_response'] = wp_kses_post($short_response);
-            $data['post_id'] = null;
-        } else {
-            $data['short_response'] = null;
-            $data['post_id'] = intval($post_id);
+        $result = wp_update_post($data);
+        if ($result && !is_wp_error($result)) {
+            update_post_meta($message_id, '_anonymous_response_type', $response_type);
+            if ($response_type === 'post') {
+                update_post_meta($message_id, '_linked_post_id', intval($post_id));
+            } else {
+                delete_post_meta($message_id, '_linked_post_id');
+            }
+            self::clear_query_cache();
+            return true;
         }
-        
-        $result = $wpdb->update(
-            $wpdb->prefix . 'anonymous_message_responses',
-            $data,
-            array('id' => intval($response_id)),
-            array('%s', '%s', '%s', '%d'),
-            array('%d')
-        );
-        
-        return $result !== false;
+        return false;
     }
     
     /**
      * Update message status
      */
     public function update_message_status($message_id, $status) {
-        global $wpdb;
+        $post_status = 'pending';
+        if ($status === 'answered' || $status === 'featured') {
+            $post_status = 'publish';
+        }
         
-        $result = $wpdb->update(
-            $wpdb->prefix . 'anonymous_messages',
-            array('status' => $status, 'updated_at' => current_time('mysql')),
-            array('id' => intval($message_id)),
-            array('%s', '%s'),
-            array('%d')
+        $data = array(
+            'ID' => intval($message_id),
+            'post_status' => $post_status
         );
         
-        // Return true if update was successful (even if no rows were affected)
-        return $result !== false;
+        $result = wp_update_post($data);
+        if ($result && !is_wp_error($result)) {
+            if ($status === 'featured') {
+                update_post_meta($message_id, '_is_featured', '1');
+            } else {
+                delete_post_meta($message_id, '_is_featured');
+            }
+            self::clear_query_cache();
+            return true;
+        }
+        return false;
     }
     
     /**
      * Add response to message
      */
     public function add_response($message_id, $response_type, $short_response = '', $post_id = null) {
-        global $wpdb;
-        
-        // First, check if response already exists
-        $existing = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}anonymous_message_responses WHERE message_id = %d",
-            $message_id
-        ));
-        
-        $data = array(
-            'message_id' => intval($message_id),
-            'response_type' => $response_type,
-            'updated_at' => current_time('mysql')
-        );
-        
-        if ($response_type === 'short') {
-            $data['short_response'] = wp_kses_post($short_response);
-            $data['post_id'] = null;
-        } else {
-            $data['short_response'] = null;
-            $data['post_id'] = intval($post_id);
-        }
-        
-        if ($existing) {
-            // Update existing response
-            $result = $wpdb->update(
-                $wpdb->prefix . 'anonymous_message_responses',
-                $data,
-                array('message_id' => intval($message_id)),
-                array('%d', '%s', '%s', '%s', '%d'),
-                array('%d')
-            );
-        } else {
-            // Insert new response
-            $data['created_at'] = current_time('mysql');
-            $result = $wpdb->insert(
-                $wpdb->prefix . 'anonymous_message_responses',
-                $data,
-                array('%d', '%s', '%s', '%s', '%d', '%s')
-            );
-        }
-        
-        if ($result !== false) {
-            // Update message status to answered
-            $this->update_message_status($message_id, 'answered');
-        }
-        
-        return $result !== false;
+        return $this->update_response($message_id, $response_type, $short_response, $post_id);
     }
     
     /**
      * Get all categories
      */
     public function get_categories() {
-        global $wpdb;
-        
-        return $wpdb->get_results(
-            "SELECT * FROM {$wpdb->prefix}anonymous_message_categories ORDER BY name ASC"
-        );
+        $terms = get_terms(array(
+            'taxonomy' => 'anonymous_message_category',
+            'hide_empty' => false,
+        ));
+        if (is_wp_error($terms) || empty($terms)) {
+            return array();
+        }
+        $results = array();
+        foreach ($terms as $term) {
+            $cat = new stdClass();
+            $cat->id = $term->term_id;
+            $cat->name = $term->name;
+            $cat->slug = $term->slug;
+            $cat->description = $term->description;
+            $results[] = $cat;
+        }
+        return $results;
     }
     
     /**
      * Insert category
      */
     public function insert_category($name, $description = '') {
-        global $wpdb;
-        
-        $slug = sanitize_title($name);
-        
-        return $wpdb->insert(
-            $wpdb->prefix . 'anonymous_message_categories',
-            array(
-                'name' => sanitize_text_field($name),
-                'slug' => $slug,
-                'description' => sanitize_textarea_field($description),
-                'created_at' => current_time('mysql')
-            ),
-            array('%s', '%s', '%s', '%s')
-        );
+        $result = wp_insert_term($name, 'anonymous_message_category', array(
+            'description' => $description
+        ));
+        return !is_wp_error($result);
     }
     
     /**
@@ -363,174 +351,167 @@ class Anonymous_Messages_Database {
      * Get message count by status
      */
     public function get_message_count($status = null, $search = '', $category_id = null, $assigned_user_id = null) {
-        global $wpdb;
-        
-        $where = array();
-        $params = array();
-        
-        if ($status) {
-            $where[] = "status = %s";
-            $params[] = $status;
+        $post_status = 'any';
+        if ($status === 'pending') {
+            $post_status = 'pending';
+        } elseif ($status === 'answered' || $status === 'featured') {
+            $post_status = 'publish';
         }
         
-        if (!empty($search)) {
-            $where[] = "(message LIKE %s OR sender_name LIKE %s)";
-            $search_term = '%' . $wpdb->esc_like($search) . '%';
-            $params[] = $search_term;
-            $params[] = $search_term;
-        }
-        
+        $args = array(
+            'post_type' => 'anonymous_message',
+            'post_status' => $post_status,
+            'posts_per_page' => -1,
+            'fields' => 'ids'
+        );
+
         if ($category_id) {
-            $where[] = "category_id = %d";
-            $params[] = intval($category_id);
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'anonymous_message_category',
+                    'field' => 'term_id',
+                    'terms' => intval($category_id)
+                )
+            );
         }
-        
+
+        if ($status === 'featured') {
+            $args['meta_query'] = array(
+                array(
+                    'key' => '_is_featured',
+                    'value' => '1'
+                )
+            );
+        }
+
+        if (!empty($search)) {
+            $args['s'] = $search;
+        }
+
         if ($assigned_user_id) {
-            $where[] = "assigned_user_id = %d";
-            $params[] = intval($assigned_user_id);
+            $args['author'] = intval($assigned_user_id);
         }
-        
-        $where_clause = '';
-        if (!empty($where)) {
-            $where_clause = 'WHERE ' . implode(' AND ', $where);
-        }
-        
-        $sql = "SELECT COUNT(*) FROM {$wpdb->prefix}anonymous_messages $where_clause";
-        
-        if (!empty($params)) {
-            return $wpdb->get_var($wpdb->prepare($sql, ...$params));
-        }
-        
-        return $wpdb->get_var($sql);
+
+        $query = new WP_Query($args);
+        return $query->found_posts;
     }
     
     /**
      * Maybe upgrade database schema
      */
     public function maybe_upgrade_database() {
-        $current_version = get_option('anonymous_messages_db_version', '1.0.0');
-        
-        if (version_compare($current_version, '1.1.0', '<')) {
-            $this->upgrade_to_1_1_0();
-            update_option('anonymous_messages_db_version', '1.1.0');
-        }
-        
-        if (version_compare($current_version, '1.2.0', '<')) {
-            $this->upgrade_to_1_2_0();
-            update_option('anonymous_messages_db_version', '1.2.0');
-        }
-    }
-    
-    /**
-     * Upgrade to version 1.1.0 - Add assigned_user_id column
-     */
-    private function upgrade_to_1_1_0() {
-        global $wpdb;
-        
-        $table_name = $wpdb->prefix . 'anonymous_messages';
-        
-        // Check if column already exists
-        $column_exists = $wpdb->get_results($wpdb->prepare(
-            "SHOW COLUMNS FROM $table_name LIKE %s",
-            'assigned_user_id'
-        ));
-        
-        if (empty($column_exists)) {
-            $wpdb->query("ALTER TABLE $table_name ADD COLUMN assigned_user_id int(11) DEFAULT NULL AFTER category_id");
-            $wpdb->query("ALTER TABLE $table_name ADD KEY assigned_user_id (assigned_user_id)");
-        }
-    }
-    
-    /**
-     * Upgrade to version 1.2.0 - Add image attachments table
-     */
-    private function upgrade_to_1_2_0() {
-        global $wpdb;
-        
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        
-        $charset_collate = $wpdb->get_charset_collate();
-        
-        // Check if attachments table exists
-        $table_name = $wpdb->prefix . 'anonymous_message_attachments';
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
-        
-        if (!$table_exists) {
-            $attachments_sql = "CREATE TABLE $table_name (
-                id int(11) NOT NULL AUTO_INCREMENT,
-                message_id int(11) NOT NULL,
-                file_name varchar(255) NOT NULL,
-                file_path varchar(500) NOT NULL,
-                file_size int(11) NOT NULL,
-                mime_type varchar(100) NOT NULL,
-                upload_date datetime DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (id),
-                KEY message_id (message_id),
-                KEY upload_date (upload_date)
-            ) $charset_collate;";
-            
-            dbDelta($attachments_sql);
-        }
+        // No-op under CPT architecture
     }
     
     /**
      * Insert message attachment
      */
     public function insert_attachment($message_id, $file_name, $file_path, $file_size, $mime_type) {
-        global $wpdb;
-        
-        $result = $wpdb->insert(
-            $wpdb->prefix . 'anonymous_message_attachments',
-            array(
-                'message_id' => intval($message_id),
-                'file_name' => sanitize_file_name($file_name),
-                'file_path' => sanitize_text_field($file_path),
-                'file_size' => intval($file_size),
-                'mime_type' => sanitize_text_field($mime_type),
-                'upload_date' => current_time('mysql')
-            ),
-            array('%d', '%s', '%s', '%d', '%s', '%s')
-        );
-        
-        return $result !== false ? $wpdb->insert_id : false;
+        $upload_dir = wp_upload_dir();
+        $full_path = $upload_dir['basedir'] . '/' . $file_path;
+
+        if (file_exists($full_path)) {
+            $attachment_data = array(
+                'post_mime_type' => $mime_type,
+                'post_title' => preg_replace('/\.[^.]+$/', '', $file_name),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+            $attach_id = wp_insert_attachment($attachment_data, $full_path, $message_id);
+            if ($attach_id && !is_wp_error($attach_id)) {
+                require_once ABSPATH . 'wp-admin/includes/image.php';
+                $attach_data = wp_generate_attachment_metadata($attach_id, $full_path);
+                wp_update_attachment_metadata($attach_id, $attach_data);
+                return $attach_id;
+            }
+        }
+        return false;
     }
     
     /**
      * Get message attachments
      */
     public function get_message_attachments($message_id) {
-        global $wpdb;
-        
-        return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}anonymous_message_attachments WHERE message_id = %d ORDER BY upload_date ASC",
-            intval($message_id)
-        ));
+        $attachments = get_attached_media('image', $message_id);
+        if (empty($attachments)) {
+            return array();
+        }
+        $results = array();
+        foreach ($attachments as $att) {
+            $item = new stdClass();
+            $item->id = $att->ID;
+            $item->message_id = $message_id;
+            $item->file_name = basename(get_attached_file($att->ID));
+            $upload_dir = wp_upload_dir();
+            $full_path = get_attached_file($att->ID);
+            $item->file_path = str_replace($upload_dir['basedir'] . '/', '', $full_path);
+            $item->file_size = @filesize($full_path);
+            $item->mime_type = $att->post_mime_type;
+            $item->upload_date = $att->post_date;
+            $results[] = $item;
+        }
+        return $results;
     }
     
+    /**
+     * Get attachment URL dynamically with backward compatibility
+     */
+    public static function get_attachment_url($attachment) {
+        if (empty($attachment) || empty($attachment->file_path)) {
+            return '';
+        }
+        
+        $file_path = $attachment->file_path;
+        $upload_dir = wp_upload_dir();
+        
+        if (strpos($file_path, 'wp-content/uploads/') === 0) {
+            $relative_path = str_replace('wp-content/uploads/', '', $file_path);
+            return $upload_dir['baseurl'] . '/' . $relative_path;
+        } elseif (strpos($file_path, 'wp-content/') === 0) {
+            return content_url(str_replace('wp-content/', '', $file_path));
+        } else {
+            return $upload_dir['baseurl'] . '/' . $file_path;
+        }
+    }
+
+    /**
+     * Get attachment absolute path dynamically with backward compatibility
+     */
+    public static function get_attachment_absolute_path($attachment) {
+        if (empty($attachment) || empty($attachment->file_path)) {
+            return '';
+        }
+        
+        $file_path = $attachment->file_path;
+        $upload_dir = wp_upload_dir();
+        
+        if (strpos($file_path, 'wp-content/uploads/') === 0) {
+            $relative_path = str_replace('wp-content/uploads/', '', $file_path);
+            return $upload_dir['basedir'] . '/' . $relative_path;
+        } elseif (strpos($file_path, 'wp-content/') === 0) {
+            return ABSPATH . $file_path;
+        } else {
+            return $upload_dir['basedir'] . '/' . $file_path;
+        }
+    }
+
     /**
      * Delete message attachments
      */
     public function delete_message_attachments($message_id) {
-        global $wpdb;
-        
-        // Get attachment info for file cleanup
-        $attachments = $this->get_message_attachments($message_id);
-        
-        // Delete from database
-        $result = $wpdb->delete(
-            $wpdb->prefix . 'anonymous_message_attachments',
-            array('message_id' => intval($message_id)),
-            array('%d')
-        );
-        
-        // Delete physical files
-        foreach ($attachments as $attachment) {
-            $full_path = ABSPATH . $attachment->file_path;
-            if (file_exists($full_path)) {
-                wp_delete_file($full_path);
+        $attachments = get_attached_media('image', $message_id);
+        if (!empty($attachments)) {
+            foreach ($attachments as $att) {
+                wp_delete_attachment($att->ID, true);
             }
         }
-        
-        return $result;
+        return true;
+    }
+
+    /**
+     * Clear frontend query cache by invalidating the cache version
+     */
+    public static function clear_query_cache() {
+        delete_transient('am_cache_version');
     }
 }

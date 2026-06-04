@@ -115,6 +115,12 @@
                         this.loadQuestions(true);
                     }, 300); // 300ms debounce delay
                 });
+
+                this.searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                    }
+                });
             }
             
             // Load more button

@@ -13,9 +13,29 @@ $admin_instance = Anonymous_Messages_Admin::get_instance();
 $response_post_type = $admin_instance->get_response_post_type();
 $options = get_option('anonymous_messages_options', array());
 $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabled';
+
+// N+1 Optimization: Pre-fetch attachments for all messages in this view
+$attachments_map = [];
+if (!empty($messages)) {
+    $message_ids = wp_list_pluck($messages, 'id');
+    if (!empty($message_ids)) {
+        global $wpdb;
+        $attachments_table = $wpdb->prefix . 'anonymous_message_attachments';
+        $ids_placeholder = implode(',', array_fill(0, count($message_ids), '%d'));
+        
+        $raw_attachments = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM $attachments_table WHERE message_id IN ($ids_placeholder)", 
+            $message_ids
+        ));
+        
+        foreach ($raw_attachments as $att) {
+            $attachments_map[$att->message_id][] = $att;
+        }
+    }
+}
 ?>
 
-<div class="wrap">
+<div class="wrap anonymous-messages-admin">
     <h1><?php _e('Anonymous Messages', 'anonymous-messages'); ?></h1>
     
     <!-- Status Filter Tabs -->
@@ -174,9 +194,8 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                                 <?php echo nl2br(esc_html($message->message)); ?>
                                 
                                 <?php 
-                                // Display attached images
-                                $db = Anonymous_Messages_Database::get_instance();
-                                $attachments = $db->get_message_attachments($message->id);
+                                // Optimization: Use pre-fetched attachments
+                                $attachments = isset($attachments_map[$message->id]) ? $attachments_map[$message->id] : [];
                                 if (!empty($attachments)) : ?>
                                     <div class="message-attachments">
                                         <h4><?php _e('Attached Images:', 'anonymous-messages'); ?></h4>
@@ -184,11 +203,12 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                                             <?php foreach ($attachments as $attachment) : ?>
                                                 <div class="attachment-item">
                                                     <div class="attachment-preview">
-                                                        <a href="<?php echo esc_url(home_url('/' . $attachment->file_path)); ?>" 
+                                                        <?php $attachment_url = Anonymous_Messages_Database::get_attachment_url($attachment); ?>
+                                                        <a href="<?php echo esc_url($attachment_url); ?>" 
                                                            target="_blank" 
                                                            rel="noopener noreferrer" 
                                                            title="<?php _e('Click to open in new tab', 'anonymous-messages'); ?>">
-                                                            <img src="<?php echo esc_url(home_url('/' . $attachment->file_path)); ?>" 
+                                                            <img src="<?php echo esc_url($attachment_url); ?>" 
                                                                  alt="<?php echo esc_attr($attachment->file_name); ?>"
                                                                  loading="lazy" 
                                                                  style="cursor: pointer;">
@@ -214,20 +234,23 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                                         <?php if ($message->response_type === 'short' && !empty($message->short_response)) : ?>
                                             <div class="short-answer">
                                                 <?php 
-                                                $truncated_answer = wp_trim_words(strip_tags($message->short_response), 15);
+                                                // Sanitized output for short response which may contain HTML
+                                                $short_response = wp_kses_post($message->short_response);
+                                                $truncated_answer = wp_trim_words($short_response, 15);
                                                 echo wpautop($truncated_answer);
                                                 ?>
-                                                <?php if (strlen(strip_tags($message->short_response)) > 100) : ?>
+                                                <?php if (strlen(strip_tags($short_response)) > 100) : ?>
                                                     <button type="button" class="button-link toggle-full-answer">
                                                         <?php _e('Show full answer', 'anonymous-messages'); ?>
                                                     </button>
                                                     <div class="full-answer" style="display: none;">
-                                                        <?php echo wpautop($message->short_response); ?>
+                                                        <?php echo wpautop($short_response); ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
                                         <?php elseif ($message->response_type === 'post' && !empty($message->post_id)) : ?>
                                             <?php 
+                                            // Optimization: Use get_post_status without full load if possible, but get_post is cached
                                             $post = get_post($message->post_id);
                                             if ($post && $post->post_status === 'publish') : 
                                             ?>
@@ -313,7 +336,6 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                         </td>
                     </tr>
                     
-
                 <?php endforeach; ?>
             <?php endif; ?>
         </tbody>
@@ -411,13 +433,18 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
                     <select id="am-post-id" name="post_id" class="regular-text">
                         <option value=""><?php _e('Select a post...', 'anonymous-messages'); ?></option>
                         <?php
-                        $posts = get_posts(array(
-                            'numberposts' => 50,
-                            'post_status' => 'publish',
-                            'post_type' => $response_post_type,
-                            'orderby' => 'date',
-                            'order' => 'DESC'
-                        ));
+                        $transient_key = 'am_response_posts_' . sanitize_key($response_post_type);
+                        $posts = get_transient($transient_key);
+                        if ($posts === false) {
+                            $posts = get_posts(array(
+                                'numberposts' => 50,
+                                'post_status' => 'publish',
+                                'post_type' => $response_post_type,
+                                'orderby' => 'date',
+                                'order' => 'DESC'
+                            ));
+                            set_transient($transient_key, $posts, 10 * MINUTE_IN_SECONDS);
+                        }
                         foreach ($posts as $post) :
                         ?>
                             <option value="<?php echo $post->ID; ?>">
@@ -539,65 +566,3 @@ $post_answers_enabled = ($options['post_answer_mode'] ?? 'existing') !== 'disabl
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-jQuery(document).ready(function($) {
-    'use strict';
-    
-    // Images now open in new tabs directly - no modal needed
-    
-    // Ensure modal close buttons work properly
-    $(document).off('click', '.am-modal-close, .am-modal-cancel').on('click', '.am-modal-close, .am-modal-cancel', function(e) {
-        e.preventDefault();
-        console.log('Modal close button clicked');
-        
-        const $modal = $(this).closest('.am-modal');
-        if ($modal.length) {
-            $modal.hide();
-            $('body').removeClass('modal-open');
-            
-            // Reset TinyMCE editors
-            if (typeof tinymce !== 'undefined') {
-                const responseEditor = tinymce.get('am-short-response');
-                const editEditor = tinymce.get('am-edit-short-response');
-                
-                if (responseEditor) responseEditor.setContent('');
-                if (editEditor) editEditor.setContent('');
-            }
-            
-            console.log('Admin modal closed successfully');
-        }
-    });
-    
-    // Close admin modal on backdrop click
-    $(document).off('click', '.am-modal-backdrop').on('click', '.am-modal-backdrop', function(e) {
-        e.preventDefault();
-        console.log('Modal backdrop clicked');
-        
-        const $modal = $(this).closest('.am-modal');
-        if ($modal.length) {
-            $modal.hide();
-            $('body').removeClass('modal-open');
-            console.log('Admin modal closed via backdrop');
-        }
-    });
-    
-    // Debug image link clicks in message list
-    $(document).on('click', '.attachment-preview a', function(e) {
-        console.log('Image link clicked in message list:', this.href);
-        // Don't prevent default - let the link open normally
-        return true;
-    });
-    
-    // Add visual feedback for image links
-    $('.attachment-preview a').each(function() {
-        $(this).attr('title', $(this).attr('title') || 'Click to open image in new tab');
-    });
-    
-    // Debug logging
-    console.log('Enhanced modal handlers loaded');
-    console.log('Found', $('.attachment-preview a').length, 'image links in message list');
-});
-</script>
-
-<!-- Images now open in new tabs directly -->

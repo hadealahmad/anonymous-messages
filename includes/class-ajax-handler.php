@@ -82,14 +82,14 @@ class Anonymous_Messages_Ajax_Handler {
             }
             
             // Check message length
-            if (strlen($message) < 10) {
+            if (mb_strlen($message, 'UTF-8') < 10) {
                 wp_send_json_error(array(
                     'message' => __('Message must be at least 10 characters long.', 'anonymous-messages')
                 ));
                 return;
             }
             
-            if (strlen($message) > 2000) {
+            if (mb_strlen($message, 'UTF-8') > 2000) {
                 wp_send_json_error(array(
                     'message' => __('Message is too long. Please keep it under 2000 characters.', 'anonymous-messages')
                 ));
@@ -261,31 +261,18 @@ class Anonymous_Messages_Ajax_Handler {
             return true;
         }
         
-        // Proceed with rate limiting check
-        if (!session_id()) {
-            session_start();
-        }
-        
-        $rate_limit_seconds = isset($options['rate_limit_seconds']) ? intval($options['rate_limit_seconds']) : 60;
-        
-        $last_submission = isset($_SESSION['anonymous_messages_last_submission']) ? 
-            $_SESSION['anonymous_messages_last_submission'] : 0;
-        
-        $current_time = time();
-        $time_diff = $current_time - $last_submission;
-        
-        return $time_diff >= $rate_limit_seconds;
+        // Proceed with rate limiting check using transient
+        return !Anonymous_Messages_Security::is_ip_rate_limited();
     }
     
     /**
-     * Set rate limit session
+     * Set rate limit transient
      */
     private function set_rate_limit() {
-        if (!session_id()) {
-            session_start();
-        }
+        $options = get_option('anonymous_messages_options', array());
+        $rate_limit_seconds = isset($options['rate_limit_seconds']) ? intval($options['rate_limit_seconds']) : 60;
         
-        $_SESSION['anonymous_messages_last_submission'] = time();
+        Anonymous_Messages_Security::record_rate_limit_attempt(null, $rate_limit_seconds);
     }
     
     /**
@@ -380,14 +367,8 @@ class Anonymous_Messages_Ajax_Handler {
      * Check if category exists
      */
     private function category_exists($category_id) {
-        global $wpdb;
-        
-        $exists = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}anonymous_message_categories WHERE id = %d",
-            $category_id
-        ));
-        
-        return $exists > 0;
+        $term = get_term(intval($category_id), 'anonymous_message_category');
+        return ($term && !is_wp_error($term));
     }
     
     /**
@@ -522,13 +503,6 @@ class Anonymous_Messages_Ajax_Handler {
             return $upload_errors;
         }
         
-        // Create upload directory if it doesn't exist
-        $upload_dir = wp_upload_dir();
-        $anonymous_upload_dir = $upload_dir['basedir'] . '/anonymous-messages';
-        if (!file_exists($anonymous_upload_dir)) {
-            wp_mkdir_p($anonymous_upload_dir);
-        }
-        
         $db = Anonymous_Messages_Database::get_instance();
         
         // Process each file
@@ -557,40 +531,71 @@ class Anonymous_Messages_Ajax_Handler {
                 continue;
             }
             
-            // Validate file type
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $detected_type = finfo_file($finfo, $file_tmp);
-            finfo_close($finfo);
+            // Validate file type safely
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $detected_type = finfo_file($finfo, $file_tmp);
+                finfo_close($finfo);
+            } else {
+                $file_type_info = wp_check_filetype($file_name);
+                $detected_type = $file_type_info['type'];
+            }
             
             if (!in_array($detected_type, $allowed_types)) {
                 $upload_errors[] = sprintf(__('File %s has invalid type.', 'anonymous-messages'), $file_name);
                 continue;
             }
             
-            // Sanitize filename
-            $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
-            $sanitized_name = sanitize_file_name(pathinfo($file_name, PATHINFO_FILENAME));
-            $unique_filename = $message_id . '_' . time() . '_' . $sanitized_name . '.' . $file_extension;
+            // Construct file array for wp_handle_upload
+            $file_arr = array(
+                'name'     => $file_name,
+                'type'     => $detected_type,
+                'tmp_name' => $file_tmp,
+                'error'    => $file_error,
+                'size'     => $file_size,
+            );
             
-            // Full file path
-            $file_path = $anonymous_upload_dir . '/' . $unique_filename;
-            $relative_path = 'wp-content/uploads/anonymous-messages/' . $unique_filename;
+            // Filter the uploads directory dynamically to avoid hardcoded paths
+            $upload_dir_filter = function($uploads) {
+                $uploads['path']   = $uploads['basedir'] . '/anonymous-messages';
+                $uploads['url']    = $uploads['baseurl'] . '/anonymous-messages';
+                $uploads['subdir'] = '/anonymous-messages';
+                return $uploads;
+            };
+            add_filter('upload_dir', $upload_dir_filter);
             
-            // Move uploaded file
-            if (move_uploaded_file($file_tmp, $file_path)) {
-                // Set proper file permissions
-                chmod($file_path, 0644);
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            
+            // Custom filename callback to ensure names match: message_id + time + sanitized name
+            $unique_filename_callback = function($dir, $name, $ext) use ($message_id) {
+                $sanitized_name = sanitize_file_name(pathinfo($name, PATHINFO_FILENAME));
+                return $message_id . '_' . time() . '_' . $sanitized_name . $ext;
+            };
+            
+            $upload_overrides = array(
+                'test_form' => false,
+                'unique_filename_callback' => $unique_filename_callback
+            );
+            
+            $uploaded_file = wp_handle_upload($file_arr, $upload_overrides);
+            
+            remove_filter('upload_dir', $upload_dir_filter);
+            
+            if ($uploaded_file && !isset($uploaded_file['error'])) {
+                $file_path = $uploaded_file['file'];
+                // Get path relative to the uploads basedir
+                $relative_path = 'anonymous-messages/' . basename($file_path);
                 
                 // Save to database
                 $attachment_id = $db->insert_attachment($message_id, $file_name, $relative_path, $file_size, $detected_type);
                 
                 if (!$attachment_id) {
                     $upload_errors[] = sprintf(__('Failed to save attachment info for %s.', 'anonymous-messages'), $file_name);
-                    // Clean up the file if database insert failed
                     wp_delete_file($file_path);
                 }
             } else {
-                $upload_errors[] = sprintf(__('Failed to upload %s.', 'anonymous-messages'), $file_name);
+                $error_msg = isset($uploaded_file['error']) ? $uploaded_file['error'] : __('Failed to upload.', 'anonymous-messages');
+                $upload_errors[] = sprintf(__('Failed to upload %s: %s', 'anonymous-messages'), $file_name, $error_msg);
             }
         }
         

@@ -1,0 +1,293 @@
+/**
+ * Block Editor Styles
+ * 
+ * SCSS styles for the Anonymous Messages block in the editor.
+ * These styles are compiled by @wordpress/scripts into the build output.
+ */
+
+@use 'sass:color';
+
+// Variables
+$primary-color: #007cba;
+$primary-hover: #005a87;
+$success-color: #28a745;
+$border-color: #dee2e6;
+$border-light: #e9ecef;
+$bg-light: #f8f9fa;
+$text-dark: #495057;
+$text-muted: #6c757d;
+$white: #ffffff;
+
+// Computed colors (modern Sass syntax)
+$primary-color-light: color.adjust($primary-color, $lightness: 45%);
+$border-color-dark: color.adjust($border-color, $lightness: -5%);
+$border-light-dark: color.adjust($border-light, $lightness: -3%);
+
+// Block Editor Container
+.anonymous-messages-editor {
+	padding: 1rem;
+}
+
+// Block Preview Container
+.anonymous-messages-block-preview {
+	border: 2px dashed $border-color;
+	border-radius: 8px;
+	padding: 1.5rem;
+	background: $bg-light;
+	margin: 1rem 0;
+	transition: border-color 0.2s ease;
+
+	&:hover {
+		border-color: $primary-color;
+	}
+}
+
+// Preview Header
+.anonymous-messages-preview-header {
+	text-align: center;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid $border-color;
+
+	h3 {
+		margin: 0 0 0.5rem 0;
+		color: $text-dark;
+		font-size: 1.2rem;
+		font-weight: 600;
+	}
+
+	p {
+		margin: 0;
+		color: $text-muted;
+		font-size: 0.9rem;
+		font-style: italic;
+	}
+}
+
+// Category Filter Preview
+.category-filter-preview {
+	margin-bottom: 1.5rem;
+	padding: 1rem;
+	background: $white;
+	border: 1px solid $border-color;
+	border-radius: 6px;
+
+	label {
+		display: block;
+		margin-bottom: 0.5rem;
+		font-weight: 600;
+		color: $text-dark;
+	}
+
+	select {
+		width: 100%;
+		max-width: 300px;
+		padding: 0.5rem;
+		border: 1px solid $border-color-dark;
+		border-radius: 4px;
+		background: $bg-light;
+		color: $text-muted;
+	}
+}
+
+// Message Form Preview
+.message-form-preview {
+	margin-bottom: 1.5rem;
+	padding: 1rem;
+	background: $white;
+	border: 1px solid $border-color;
+	border-radius: 6px;
+
+	textarea {
+		width: 100%;
+		padding: 0.75rem;
+		border: 1px solid $border-color-dark;
+		border-radius: 4px;
+		background: $bg-light;
+		color: $text-muted;
+		font-family: inherit;
+		font-size: 0.9rem;
+		resize: none;
+		margin-bottom: 1rem;
+	}
+}
+
+// Image Upload Preview
+.image-upload-preview {
+	margin-bottom: 1rem;
+	padding: 0.5rem;
+	background: $primary-color-light;
+	border-radius: 4px;
+	text-align: center;
+
+	small {
+		color: $primary-color;
+		font-weight: 500;
+	}
+}
+
+// Form Actions Preview
+.form-actions-preview {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+.recaptcha-info {
+	flex: 1;
+
+	small {
+		color: $success-color;
+		font-weight: 500;
+	}
+}
+
+.submit-button-preview {
+	padding: 0.5rem 1rem;
+	background: $primary-color;
+	color: $white;
+	border: none;
+	border-radius: 4px;
+	font-size: 0.9rem;
+	cursor: not-allowed;
+	opacity: 0.7;
+	transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+// Answered Questions Preview
+.answered-questions-preview {
+	padding: 1rem;
+	background: $white;
+	border: 1px solid $border-color;
+	border-radius: 6px;
+	margin-bottom: 1rem;
+
+	h4 {
+		margin: 0 0 1rem 0;
+		color: $text-dark;
+		font-size: 1.1rem;
+	}
+}
+
+.question-item-preview {
+	padding: 1rem;
+	background: $bg-light;
+	border: 1px solid $border-light;
+	border-radius: 6px;
+	margin-bottom: 1rem;
+}
+
+.question-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+
+	strong {
+		color: $text-dark;
+	}
+}
+
+.question-category {
+	padding: 0.2rem 0.5rem;
+	background: $border-light-dark;
+	color: $text-dark;
+	border-radius: 12px;
+	font-size: 0.75rem;
+	font-weight: 500;
+}
+
+.question-text {
+	margin: 0 0 1rem 0;
+	color: $text-muted;
+	font-size: 0.9rem;
+	line-height: 1.4;
+}
+
+.question-response {
+	padding: 0.75rem;
+	background: $white;
+	border-left: 3px solid $primary-color;
+	border-radius: 0 4px 4px 0;
+
+	strong {
+		color: $primary-color;
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	p {
+		margin: 0.5rem 0 0 0;
+		color: $text-dark;
+		font-size: 0.9rem;
+		line-height: 1.4;
+	}
+}
+
+.questions-info {
+	margin: 1rem 0 0 0;
+	color: $text-muted;
+	font-size: 0.85rem;
+	font-style: italic;
+	text-align: center;
+}
+
+// Assigned User Info
+.assigned-user-info {
+	margin-top: 1rem;
+	padding: 0.5rem 1rem;
+	background: $primary-color-light;
+	border-radius: 4px;
+	text-align: center;
+
+	small {
+		color: $primary-color;
+		font-weight: 500;
+	}
+}
+
+// Inspector Styles
+.anonymous-messages-inspector {
+	.components-toggle-control .components-base-control__field {
+		margin-bottom: 1rem;
+	}
+
+	.components-range-control {
+		margin-bottom: 1.5rem;
+	}
+
+	.components-text-control {
+		margin-bottom: 1rem;
+	}
+
+	.components-select-control {
+		margin-bottom: 1rem;
+	}
+}
+
+// Responsive preview
+@media (max-width: 600px) {
+	.form-actions-preview {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.submit-button-preview {
+		width: 100%;
+	}
+
+	.question-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+// GreenShift integration styles
+.gspb-selector-element.anonymous-messages-editor {
+	// Additional styles when wrapped by GreenShift
+}

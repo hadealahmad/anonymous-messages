@@ -46,7 +46,7 @@ Desktop.ini
 
 # Build and distribution files
 dist/
-build/
+# build/ - Tracked for WordPress plugin distribution (contains compiled JS/CSS from @wordpress/scripts)
 *.zip
 *.tar.gz
 *.tar
@@ -104,8 +104,5 @@ tests/coverage/
 # Cursor IDE files
 .cursor/
 
-# Project documentation and task tracking
-ANONYMOUS_MESSAGES.md
-
-# Build documentation (optional - uncomment if you don't want to track build docs)
-# BUILD.md
+# Temporary packaging directories
+anonymous-messages/

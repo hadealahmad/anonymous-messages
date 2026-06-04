@@ -9,9 +9,11 @@ A WordPress plugin that enables site visitors to send anonymous messages through
 ## 🚀 Features
 
 ### 🎯 Core Features
-- **Gutenberg Block Integration**: Easy-to-use block for the WordPress editor
-- **Anonymous Messaging**: Visitors can send messages without revealing their identity
-- **Image Uploads**: Allow users to attach images to their messages
+- **Modular Gutenberg Form Builder**: Leverage rearrangeable sub-blocks (InnerBlocks) to build, delete, style, and reorder input textareas, upload triggers, action buttons, and lists of answered questions.
+- **Full Styling Controls**: Customize colors, border properties, typography sizing, margins, and padding of the parent block and inner controls natively within Gutenberg.
+- **Native Custom Post Type & Taxonomy Architecture**: Message records, categorization terms, replies, and image uploads are saved as standard WordPress CPT items (`anonymous_message`), custom taxonomies, standard post content, and media attachments.
+- **Anonymous Messaging**: Visitors can send messages without revealing their identity.
+- **Image Uploads**: Allow users to attach images to their messages.
 
 ### 📱 Frontend
 - **Instant Search**: Real-time search functionality
@@ -217,6 +219,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - All contributors and testers
 
 ## 📈 Changelog
+
+### Version 2.0.0
+- Added: Modular Gutenberg Form Builder supporting rearrangeable sub-blocks (InnerBlocks).
+- Added: Four new customizable block components (`message-textarea`, `image-uploader`, `submit-button`, `questions-list`).
+- Added: Complete styling supports (colors, borders, spacing, typography) inside Gutenberg.
+- Added: Standard WordPress Custom Post Type (`anonymous_message`) and Taxonomy (`anonymous_message_category`) data modeling.
+- Added: Automated data migration pipeline to convert legacy database tables to native WordPress structures on plugin load.
 
 ### Version 1.2.0
 - Added: Image upload functionality for messages

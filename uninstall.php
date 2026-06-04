@@ -43,7 +43,8 @@ $tables = array(
 );
 
 foreach ($tables as $table) {
-    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %s", $table));
+    $clean_table = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+    $wpdb->query("DROP TABLE IF EXISTS $clean_table");
 }
 
 // Clear any cached data

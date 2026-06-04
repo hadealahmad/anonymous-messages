@@ -36,10 +36,10 @@
             
             // Category management
             $(document).on('submit', '#add-category-form', this.addCategory.bind(this));
-            $(document).on('click', '.edit-category', this.showEditCategoryModal.bind(this));
+            $(document).on('click', '.edit-category, .edit-category-btn', this.showEditCategoryModal.bind(this));
             $(document).on('click', '.delete-category', this.deleteCategory.bind(this));
             $(document).on('click', '#save-category', this.saveCategory.bind(this));
-            $(document).on('click', '.modal-close', this.closeModal.bind(this));
+            $(document).on('click', '.modal-close, .am-modal-close, .am-modal-cancel', this.closeModal.bind(this));
             
             // Toggle full answer
             $(document).on('click', '.toggle-full-answer', this.toggleFullAnswer.bind(this));
@@ -193,7 +193,7 @@
         }
         
         openModal(modal) {
-            modal.show();
+            modal.fadeIn(200);
             $('body').addClass('modal-open');
             
             // Trap focus in modal
@@ -212,7 +212,7 @@
                 e.preventDefault();
             }
             
-            $('.am-modal').hide();
+            $('.am-modal').fadeOut(200);
             $('body').removeClass('modal-open');
             
             // Reset any TinyMCE editors
@@ -446,7 +446,7 @@
         showEditCategoryModal(e) {
             e.preventDefault();
             
-            const button = $(e.target);
+            const button = $(e.target).closest('.edit-category, .edit-category-btn');
             const categoryId = button.data('category-id');
             const categoryName = button.data('category-name');
             const categoryDescription = button.data('category-description');
@@ -455,8 +455,9 @@
             modal.find('#edit_category_id').val(categoryId);
             modal.find('#edit_category_name').val(categoryName);
             modal.find('#edit_category_description').val(categoryDescription);
+            modal.find('#edit-category-form .form-messages').empty();
             
-            modal.show();
+            this.openModal(modal);
         }
         
         async saveCategory(e) {

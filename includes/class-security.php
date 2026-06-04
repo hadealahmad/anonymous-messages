@@ -36,10 +36,6 @@ class Anonymous_Messages_Security {
      * Initialize WordPress hooks
      */
     private function init_hooks() {
-        add_action('init', array($this, 'start_session'));
-        add_action('wp_login', array($this, 'clear_session_on_login'));
-        add_action('wp_logout', array($this, 'clear_session_on_logout'));
-        
         // Security headers
         add_action('send_headers', array($this, 'add_security_headers'));
         
@@ -48,33 +44,6 @@ class Anonymous_Messages_Security {
         
         // Add honeypot field
         add_action('wp_footer', array($this, 'add_honeypot_css'));
-    }
-    
-    /**
-     * Start session for rate limiting
-     */
-    public function start_session() {
-        if (!session_id() && !headers_sent()) {
-            session_start();
-        }
-    }
-    
-    /**
-     * Clear session data on login
-     */
-    public function clear_session_on_login($user_login) {
-        if (isset($_SESSION['anonymous_messages_last_submission'])) {
-            unset($_SESSION['anonymous_messages_last_submission']);
-        }
-    }
-    
-    /**
-     * Clear session data on logout
-     */
-    public function clear_session_on_logout() {
-        if (isset($_SESSION['anonymous_messages_last_submission'])) {
-            unset($_SESSION['anonymous_messages_last_submission']);
-        }
     }
     
     /**
@@ -157,29 +126,20 @@ class Anonymous_Messages_Security {
             $ip = self::get_client_ip();
         }
         
-        $transient_key = 'anonymous_messages_rate_limit_' . md5($ip);
-        $attempts = get_transient($transient_key);
-        
-        // Allow up to 5 attempts per hour
-        return $attempts && $attempts >= 5;
+        $transient_key = 'am_cooldown_' . md5($ip);
+        return get_transient($transient_key) !== false;
     }
     
     /**
      * Record rate limit attempt
      */
-    public static function record_rate_limit_attempt($ip = null) {
+    public static function record_rate_limit_attempt($ip = null, $cooldown = 60) {
         if (!$ip) {
             $ip = self::get_client_ip();
         }
         
-        $transient_key = 'anonymous_messages_rate_limit_' . md5($ip);
-        $attempts = get_transient($transient_key) ?: 0;
-        $attempts++;
-        
-        // Set transient for 1 hour
-        set_transient($transient_key, $attempts, HOUR_IN_SECONDS);
-        
-        return $attempts;
+        $transient_key = 'am_cooldown_' . md5($ip);
+        set_transient($transient_key, time(), $cooldown);
     }
     
     /**
